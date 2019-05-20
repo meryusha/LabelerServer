@@ -698,7 +698,7 @@ class Canvas(QWidget):
         self.current = None
         self.repaint()
 
-    def detectShapes(self, image_QT):
+    def fromQTtoCV(self, image_QT):
         image_QT = image_QT.convertToFormat(4)
         width = image_QT.width()
         height = image_QT.height()
@@ -709,51 +709,55 @@ class Canvas(QWidget):
         # cv2.imwrite("test.png",arr)
         arr = cv2.cvtColor(arr, cv2.COLOR_RGBA2RGB)
         arr = cv2.cvtColor(arr, cv2.COLOR_BGR2RGB)
+        return arr
 
-        cnt_germ, cnt_nongerm = classifySeeds(arr)
-        # print(cnt_germ)
-        # print(cnt_nongerm)
+    # def detectShapes(self, image_QT):
+    #     arr = self.fromQTtoCV(image_QT)
 
-        for germ in cnt_germ:
-            minX = germ[0]
-            minY = germ[1]
-            maxX = germ[0] + germ[2]
-            maxY = germ[1] + germ[3]
+    #     cnt_germ, cnt_nongerm = classifySeeds(arr)
+    #     # print(cnt_germ)
+    #     # print(cnt_nongerm)
+
+    #     for germ in cnt_germ:
+    #         minX = germ[0]
+    #         minY = germ[1]
+    #         maxX = germ[0] + germ[2]
+    #         maxY = germ[1] + germ[3]
             
-            self.current = Shape()
-            self.current.addPoint(QPointF(minX, minY))
-            self.current.addPoint(QPointF(maxX, minY))
-            self.current.addPoint(QPointF(maxX, maxY))
-            self.current.addPoint(QPointF(minX, maxY))
-            self.current.label = "germinated"
-            self.current.close()
+    #         self.current = Shape()
+    #         self.current.addPoint(QPointF(minX, minY))
+    #         self.current.addPoint(QPointF(maxX, minY))
+    #         self.current.addPoint(QPointF(maxX, maxY))
+    #         self.current.addPoint(QPointF(minX, maxY))
+    #         self.current.label = "germinated"
+    #         self.current.close()
 
-            self.shapes.append(self.current)
-            self.current = None
-            self.newShape.emit()
-            self.update()
-            self.repaint()
+    #         self.shapes.append(self.current)
+    #         self.current = None
+    #         self.newShape.emit()
+    #         self.update()
+    #         self.repaint()
 
             
-        for germ in cnt_nongerm:
-            minX = germ[0]
-            minY = germ[1]
-            maxX = germ[0] + germ[2]
-            maxY = germ[1] + germ[3]
+    #     for germ in cnt_nongerm:
+    #         minX = germ[0]
+    #         minY = germ[1]
+    #         maxX = germ[0] + germ[2]
+    #         maxY = germ[1] + germ[3]
             
-            self.current = Shape()
-            self.current.addPoint(QPointF(minX, minY))
-            self.current.addPoint(QPointF(maxX, minY))
-            self.current.addPoint(QPointF(maxX, maxY))
-            self.current.addPoint(QPointF(minX, maxY))
-            self.current.label = "non-germinated"
-            self.current.close()
+    #         self.current = Shape()
+    #         self.current.addPoint(QPointF(minX, minY))
+    #         self.current.addPoint(QPointF(maxX, minY))
+    #         self.current.addPoint(QPointF(maxX, maxY))
+    #         self.current.addPoint(QPointF(minX, maxY))
+    #         self.current.label = "non-germinated"
+    #         self.current.close()
 
-            self.shapes.append(self.current)
-            self.current = None
-            self.newShape.emit()
-            self.update()
-            self.repaint()
+    #         self.shapes.append(self.current)
+    #         self.current = None
+    #         self.newShape.emit()
+    #         self.update()
+    #         self.repaint()
             
             
 
