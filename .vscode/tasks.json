@@ -16,7 +16,8 @@
         {
             "label": "compile and run",
             "type": "shell",
-            "command": "./compile.sh"
+            "command": "./compile.sh",
+            "problemMatcher": []
         }
     ]
 }
