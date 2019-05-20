@@ -1,0 +1,22 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "setup env",
+            "type": "shell",
+            "command": "./setup_env"
+        },
+        {
+            "label": "deploy and run",
+            "type": "shell",
+            "command": "./deploy.sh"
+        },
+        {
+            "label": "compile and run",
+            "type": "shell",
+            "command": "./compile.sh"
+        }
+    ]
+}
