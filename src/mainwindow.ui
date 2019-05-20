@@ -26,6 +26,9 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockLabel">
+   <property name="features">
+    <set>QDockWidget::NoDockWidgetFeatures</set>
+   </property>
    <property name="windowTitle">
     <string>Box Labels</string>
    </property>
@@ -95,6 +98,9 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="filedock">
+   <property name="features">
+    <set>QDockWidget::NoDockWidgetFeatures</set>
+   </property>
    <property name="windowTitle">
     <string>File List</string>
    </property>
@@ -127,12 +133,16 @@
   </widget>
   <action name="quit">
    <property name="icon">
-    <iconset theme=":/quit"/>
+    <iconset theme=":/quit">
+     <normaloff>resources/icons/quit.png</normaloff>resources/icons/quit.png</iconset>
    </property>
    <property name="text">
     <string>Quit</string>
    </property>
    <property name="toolTip">
+    <string>Quit application</string>
+   </property>
+   <property name="statusTip">
     <string>Quit application</string>
    </property>
    <property name="shortcut">
@@ -141,7 +151,8 @@
   </action>
   <action name="open">
    <property name="icon">
-    <iconset theme=":/open"/>
+    <iconset theme=":/open">
+     <normaloff>resources/icons/open.png</normaloff>resources/icons/open.png</iconset>
    </property>
    <property name="text">
     <string>Open</string>
@@ -149,19 +160,98 @@
    <property name="toolTip">
     <string>Open image or label file</string>
    </property>
+   <property name="statusTip">
+    <string>Open image or label file</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
    </property>
   </action>
   <action name="opendir">
+   <property name="icon">
+    <iconset theme=":/open">
+     <normaloff>resources/icons/open.png</normaloff>resources/icons/open.png</iconset>
+   </property>
    <property name="text">
     <string>Open Dir</string>
    </property>
    <property name="toolTip">
     <string>Open Dir</string>
    </property>
+   <property name="statusTip">
+    <string>Open Dir</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="changeSavedir">
+   <property name="icon">
+    <iconset theme=":/open">
+     <normaloff>resources/icons/open.png</normaloff>resources/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Change Save Dir</string>
+   </property>
+   <property name="toolTip">
+    <string>Change default saved Annotation dir</string>
+   </property>
+   <property name="statusTip">
+    <string>Change default saved Annotation dir</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="openAnnotation">
+   <property name="icon">
+    <iconset theme=":/open">
+     <normaloff>resources/icons/open.png</normaloff>resources/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>openAnnotation</string>
+   </property>
+   <property name="toolTip">
+    <string>Open an annotation file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+O</string>
+   </property>
+  </action>
+  <action name="openNextImgAction">
+   <property name="icon">
+    <iconset theme=":/next">
+     <normaloff>resources/icons/next.png</normaloff>resources/icons/next.png</iconset>
+   </property>
+   <property name="text">
+    <string>openNextImgAction</string>
+   </property>
+   <property name="statusTip">
+    <string>Open the next Image</string>
+   </property>
+   <property name="whatsThis">
+    <string>Open the next Image</string>
+   </property>
+   <property name="shortcut">
+    <string>D</string>
+   </property>
+  </action>
+  <action name="openPrevImgAction">
+   <property name="icon">
+    <iconset theme=":/prev">
+     <normaloff>resources/icons/prev.png</normaloff>resources/icons/prev.png</iconset>
+   </property>
+   <property name="text">
+    <string>openPrevImg</string>
+   </property>
+   <property name="statusTip">
+    <string>Open the previous Image</string>
+   </property>
+   <property name="whatsThis">
+    <string>Open the previous Image</string>
+   </property>
+   <property name="shortcut">
+    <string>A</string>
    </property>
   </action>
  </widget>

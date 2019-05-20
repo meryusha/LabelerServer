@@ -204,12 +204,12 @@ class MainWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.canvas.drawingPolygon.connect(self.toggleDrawingSensitive)
 
         self.setCentralWidget(scroll)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.dockLabel)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.filedock)
-        self.filedock.setFeatures(QDockWidget.DockWidgetFloatable)
+        # self.addDockWidget(Qt.RightDockWidgetArea, self.dockLabel)
+        # self.addDockWidget(Qt.RightDockWidgetArea, self.filedock)
+        # self.filedock.setFeatures(QDockWidget.DockWidgetFloatable)
 
-        self.dockFeatures = QDockWidget.DockWidgetClosable | QDockWidget.DockWidgetFloatable
-        self.dockLabel.setFeatures(self.dockLabel.features() ^ self.dockFeatures)
+        # self.dockFeatures = QDockWidget.DockWidgetClosable | QDockWidget.DockWidgetFloatable
+        # self.dockLabel.setFeatures(self.dockLabel.features() ^ self.dockFeatures)
 
         # Actions
         action = partial(newAction, self)
@@ -217,35 +217,40 @@ class MainWindow(QMainWindow, WindowMixin, Ui_MainWindow):
 
 
         self.quit.triggered.connect(self.close)
-        self.quit.setStatusTip('Quit application')
+        # self.quit.setStatusTip('Quit application')
         # quit = action(getStr('quit'), self.close,
         #               'Ctrl+Q', 'quit', getStr('quitApp'))
 
 
         self.open.triggered.connect(self.openFile)
-        self.open.setStatusTip('Open image or label file')
+        # self.open.setStatusTip('Open image or label file')
         # open = action(getStr('openFile'), self.openFile,
         #               'Ctrl+O', 'open', getStr('openFileDetail'))
 
 
         self.opendir.triggered.connect(self.openDirDialog)
-        self.opendir.setStatusTip('Open Dir')
+        # self.opendir.setStatusTip('Open Dir')
         # self.opendir.setIcon(":/open")
 
         # opendir = action(getStr('openDir'), self.openDirDialog,
         #                  'Ctrl+u', 'open', getStr('openDir'))
 
-        changeSavedir = action(getStr('changeSaveDir'), self.changeSavedirDialog,
-                               'Ctrl+r', 'open', getStr('changeSavedAnnotationDir'))
+        # self.changeSavedir = action(getStr('changeSaveDir'), self.changeSavedirDialog,
+                            #    'Ctrl+r', 'open', getStr('changeSavedAnnotationDir'))
+        self.changeSavedir.triggered.connect(self.changeSavedirDialog)
 
-        openAnnotation = action(getStr('openAnnotation'), self.openAnnotationDialog,
-                                'Ctrl+Shift+O', 'open', getStr('openAnnotationDetail'))
+        # openAnnotation = action(getStr('openAnnotation'), self.openAnnotationDialog,
+        #                         'Ctrl+Shift+O', 'open', getStr('openAnnotationDetail'))
+        self.openAnnotation.triggered.connect(self.openAnnotationDialog)
 
-        openNextImg = action(getStr('nextImg'), self.openNextImg,
-                             'd', 'next', getStr('nextImgDetail'))
+        self.openNextImgAction.triggered.connect(self.openNextImg)
 
-        openPrevImg = action(getStr('prevImg'), self.openPrevImg,
-                             'a', 'prev', getStr('prevImgDetail'))
+        # openNextImg = action(getStr('nextImg'), self.openNextImg,
+        #                      'd', 'next', getStr('nextImgDetail'))
+
+        # openPrevImg = action(getStr('prevImg'), self.openPrevImg,
+        #                      'a', 'prev', getStr('prevImgDetail'))
+        self.openPrevImgAction.triggered.connect(self.openPrevImg)
 
         verify = action(getStr('verifyImg'), self.verifyImg,
                         'space', 'verify', getStr('verifyImgDetail'))
@@ -402,7 +407,7 @@ class MainWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.displayLabelOption.triggered.connect(self.togglePaintLabelsOption)
 
         addActions(self.menus.file,
-                   (self.open, self.opendir, changeSavedir, openAnnotation, self.menus.recentFiles, save, save_format, saveAs, close, resetAll, self.quit))
+                   (self.open, self.opendir, self.changeSavedir, self.openAnnotation, self.menus.recentFiles, save, save_format, saveAs, close, resetAll, self.quit))
         addActions(self.menus.help, (help, showInfo))
         addActions(self.menus.view, (
             self.autoSaving,
@@ -423,11 +428,11 @@ class MainWindow(QMainWindow, WindowMixin, Ui_MainWindow):
 
         self.tools = self.toolbar('Tools')
         self.actions.beginner = (
-            self.open, self.opendir, changeSavedir, openNextImg, openPrevImg, verify, save, save_format, None, create, copy, delete, detect, None,
+            self.open, self.opendir, self.changeSavedir, self.openNextImgAction, self.openPrevImgAction, verify, save, save_format, None, create, copy, delete, detect, None,
             zoomIn, zoom, zoomOut, fitWindow, fitWidth)
 
         self.actions.advanced = (
-            self.open, self.opendir, changeSavedir, openNextImg, openPrevImg, save, save_format, None,
+            self.open, self.opendir, self.changeSavedir, self.openNextImgAction, self.openPrevImgAction, save, save_format, None,
             createMode, editMode, None,
             hideAll, showAll)
 
