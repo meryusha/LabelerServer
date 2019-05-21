@@ -178,6 +178,14 @@ class Ui_MainWindow(object):
         icon = QtGui.QIcon.fromTheme(":/expert")
         self.advancedMode.setIcon(icon)
         self.advancedMode.setObjectName("advancedMode")
+        self.hideAll = QtWidgets.QAction(MainWindow)
+        icon = QtGui.QIcon.fromTheme(":/hide")
+        self.hideAll.setIcon(icon)
+        self.hideAll.setObjectName("hideAll")
+        self.showAll = QtWidgets.QAction(MainWindow)
+        icon = QtGui.QIcon.fromTheme(":/hide")
+        self.showAll.setIcon(icon)
+        self.showAll.setObjectName("showAll")
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -260,6 +268,14 @@ class Ui_MainWindow(object):
         self.detect.setShortcut(_translate("MainWindow", "Ctrl+Shift+D"))
         self.advancedMode.setText(_translate("MainWindow", "advancedMode"))
         self.advancedMode.setShortcut(_translate("MainWindow", "Ctrl+Shift+A"))
+        self.hideAll.setText(_translate("MainWindow", "Hide all bounding boxes"))
+        self.hideAll.setStatusTip(_translate("MainWindow", "Hide all bounding boxes"))
+        self.hideAll.setWhatsThis(_translate("MainWindow", "Hide all bounding boxes"))
+        self.hideAll.setShortcut(_translate("MainWindow", "Ctrl+H"))
+        self.showAll.setText(_translate("MainWindow", "Show all bounding boxes"))
+        self.showAll.setStatusTip(_translate("MainWindow", "Show all bounding boxes"))
+        self.showAll.setWhatsThis(_translate("MainWindow", "Show all bounding boxes"))
+        self.showAll.setShortcut(_translate("MainWindow", "Ctrl+A"))
 
 
 

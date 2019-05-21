@@ -11,7 +11,7 @@ import subprocess
 from time import sleep
 from functools import partial
 from collections import defaultdict
-
+import logging
 try:
     from PyQt5.QtGui import *
     from PyQt5.QtCore import *
@@ -84,25 +84,42 @@ class WindowMixin(object):
 from gui.ui_mainwindow import Ui_MainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
     FIT_WINDOW, FIT_WIDTH, MANUAL_ZOOM = list(range(3))
 
 
-        # self.detect.triggered.connect(self.detectShape)
+    # self.detect.triggered.connect(self.detectShape)
 
-    def detect_triggered(self):
-        print("detect Triggered")
-        
+    # def on_quit_pressed(self):
+    #     print("quit Pressed")
+
+    # def on_detect_pressed(self):
+    #     print("detect Pressed")
+
+
+    def on_quit_triggered(self):
+        logging.debug("quit Triggered")
+        self.close()
+
+    # def on_detect_triggered(self):
+    #     print("detect Triggered")
+    #     # self.close()
+
+    # @QtCore.pyqtSlot()
+    # def on_quit_clicked(self):
+    #     print("quit clicked")
+
     def __init__(self, defaultFilename=None, defaultPrefdefClassFile=None, defaultSaveDir=None):
         super(LabelerWindow, self).__init__()
-        QtCore.QMetaObject.connectSlotsByName(self) #TODO connect SlotsByName!
+        # QtCore.QMetaObject.connectSlotsByName(self) #TODO connect SlotsByName!
 
         self.setupUi(self)
 
         # Load setting in the main thread
         self.settings = Settings()
         self.settings.load()
-        settings = self.settings
+        # settings = self.settings
 
         # Load string bundle for i18n
         self.stringBundle = StringBundle.getBundle()
@@ -196,7 +213,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
 
         self.canvas = Canvas(parent=self)
         self.canvas.zoomRequest.connect(self.zoomRequest)
-        self.canvas.setDrawingShapeToSquare(settings.get(SETTING_DRAW_SQUARE, False))
+        self.canvas.setDrawingShapeToSquare(self.settings.get(SETTING_DRAW_SQUARE, False))
 
         # scroll = self.scroll
         # scroll = QScrollArea()
@@ -227,7 +244,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
 
 
 
-        self.quit.triggered.connect(self.close)
+        # self.quit.triggered.connect(self.close)
         # self.quit.setStatusTip('Quit application')
         # quit = action(getStr('quit'), self.close,
         #               'Ctrl+Q', 'quit', getStr('quitApp'))
@@ -247,7 +264,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         #                  'Ctrl+u', 'open', getStr('openDir'))
 
         # self.changeSavedir = action(getStr('changeSaveDir'), self.changeSavedirDialog,
-                            #    'Ctrl+r', 'open', getStr('changeSavedAnnotationDir'))
+        #    'Ctrl+r', 'open', getStr('changeSavedAnnotationDir'))
         self.changeSavedir.triggered.connect(self.changeSavedirDialog)
 
         # openAnnotation = action(getStr('openAnnotation'), self.openAnnotationDialog,
@@ -264,19 +281,19 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.openPrevImgAction.triggered.connect(self.openPrevImg)
 
         # verify = action(getStr('verifyImg'), self.verifyImg,
-                        # 'space', 'verify', getStr('verifyImgDetail'))
+        # 'space', 'verify', getStr('verifyImgDetail'))
         self.verify.triggered.connect(self.verifyImg)
 
         # save = action(getStr('save'), self.saveFile,
-                    #   'Ctrl+S', 'save', getStr('saveDetail'), enabled=False)
+        #   'Ctrl+S', 'save', getStr('saveDetail'), enabled=False)
         self.save.triggered.connect(self.saveFile)
 
         # save_format = action('&PascalVOC', self.change_format,
-                    #   'Ctrl+', 'format_voc', getStr('changeSaveFormat'), enabled=True)
+        #   'Ctrl+', 'format_voc', getStr('changeSaveFormat'), enabled=True)
         self.save_format.triggered.connect(self.change_format)
 
         # saveAs = action(getStr('saveAs'), self.saveFileAs,
-                        # 'Ctrl+Shift+S', 'save-as', getStr('saveAsDetail'), enabled=False)
+        # 'Ctrl+Shift+S', 'save-as', getStr('saveAsDetail'), enabled=False)
         self.saveAs.triggered.connect(self.saveFileAs)
 
         # close = action(getStr('closeCur'), self.closeFile, 'Ctrl+W', 'close', getStr('closeCurDetail'))
@@ -300,29 +317,32 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
 
         self.create.triggered.connect(self.createShape)
         # self.create = action(getStr('crtBox'), self.createShape,
-                        # 'w', 'new', getStr('crtBoxDetail'), enabled=False)
+        # 'w', 'new', getStr('crtBoxDetail'), enabled=False)
         self.deleteAction.triggered.connect(self.deleteSelectedShape)
         # self.delete = action(getStr('delBox'), self.deleteSelectedShape,
-                        # 'Delete', 'delete', getStr('delBoxDetail'), enabled=False)
+        # 'Delete', 'delete', getStr('delBoxDetail'), enabled=False)
         self.copy.triggered.connect(self.copySelectedShape)
         # self.copy = action(getStr('dupBox'), self.copySelectedShape,
-                    #   'Ctrl+D', 'copy', getStr('dupBoxDetail'),
-                    #   enabled=False)
+        #   'Ctrl+D', 'copy', getStr('dupBoxDetail'),
+        #   enabled=False)
         # self.detect.triggered.connect(self.detectShape)
         # self.detect = action("Detect Shapes", self.detectShape,
-                        # 'd', 'detect', getStr('crtBoxDetail'), enabled=False)
+        # 'd', 'detect', getStr('crtBoxDetail'), enabled=False)
 
         self.advancedMode.triggered.connect(self.toggleAdvancedMode)
         # self.advancedMode = action(getStr('advancedMode'), self.toggleAdvancedMode,
         #                       'Ctrl+Shift+A', 'expert', getStr('advancedModeDetail'),
         #                       checkable=True)
 
-        self.hideAll = action('&Hide\nRectBox', partial(self.togglePolygons, False),
-                         'Ctrl+H', 'hide', getStr('hideAllBoxDetail'),
-                         enabled=False)
-        self.showAll = action('&Show\nRectBox', partial(self.togglePolygons, True),
-                         'Ctrl+A', 'hide', getStr('showAllBoxDetail'),
-                         enabled=False)
+        self.hideAll.triggered.connect(partial(self.togglePolygons, False))
+        self.showAll.triggered.connect(partial(self.togglePolygons, True))
+
+        # self.hideAll = action('&Hide\nRectBox', partial(self.togglePolygons, False),
+        #                  'Ctrl+H', 'hide', getStr('hideAllBoxDetail'),
+        #                  enabled=False)
+        # self.showAll = action('&Show\nRectBox', partial(self.togglePolygons, True),
+        #                  'Ctrl+A', 'hide', getStr('showAllBoxDetail'),
+        #                  enabled=False)
 
         self.help = action(getStr('tutorial'), self.showTutorialDialog, None, 'help', getStr('tutorialDetail'))
         self.showInfo = action(getStr('info'), self.showInfoDialog, None, 'help', getStr('info'))
@@ -385,7 +405,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.drawSquaresOption = QAction('Draw Squares', self)
         self.drawSquaresOption.setShortcut('Ctrl+Shift+R')
         self.drawSquaresOption.setCheckable(True)
-        self.drawSquaresOption.setChecked(settings.get(SETTING_DRAW_SQUARE, False))
+        self.drawSquaresOption.setChecked(self.settings.get(SETTING_DRAW_SQUARE, False))
         self.drawSquaresOption.triggered.connect(self.toogleDrawSquare)
 
         # Store actions for further handling.
@@ -419,23 +439,23 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         # Auto saving : Enable auto saving if pressing next
         self.autoSaving = QAction(getStr('autoSaveMode'), self)
         self.autoSaving.setCheckable(True)
-        self.autoSaving.setChecked(settings.get(SETTING_AUTO_SAVE, False))
+        self.autoSaving.setChecked(self.settings.get(SETTING_AUTO_SAVE, False))
         # Sync single class mode from PR#106
         self.singleClassMode = QAction(getStr('singleClsMode'), self)
         self.singleClassMode.setShortcut("Ctrl+Shift+S")
         self.singleClassMode.setCheckable(True)
-        self.singleClassMode.setChecked(settings.get(SETTING_SINGLE_CLASS, False))
+        self.singleClassMode.setChecked(self.settings.get(SETTING_SINGLE_CLASS, False))
         self.lastLabel = None
         # Add option to enable/disable labels being displayed at the top of bounding boxes
         self.displayLabelOption = QAction(getStr('displayLabel'), self)
         self.displayLabelOption.setShortcut("Ctrl+Shift+P")
         self.displayLabelOption.setCheckable(True)
-        self.displayLabelOption.setChecked(settings.get(SETTING_PAINT_LABEL, False))
+        self.displayLabelOption.setChecked(self.settings.get(SETTING_PAINT_LABEL, False))
         self.displayLabelOption.triggered.connect(self.togglePaintLabelsOption)
 
         addActions(self.menus.file,
-                   (self.open, self.opendir, self.changeSavedir, self.openAnnotation, 
-                   self.menus.recentFiles, self.save, self.save_format, self.saveAs, 
+                   (self.open, self.opendir, self.changeSavedir, self.openAnnotation,
+                   self.menus.recentFiles, self.save, self.save_format, self.saveAs,
                    self.closeAction, self.resetAllAction, self.quit))
         addActions(self.menus.help, (self.help, self.showInfo))
         addActions(self.menus.view, (
@@ -457,13 +477,13 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
 
         self.tools = self.toolbar('Tools')
         self.actions.beginner = (
-            self.open, self.opendir, self.changeSavedir, self.openNextImgAction, 
-            self.openPrevImgAction, self.verify, self.save, self.save_format, 
+            self.open, self.opendir, self.changeSavedir, self.openNextImgAction,
+            self.openPrevImgAction, self.verify, self.save, self.save_format,
             None, self.create, self.copy, self.deleteAction, self.detect, None,
             self.zoomIn, zoom, self.zoomOut, self.fitWindow, self.fitWidth)
 
         self.actions.advanced = (
-            self.open, self.opendir, self.changeSavedir, self.openNextImgAction, 
+            self.open, self.opendir, self.changeSavedir, self.openNextImgAction,
             self.openPrevImgAction, self.save, self.save_format, None,
             self.createMode, self.editMode, None,
             self.hideAll, self.showAll)
@@ -484,16 +504,16 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.difficult = False
 
         ## Fix the compatible issue for qt4 and qt5. Convert the QStringList to python list
-        if settings.get(SETTING_RECENT_FILES):
+        if self.settings.get(SETTING_RECENT_FILES):
             if have_qstring():
-                recentFileQStringList = settings.get(SETTING_RECENT_FILES)
+                recentFileQStringList = self.settings.get(SETTING_RECENT_FILES)
                 self.recentFiles = [ustr(i) for i in recentFileQStringList]
             else:
-                self.recentFiles = recentFileQStringList = settings.get(SETTING_RECENT_FILES)
+                self.recentFiles = recentFileQStringList = self.settings.get(SETTING_RECENT_FILES)
 
-        size = settings.get(SETTING_WIN_SIZE, QSize(600, 500))
+        size = self.settings.get(SETTING_WIN_SIZE, QSize(600, 500))
         position = QPoint(0, 0)
-        saved_position = settings.get(SETTING_WIN_POSE, position)
+        saved_position = self.settings.get(SETTING_WIN_POSE, position)
         # Fix the multiple monitors issue
         for i in range(QApplication.desktop().screenCount()):
             if QApplication.desktop().availableGeometry(i).contains(saved_position):
@@ -501,17 +521,17 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
                 break
         self.resize(size)
         self.move(position)
-        saveDir = ustr(settings.get(SETTING_SAVE_DIR, None))
-        self.lastOpenDir = ustr(settings.get(SETTING_LAST_OPEN_DIR, None))
+        saveDir = ustr(self.settings.get(SETTING_SAVE_DIR, None))
+        self.lastOpenDir = ustr(self.settings.get(SETTING_LAST_OPEN_DIR, None))
         if self.defaultSaveDir is None and saveDir is not None and os.path.exists(saveDir):
             self.defaultSaveDir = saveDir
             self.statusBar().showMessage('%s started. Annotation will be saved to %s' %
                                          (__appname__, self.defaultSaveDir))
             self.statusBar().show()
 
-        self.restoreState(settings.get(SETTING_WIN_STATE, QByteArray()))
-        Shape.line_color = self.lineColor = QColor(settings.get(SETTING_LINE_COLOR, DEFAULT_LINE_COLOR))
-        Shape.fill_color = self.fillColor = QColor(settings.get(SETTING_FILL_COLOR, DEFAULT_FILL_COLOR))
+        self.restoreState(self.settings.get(SETTING_WIN_STATE, QByteArray()))
+        Shape.line_color = self.lineColor = QColor(self.settings.get(SETTING_LINE_COLOR, DEFAULT_LINE_COLOR))
+        Shape.fill_color = self.fillColor = QColor(self.settings.get(SETTING_FILL_COLOR, DEFAULT_FILL_COLOR))
         self.canvas.setDrawingColor(self.lineColor)
         # Add chris
         Shape.difficult = self.difficult
@@ -521,7 +541,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
                 return x.toBool()
             return bool(x)
 
-        if xbool(settings.get(SETTING_ADVANCE_MODE, False)):
+        if xbool(self.settings.get(SETTING_ADVANCE_MODE, False)):
             self.actions.advancedMode.setChecked(True)
             self.toggleAdvancedMode()
 
@@ -590,7 +610,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
             self.actions.editMode.setEnabled(False)
             # self.dockLabel.setFeatures(self.dockLabel.features() | self.dockFeatures)
         # else:
-            # self.dockLabel.setFeatures(self.dockLabel.features() ^ self.dockFeatures)
+        # self.dockLabel.setFeatures(self.dockLabel.features() ^ self.dockFeatures)
 
     def populateModeActions(self):
         if self.beginner():
@@ -1077,6 +1097,12 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.zoomMode = self.FIT_WIDTH if value else self.MANUAL_ZOOM
         self.adjustScale()
 
+    def hidePolygons(self):
+        togglePolygons(False)
+
+    def showPolygons(self):
+        togglePolygons(True)
+
     def togglePolygons(self, value):
         for item, shape in self.itemsToShapes.items():
             item.setCheckState(Qt.Checked if value else Qt.Unchecked)
@@ -1210,35 +1236,35 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
     def closeEvent(self, event):
         if not self.mayContinue():
             event.ignore()
-        settings = self.settings
+        # settings = self.settings
         # If it loads images from dir, don't load it at the begining
         if self.dirname is None:
-            settings[SETTING_FILENAME] = self.filePath if self.filePath else ''
+            self.settings[SETTING_FILENAME] = self.filePath if self.filePath else ''
         else:
-            settings[SETTING_FILENAME] = ''
+            self.settings[SETTING_FILENAME] = ''
 
-        settings[SETTING_WIN_SIZE] = self.size()
-        settings[SETTING_WIN_POSE] = self.pos()
-        settings[SETTING_WIN_STATE] = self.saveState()
-        settings[SETTING_LINE_COLOR] = self.lineColor
-        settings[SETTING_FILL_COLOR] = self.fillColor
-        settings[SETTING_RECENT_FILES] = self.recentFiles
-        settings[SETTING_ADVANCE_MODE] = not self._beginner
+        self.settings[SETTING_WIN_SIZE] = self.size()
+        self.settings[SETTING_WIN_POSE] = self.pos()
+        self.settings[SETTING_WIN_STATE] = self.saveState()
+        self.settings[SETTING_LINE_COLOR] = self.lineColor
+        self.settings[SETTING_FILL_COLOR] = self.fillColor
+        self.settings[SETTING_RECENT_FILES] = self.recentFiles
+        self.settings[SETTING_ADVANCE_MODE] = not self._beginner
         if self.defaultSaveDir and os.path.exists(self.defaultSaveDir):
-            settings[SETTING_SAVE_DIR] = ustr(self.defaultSaveDir)
+            self.settings[SETTING_SAVE_DIR] = ustr(self.defaultSaveDir)
         else:
-            settings[SETTING_SAVE_DIR] = ''
+            self.settings[SETTING_SAVE_DIR] = ''
 
         if self.lastOpenDir and os.path.exists(self.lastOpenDir):
-            settings[SETTING_LAST_OPEN_DIR] = self.lastOpenDir
+            self.settings[SETTING_LAST_OPEN_DIR] = self.lastOpenDir
         else:
-            settings[SETTING_LAST_OPEN_DIR] = ''
+            self.settings[SETTING_LAST_OPEN_DIR] = ''
 
-        settings[SETTING_AUTO_SAVE] = self.autoSaving.isChecked()
-        settings[SETTING_SINGLE_CLASS] = self.singleClassMode.isChecked()
-        settings[SETTING_PAINT_LABEL] = self.displayLabelOption.isChecked()
-        settings[SETTING_DRAW_SQUARE] = self.drawSquaresOption.isChecked()
-        settings.save()
+        self.settings[SETTING_AUTO_SAVE] = self.autoSaving.isChecked()
+        self.settings[SETTING_SINGLE_CLASS] = self.singleClassMode.isChecked()
+        self.settings[SETTING_PAINT_LABEL] = self.displayLabelOption.isChecked()
+        self.settings[SETTING_DRAW_SQUARE] = self.drawSquaresOption.isChecked()
+        self.settings.save()
 
     def loadRecent(self, filename):
         if self.mayContinue():

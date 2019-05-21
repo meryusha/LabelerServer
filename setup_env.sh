@@ -8,6 +8,8 @@ source activate ActiveImageLabeler
 conda install -y python pylint pep8 flake8 yapf lxml
 conda install -y opencv -c menpo 
 
+pip install yacs
+
 pip install PyQt5
 
 pip install pyinstaller

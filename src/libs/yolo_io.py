@@ -11,6 +11,7 @@ from libs.constants import DEFAULT_ENCODING
 TXT_EXT = '.txt'
 ENCODE_METHOD = DEFAULT_ENCODING
 
+
 class YOLOWriter:
 
     def __init__(self, foldername, filename, imgSize, databaseSrc='Unknown', localImgPath=None):

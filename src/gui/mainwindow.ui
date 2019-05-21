@@ -518,6 +518,40 @@ RectBox</string>
     <string>Ctrl+Shift+A</string>
    </property>
   </action>
+  <action name="hideAll">
+   <property name="icon">
+    <iconset theme=":/hide"/>
+   </property>
+   <property name="text">
+    <string>Hide all bounding boxes</string>
+   </property>
+   <property name="statusTip">
+    <string>Hide all bounding boxes</string>
+   </property>
+   <property name="whatsThis">
+    <string>Hide all bounding boxes</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
+  </action>
+  <action name="showAll">
+   <property name="icon">
+    <iconset theme=":/hide"/>
+   </property>
+   <property name="text">
+    <string>Show all bounding boxes</string>
+   </property>
+   <property name="statusTip">
+    <string>Show all bounding boxes</string>
+   </property>
+   <property name="whatsThis">
+    <string>Show all bounding boxes</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
