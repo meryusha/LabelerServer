@@ -177,6 +177,9 @@
    <property name="statusTip">
     <string>Quit application</string>
    </property>
+   <property name="whatsThis">
+    <string>Quit application</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
    </property>
@@ -193,6 +196,9 @@
     <string>Open image or label file</string>
    </property>
    <property name="statusTip">
+    <string>Open image or label file</string>
+   </property>
+   <property name="whatsThis">
     <string>Open image or label file</string>
    </property>
    <property name="shortcut">
@@ -349,7 +355,13 @@
      <normaloff>resources/icons/format_voc.png</normaloff>resources/icons/format_voc.png</iconset>
    </property>
    <property name="text">
-    <string>Save Format</string>
+    <string>Change save format</string>
+   </property>
+   <property name="statusTip">
+    <string>Change save format</string>
+   </property>
+   <property name="whatsThis">
+    <string>Change save format</string>
    </property>
   </action>
   <action name="saveAs">
@@ -362,6 +374,15 @@
    </property>
    <property name="text">
     <string>Save As</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the labels to a different file</string>
+   </property>
+   <property name="statusTip">
+    <string>Save the labels to a different file</string>
+   </property>
+   <property name="whatsThis">
+    <string>Save the labels to a different file</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
@@ -378,6 +399,12 @@
    <property name="toolTip">
     <string>Close the current file</string>
    </property>
+   <property name="statusTip">
+    <string>Close the current file</string>
+   </property>
+   <property name="whatsThis">
+    <string>Close the current file</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
    </property>
@@ -388,7 +415,13 @@
      <normaloff>resources/icons/resetall.png</normaloff>resources/icons/resetall.png</iconset>
    </property>
    <property name="text">
-    <string>resetAll</string>
+    <string>Reset All</string>
+   </property>
+   <property name="statusTip">
+    <string>Reset All</string>
+   </property>
+   <property name="whatsThis">
+    <string>Reset All</string>
    </property>
   </action>
   <action name="color1">
@@ -397,7 +430,16 @@
      <normaloff>resources/icons/color.png</normaloff>resources/icons/color.png</iconset>
    </property>
    <property name="text">
-    <string>color1</string>
+    <string>Box Line Color</string>
+   </property>
+   <property name="toolTip">
+    <string>Choose Box line color</string>
+   </property>
+   <property name="statusTip">
+    <string>Choose Box line color</string>
+   </property>
+   <property name="whatsThis">
+    <string>Choose Box line color</string>
    </property>
   </action>
   <action name="createMode">
@@ -439,6 +481,12 @@ RectBox</string>
    <property name="toolTip">
     <string>Modify the label of the selected Box</string>
    </property>
+   <property name="statusTip">
+    <string>Modify the label of the selected Box</string>
+   </property>
+   <property name="whatsThis">
+    <string>Modify the label of the selected Box</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+J</string>
    </property>
@@ -452,7 +500,16 @@ RectBox</string>
      <normaloff>resources/icons/objects.png</normaloff>resources/icons/objects.png</iconset>
    </property>
    <property name="text">
-    <string>create</string>
+    <string>Create RectBox</string>
+   </property>
+   <property name="toolTip">
+    <string>Draw a new box</string>
+   </property>
+   <property name="statusTip">
+    <string>Draw a new box</string>
+   </property>
+   <property name="whatsThis">
+    <string>Draw a new box</string>
    </property>
    <property name="shortcut">
     <string>W</string>
@@ -467,7 +524,16 @@ RectBox</string>
      <normaloff>resources/icons/delete.png</normaloff>resources/icons/delete.png</iconset>
    </property>
    <property name="text">
-    <string>delete</string>
+    <string>Delete RectBox</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove the box</string>
+   </property>
+   <property name="statusTip">
+    <string>Remove the box</string>
+   </property>
+   <property name="whatsThis">
+    <string>Remove the box</string>
    </property>
    <property name="shortcut">
     <string>Backspace</string>
@@ -512,7 +578,19 @@ RectBox</string>
      <normaloff>resources/icons/expert2.png</normaloff>resources/icons/expert2.png</iconset>
    </property>
    <property name="text">
-    <string>advancedMode</string>
+    <string>Advanced Mode</string>
+   </property>
+   <property name="iconText">
+    <string>Advanced Mode</string>
+   </property>
+   <property name="toolTip">
+    <string>Swtich to advanced mode</string>
+   </property>
+   <property name="statusTip">
+    <string>Swtich to advanced mode</string>
+   </property>
+   <property name="whatsThis">
+    <string>Swtich to advanced mode</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+A</string>
@@ -523,6 +601,13 @@ RectBox</string>
     <iconset theme=":/hide"/>
    </property>
    <property name="text">
+    <string>Hide all\nbounding boxes</string>
+   </property>
+   <property name="iconText">
+    <string>Hide all
+bounding boxes</string>
+   </property>
+   <property name="toolTip">
     <string>Hide all bounding boxes</string>
    </property>
    <property name="statusTip">
@@ -540,6 +625,13 @@ RectBox</string>
     <iconset theme=":/hide"/>
    </property>
    <property name="text">
+    <string>Show all\nbounding boxes</string>
+   </property>
+   <property name="iconText">
+    <string>Show all
+bounding boxes</string>
+   </property>
+   <property name="toolTip">
     <string>Show all bounding boxes</string>
    </property>
    <property name="statusTip">
