@@ -439,45 +439,83 @@ RectBox</string>
    <property name="toolTip">
     <string>Modify the label of the selected Box</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+J</string>
+   </property>
   </action>
   <action name="create">
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset theme=":/new">
+     <normaloff>resources/icons/objects.png</normaloff>resources/icons/objects.png</iconset>
+   </property>
    <property name="text">
     <string>create</string>
+   </property>
+   <property name="shortcut">
+    <string>W</string>
    </property>
   </action>
   <action name="deleteAction">
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset theme=":/delete">
+     <normaloff>resources/icons/delete.png</normaloff>resources/icons/delete.png</iconset>
+   </property>
    <property name="text">
     <string>delete</string>
+   </property>
+   <property name="shortcut">
+    <string>Backspace</string>
    </property>
   </action>
   <action name="copy">
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset theme=":/copy">
+     <normaloff>resources/icons/copy.png</normaloff>resources/icons/copy.png</iconset>
+   </property>
    <property name="text">
     <string>copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
   </action>
   <action name="detect">
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset theme=":/new">
+     <normaloff>resources/icons/new.png</normaloff>resources/icons/new.png</iconset>
+   </property>
    <property name="text">
     <string>detect</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+D</string>
    </property>
   </action>
   <action name="advancedMode">
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset theme=":/expert">
+     <normaloff>resources/icons/expert2.png</normaloff>resources/icons/expert2.png</iconset>
+   </property>
    <property name="text">
     <string>advancedMode</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+A</string>
    </property>
   </action>
  </widget>
