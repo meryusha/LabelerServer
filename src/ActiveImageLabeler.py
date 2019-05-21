@@ -30,9 +30,9 @@ from libs.lib import newIcon
 __appname__ = 'labelImg'
 
 
-from gui import MainWindow
+from gui.LabelerWindow import LabelerWindow
 
-class ActiveImageLabelerWindow(MainWindow):
+class ActiveImageLabelerWindow(LabelerWindow):
 
     def __init__(self, 
     defaultFilename=None, 
@@ -47,7 +47,7 @@ class ActiveImageLabelerWindow(MainWindow):
 
 
     
-from api import FasterRCNN
+from api.ObjectDetection import FasterRCNN
 
 def main():
     '''construct main app and run it'''

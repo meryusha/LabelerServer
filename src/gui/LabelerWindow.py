@@ -81,10 +81,10 @@ class WindowMixin(object):
         self.addToolBar(Qt.LeftToolBarArea, toolbar)
         return toolbar
 
-from mainwindow import Ui_MainWindow
+from gui.ui_mainwindow import Ui_MainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class MainWindow(QMainWindow, WindowMixin, Ui_MainWindow):
+class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
     FIT_WINDOW, FIT_WIDTH, MANUAL_ZOOM = list(range(3))
 
 
@@ -94,7 +94,7 @@ class MainWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         print("detect Triggered")
         
     def __init__(self, defaultFilename=None, defaultPrefdefClassFile=None, defaultSaveDir=None):
-        super(MainWindow, self).__init__()
+        super(LabelerWindow, self).__init__()
         QtCore.QMetaObject.connectSlotsByName(self) #TODO connect SlotsByName!
 
         self.setupUi(self)
@@ -588,9 +588,9 @@ class MainWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         if value:
             self.actions.createMode.setEnabled(True)
             self.actions.editMode.setEnabled(False)
-            self.dockLabel.setFeatures(self.dockLabel.features() | self.dockFeatures)
-        else:
-            self.dockLabel.setFeatures(self.dockLabel.features() ^ self.dockFeatures)
+            # self.dockLabel.setFeatures(self.dockLabel.features() | self.dockFeatures)
+        # else:
+            # self.dockLabel.setFeatures(self.dockLabel.features() ^ self.dockFeatures)
 
     def populateModeActions(self):
         if self.beginner():
@@ -1178,7 +1178,7 @@ class MainWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         if self.canvas and not self.image.isNull()\
            and self.zoomMode != self.MANUAL_ZOOM:
             self.adjustScale()
-        super(MainWindow, self).resizeEvent(event)
+        super(LabelerWindow, self).resizeEvent(event)
 
     def paintCanvas(self):
         assert not self.image.isNull(), "cannot paint null image"
