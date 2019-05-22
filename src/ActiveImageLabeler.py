@@ -97,5 +97,5 @@ if __name__ == '__main__':
     api.ObjectFound.connect(win.addShape)
 
     # Show window and run QtApplication
-    win.show()
+    win.showMaximized()
     sys.exit(app.exec_())

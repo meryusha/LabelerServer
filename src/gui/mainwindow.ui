@@ -37,24 +37,14 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>588</width>
-         <height>552</height>
+         <width>423</width>
+         <height>502</height>
         </rect>
        </property>
       </widget>
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>858</width>
-     <height>22</height>
-    </rect>
-   </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockLabel">
@@ -163,10 +153,131 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QToolBar" name="toolBar_Open">
+   <property name="windowTitle">
+    <string>Handle Image</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="open"/>
+   <addaction name="opendir"/>
+   <addaction name="changeSavedir"/>
+   <addaction name="openPrevImgAction"/>
+   <addaction name="openNextImgAction"/>
+   <addaction name="verify"/>
+   <addaction name="save"/>
+   <addaction name="save_format"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar_Zoom">
+   <property name="windowTitle">
+    <string>Zoom</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="zoomOut"/>
+   <addaction name="zoomIn"/>
+   <addaction name="zoomOrg"/>
+   <addaction name="fitWindow"/>
+   <addaction name="fitWidth"/>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_View">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="windowTitle">
+    <string>Viewer</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
+      <widget class="QToolButton" name="toolButton_ZoomOut">
+       <property name="text">
+        <string>Zoom Out</string>
+       </property>
+       <property name="icon">
+        <iconset theme=":/zoom-out">
+         <normaloff>../resources/icons/zoom-out.png</normaloff>../resources/icons/zoom-out.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QPushButton" name="pushButton_ZoomOut">
+       <property name="text">
+        <string>Zoom Out</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QToolButton" name="toolButton_ZoomIn">
+       <property name="text">
+        <string>Zoom In</string>
+       </property>
+       <property name="icon">
+        <iconset theme=":/zoom-in">
+         <normaloff>../resources/icons/zoom-in.png</normaloff>../resources/icons/zoom-in.png</iconset>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextUnderIcon</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="pushButton_ZoomIn">
+       <property name="text">
+        <string>Zoom In</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QToolButton" name="toolButton_ShowSeed">
+       <property name="text">
+        <string>Show All seeds</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QToolBar" name="toolBar_Edit">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="create"/>
+   <addaction name="detect"/>
+   <addaction name="edit"/>
+   <addaction name="copy"/>
+   <addaction name="deleteAction"/>
+  </widget>
   <action name="quit">
    <property name="icon">
     <iconset theme=":/quit">
-     <normaloff>resources/icons/quit.png</normaloff>resources/icons/quit.png</iconset>
+     <normaloff>../resources/icons/quit.png</normaloff>../resources/icons/quit.png</iconset>
    </property>
    <property name="text">
     <string>Quit</string>
@@ -187,7 +298,7 @@
   <action name="open">
    <property name="icon">
     <iconset theme=":/open">
-     <normaloff>resources/icons/open.png</normaloff>resources/icons/open.png</iconset>
+     <normaloff>../resources/icons/open.png</normaloff>../resources/icons/open.png</iconset>
    </property>
    <property name="text">
     <string>Open</string>
@@ -208,7 +319,7 @@
   <action name="opendir">
    <property name="icon">
     <iconset theme=":/open">
-     <normaloff>resources/icons/open.png</normaloff>resources/icons/open.png</iconset>
+     <normaloff>../resources/icons/open.png</normaloff>../resources/icons/open.png</iconset>
    </property>
    <property name="text">
     <string>Open Dir</string>
@@ -229,10 +340,14 @@
   <action name="changeSavedir">
    <property name="icon">
     <iconset theme=":/open">
-     <normaloff>resources/icons/open.png</normaloff>resources/icons/open.png</iconset>
+     <normaloff>../resources/icons/open.png</normaloff>../resources/icons/open.png</iconset>
    </property>
    <property name="text">
-    <string>Change Save Dir</string>
+    <string>Change\nSave Dir</string>
+   </property>
+   <property name="iconText">
+    <string>Change
+Save Dir</string>
    </property>
    <property name="toolTip">
     <string>Change default saved Annotation dir</string>
@@ -250,7 +365,7 @@
   <action name="openAnnotation">
    <property name="icon">
     <iconset theme=":/open">
-     <normaloff>resources/icons/open.png</normaloff>resources/icons/open.png</iconset>
+     <normaloff>../resources/icons/open.png</normaloff>../resources/icons/open.png</iconset>
    </property>
    <property name="text">
     <string>openAnnotation</string>
@@ -271,7 +386,7 @@
   <action name="openNextImgAction">
    <property name="icon">
     <iconset theme=":/next">
-     <normaloff>resources/icons/next.png</normaloff>resources/icons/next.png</iconset>
+     <normaloff>../resources/icons/next.png</normaloff>../resources/icons/next.png</iconset>
    </property>
    <property name="text">
     <string>Next Image</string>
@@ -292,7 +407,7 @@
   <action name="openPrevImgAction">
    <property name="icon">
     <iconset theme=":/prev">
-     <normaloff>resources/icons/prev.png</normaloff>resources/icons/prev.png</iconset>
+     <normaloff>../resources/icons/prev.png</normaloff>../resources/icons/prev.png</iconset>
    </property>
    <property name="text">
     <string>Previous Image</string>
@@ -313,7 +428,7 @@
   <action name="verify">
    <property name="icon">
     <iconset theme=":/verify">
-     <normaloff>resources/icons/verify.png</normaloff>resources/icons/verify.png</iconset>
+     <normaloff>../resources/icons/verify.png</normaloff>../resources/icons/verify.png</iconset>
    </property>
    <property name="text">
     <string>Verify Image</string>
@@ -334,7 +449,7 @@
    </property>
    <property name="icon">
     <iconset theme=":/save">
-     <normaloff>resources/icons/save.png</normaloff>resources/icons/save.png</iconset>
+     <normaloff>../resources/icons/save.png</normaloff>../resources/icons/save.png</iconset>
    </property>
    <property name="text">
     <string>Save</string>
@@ -352,10 +467,13 @@
   <action name="save_format">
    <property name="icon">
     <iconset theme=":/format_voc">
-     <normaloff>resources/icons/format_voc.png</normaloff>resources/icons/format_voc.png</iconset>
+     <normaloff>../resources/icons/format_voc.png</normaloff>../resources/icons/format_voc.png</iconset>
    </property>
    <property name="text">
     <string>Change save format</string>
+   </property>
+   <property name="iconText">
+    <string>PascalVOC</string>
    </property>
    <property name="statusTip">
     <string>Change save format</string>
@@ -448,7 +566,7 @@
    </property>
    <property name="icon">
     <iconset theme=":/new">
-     <normaloff>resources/icons/new.png</normaloff>resources/icons/new.png</iconset>
+     <normaloff>../resources/icons/new.png</normaloff>../resources/icons/new.png</iconset>
    </property>
    <property name="text">
     <string>Create\nRectBox</string>
@@ -497,7 +615,7 @@ RectBox</string>
    </property>
    <property name="icon">
     <iconset theme=":/new">
-     <normaloff>resources/icons/objects.png</normaloff>resources/icons/objects.png</iconset>
+     <normaloff>../resources/icons/objects.png</normaloff>../resources/icons/objects.png</iconset>
    </property>
    <property name="text">
     <string>Create RectBox</string>
@@ -521,7 +639,7 @@ RectBox</string>
    </property>
    <property name="icon">
     <iconset theme=":/delete">
-     <normaloff>resources/icons/delete.png</normaloff>resources/icons/delete.png</iconset>
+     <normaloff>../resources/icons/cancel.png</normaloff>../resources/icons/cancel.png</iconset>
    </property>
    <property name="text">
     <string>Delete RectBox</string>
@@ -545,10 +663,19 @@ RectBox</string>
    </property>
    <property name="icon">
     <iconset theme=":/copy">
-     <normaloff>resources/icons/copy.png</normaloff>resources/icons/copy.png</iconset>
+     <normaloff>../resources/icons/copy.png</normaloff>../resources/icons/copy.png</iconset>
    </property>
    <property name="text">
-    <string>copy</string>
+    <string>Copy RectBox</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy the current box</string>
+   </property>
+   <property name="statusTip">
+    <string>Copy the current box</string>
+   </property>
+   <property name="whatsThis">
+    <string>Copy the current box</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
@@ -560,10 +687,19 @@ RectBox</string>
    </property>
    <property name="icon">
     <iconset theme=":/new">
-     <normaloff>resources/icons/new.png</normaloff>resources/icons/new.png</iconset>
+     <normaloff>../resources/icons/objects.png</normaloff>../resources/icons/objects.png</iconset>
    </property>
    <property name="text">
-    <string>detect</string>
+    <string>Detect RectBox</string>
+   </property>
+   <property name="toolTip">
+    <string>Detect all boxes</string>
+   </property>
+   <property name="statusTip">
+    <string>Detect all boxes</string>
+   </property>
+   <property name="whatsThis">
+    <string>Detect all boxes</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+D</string>
@@ -598,10 +734,11 @@ RectBox</string>
   </action>
   <action name="hideAll">
    <property name="icon">
-    <iconset theme=":/hide"/>
+    <iconset theme=":/hide">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Hide all\nbounding boxes</string>
+    <string>Hide all bounding boxes</string>
    </property>
    <property name="iconText">
     <string>Hide all
@@ -622,10 +759,11 @@ bounding boxes</string>
   </action>
   <action name="showAll">
    <property name="icon">
-    <iconset theme=":/hide"/>
+    <iconset theme=":/hide">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Show all\nbounding boxes</string>
+    <string>Show all bounding boxes</string>
    </property>
    <property name="iconText">
     <string>Show all
@@ -644,7 +782,289 @@ bounding boxes</string>
     <string>Ctrl+A</string>
    </property>
   </action>
+  <action name="help">
+   <property name="icon">
+    <iconset theme=":/help">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Tutorial</string>
+   </property>
+   <property name="toolTip">
+    <string>Show demo</string>
+   </property>
+   <property name="statusTip">
+    <string>Show demo</string>
+   </property>
+   <property name="whatsThis">
+    <string>Show demo</string>
+   </property>
+  </action>
+  <action name="showInfo">
+   <property name="icon">
+    <iconset theme=":/help">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Information</string>
+   </property>
+   <property name="statusTip">
+    <string>Information</string>
+   </property>
+   <property name="whatsThis">
+    <string>Information</string>
+   </property>
+  </action>
+  <action name="zoomIn">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme=":/zoom-in">
+     <normaloff>../resources/icons/zoom-in.png</normaloff>../resources/icons/zoom-in.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+   <property name="toolTip">
+    <string>Increase zoom level</string>
+   </property>
+   <property name="statusTip">
+    <string>Increase zoom level</string>
+   </property>
+   <property name="whatsThis">
+    <string>Increase zoom level</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+=</string>
+   </property>
+  </action>
+  <action name="zoomOut">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme=":/zoom-out">
+     <normaloff>../resources/icons/zoom-out.png</normaloff>../resources/icons/zoom-out.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+   <property name="toolTip">
+    <string>Decrease zoom level</string>
+   </property>
+   <property name="statusTip">
+    <string>Decrease zoom level</string>
+   </property>
+   <property name="whatsThis">
+    <string>Decrease zoom level</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+  </action>
+  <action name="zoomOrg">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme=":/zoom">
+     <normaloff>../resources/icons/zoom.png</normaloff>../resources/icons/zoom.png</iconset>
+   </property>
+   <property name="text">
+    <string>Original size</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom to original size</string>
+   </property>
+   <property name="statusTip">
+    <string>Zoom to original size</string>
+   </property>
+   <property name="whatsThis">
+    <string>Zoom to original size</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+=</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="fitWindow">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme=":/fit-window">
+     <normaloff>../resources/icons/fit-window.png</normaloff>../resources/icons/fit-window.png</iconset>
+   </property>
+   <property name="text">
+    <string>Fit Window</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom follows window size</string>
+   </property>
+   <property name="statusTip">
+    <string>Zoom follows window size</string>
+   </property>
+   <property name="whatsThis">
+    <string>Zoom follows window size</string>
+   </property>
+   <property name="shortcut">
+    <string/>
+   </property>
+  </action>
+  <action name="fitWidth">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme=":/fit-width">
+     <normaloff>../resources/icons/fit-width.png</normaloff>../resources/icons/fit-width.png</iconset>
+   </property>
+   <property name="text">
+    <string>Fit Width</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom follows window width</string>
+   </property>
+   <property name="statusTip">
+    <string>Zoom follows window width</string>
+   </property>
+   <property name="whatsThis">
+    <string>Zoom follows window width</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+F</string>
+   </property>
+  </action>
+  <action name="edit">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme=":/edit">
+     <normaloff>../resources/icons/edit.png</normaloff>../resources/icons/edit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Edit RectBox</string>
+   </property>
+   <property name="toolTip">
+    <string>Modify the label of the selected Box</string>
+   </property>
+   <property name="statusTip">
+    <string>Modify the label of the selected Box</string>
+   </property>
+   <property name="whatsThis">
+    <string>Modify the label of the selected Box</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="shapeLineColor">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Shape Line Color</string>
+   </property>
+   <property name="toolTip">
+    <string>Change the line color for this specific shape</string>
+   </property>
+   <property name="statusTip">
+    <string>Change the line color for this specific shape</string>
+   </property>
+   <property name="whatsThis">
+    <string>Change the line color for this specific shape</string>
+   </property>
+  </action>
+  <action name="shapeFillColor">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Shape Fill Color</string>
+   </property>
+   <property name="toolTip">
+    <string>Change the fill color for this specific shape</string>
+   </property>
+   <property name="statusTip">
+    <string>Change the fill color for this specific shape</string>
+   </property>
+   <property name="whatsThis">
+    <string>Change the fill color for this specific shape</string>
+   </property>
+  </action>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pushButton_ZoomIn</sender>
+   <signal>clicked()</signal>
+   <receiver>zoomIn</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>660</x>
+     <y>539</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_ZoomOut</sender>
+   <signal>clicked()</signal>
+   <receiver>zoomOut</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>788</x>
+     <y>539</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButton_ZoomOut</sender>
+   <signal>clicked()</signal>
+   <receiver>zoomOut</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>723</x>
+     <y>516</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButton_ZoomIn</sender>
+   <signal>clicked()</signal>
+   <receiver>zoomIn</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>638</x>
+     <y>518</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

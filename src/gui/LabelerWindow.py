@@ -251,6 +251,8 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
 
 
         self.open.triggered.connect(self.openFile)
+        # self.open.->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+
         # self.open.setStatusTip('Open image or label file')
         # open = action(getStr('openFile'), self.openFile,
         #               'Ctrl+O', 'open', getStr('openFileDetail'))
@@ -344,8 +346,12 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         #                  'Ctrl+A', 'hide', getStr('showAllBoxDetail'),
         #                  enabled=False)
 
-        self.help = action(getStr('tutorial'), self.showTutorialDialog, None, 'help', getStr('tutorialDetail'))
-        self.showInfo = action(getStr('info'), self.showInfoDialog, None, 'help', getStr('info'))
+
+        self.help.triggered.connect(self.showTutorialDialog)
+        self.showInfo.triggered.connect(self.showInfoDialog)
+
+        # self.help = action(getStr('tutorial'), self.showTutorialDialog, None, 'help', getStr('tutorialDetail'))
+        # self.showInfo = action(getStr('info'), self.showInfoDialog, None, 'help', getStr('info'))
 
         zoom = QWidgetAction(self)
         zoom.setDefaultWidget(self.zoomWidget)
@@ -355,19 +361,28 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
                                              fmtShortcut("Ctrl+Wheel")))
         self.zoomWidget.setEnabled(False)
 
-        self.zoomIn = action(getStr('zoomin'), partial(self.addZoom, 10),
-                        'Ctrl++', 'zoom-in', getStr('zoominDetail'), enabled=False)
-        self.zoomOut = action(getStr('zoomout'), partial(self.addZoom, -10),
-                         'Ctrl+-', 'zoom-out', getStr('zoomoutDetail'), enabled=False)
-        self.zoomOrg = action(getStr('originalsize'), partial(self.setZoom, 100),
-                         'Ctrl+=', 'zoom', getStr('originalsizeDetail'), enabled=False)
-        self.fitWindow = action(getStr('fitWin'), self.setFitWindow,
-                           'Ctrl+F', 'fit-window', getStr('fitWinDetail'),
-                           checkable=True, enabled=False)
-        self.fitWidth = action(getStr('fitWidth'), self.setFitWidth,
-                          'Ctrl+Shift+F', 'fit-width', getStr('fitWidthDetail'),
-                          checkable=True, enabled=False)
+
+        self.zoomIn.triggered.connect(partial(self.addZoom, 10))
+        self.zoomOut.triggered.connect(partial(self.addZoom, -10))
+        self.zoomOrg.triggered.connect(partial(self.setZoom, 100))
+
+        # self.zoomIn = action(getStr('zoomin'), partial(self.addZoom, 10),
+        #                 'Ctrl++', 'zoom-in', getStr('zoominDetail'), enabled=False)
+        # self.zoomOut = action(getStr('zoomout'), partial(self.addZoom, -10),
+        #                  'Ctrl+-', 'zoom-out', getStr('zoomoutDetail'), enabled=False)
+        # self.zoomOrg = action(getStr('originalsize'), partial(self.setZoom, 100),
+        #  'Ctrl+=', 'zoom', getStr('originalsizeDetail'), enabled=False)
+
+        self.fitWindow.triggered.connect(self.setFitWindow)
+        self.fitWidth.triggered.connect(self.setFitWidth)
+        # self.fitWindow = action(getStr('fitWin'), self.setFitWindow,
+        #                    'Ctrl+F', 'fit-window', getStr('fitWinDetail'),
+        #                    checkable=True, enabled=False)
+        # self.fitWidth = action(getStr('fitWidth'), self.setFitWidth,
+        #                   'Ctrl+Shift+F', 'fit-width', getStr('fitWidthDetail'),
+        #                   checkable=True, enabled=False)
         # Group zoom controls into a list for easier toggling.
+
         zoomActions = (self.zoomWidget, self.zoomIn, self.zoomOut,
                        self.zoomOrg, self.fitWindow, self.fitWidth)
         self.zoomMode = self.MANUAL_ZOOM
@@ -378,22 +393,28 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
             self.MANUAL_ZOOM: lambda: 1,
         }
 
-        self.edit = action(getStr('editLabel'), self.editLabel,
-                      'Ctrl+E', 'edit', getStr('editLabelDetail'),
-                      enabled=False)
+        self.edit.triggered.connect(self.editLabel)
+        # self.edit = action(getStr('editLabel'), self.editLabel,
+        #               'Ctrl+E', 'edit', getStr('editLabelDetail'),
+        #               enabled=False)
         self.editButton.setDefaultAction(self.edit)
 
-        self.shapeLineColor = action(getStr('shapeLineColor'), self.chshapeLineColor,
-                                icon='color_line', tip=getStr('shapeLineColorDetail'),
-                                enabled=False)
-        self.shapeFillColor = action(getStr('shapeFillColor'), self.chshapeFillColor,
-                                icon='color', tip=getStr('shapeFillColorDetail'),
-                                enabled=False)
+
+        self.shapeLineColor.triggered.connect(self.chshapeLineColor)
+        self.shapeFillColor.triggered.connect(self.chshapeFillColor)
+
+        # self.shapeLineColor = action(getStr('shapeLineColor'), self.chshapeLineColor,
+        #                         icon='color_line', tip=getStr('shapeLineColorDetail'),
+        #                         enabled=False)
+        # self.shapeFillColor = action(getStr('shapeFillColor'), self.chshapeFillColor,
+        #                         icon='color', tip=getStr('shapeFillColorDetail'),
+        #                         enabled=False)
 
         self.labels = self.dockLabel.toggleViewAction()
         self.labels.setText(getStr('showHide'))
         self.labels.setShortcut('Ctrl+Shift+L')
 
+        #TODO push actions management into the GUI QtCreator
         # Lavel list context menu.
         labelMenu = QMenu()
         addActions(labelMenu, (self.edit, self.deleteAction))
@@ -408,25 +429,48 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.drawSquaresOption.setChecked(self.settings.get(SETTING_DRAW_SQUARE, False))
         self.drawSquaresOption.triggered.connect(self.toogleDrawSquare)
 
+
+
         # Store actions for further handling.
-        self.actions = struct(save=self.save, save_format=self.save_format, saveAs=self.saveAs, open=self.open, close=self.closeAction, resetAll = self.resetAllAction,
-                              lineColor=self.color1, create=self.create, detect=self.detect, delete=self.deleteAction, edit=self.edit, copy=self.copy,
-                              createMode=self.createMode, editMode=self.editMode, advancedMode=self.advancedMode,
-                              shapeLineColor=self.shapeLineColor, shapeFillColor=self.shapeFillColor,
-                              zoom=zoom, zoomIn=self.zoomIn, zoomOut=self.zoomOut, zoomOrg=self.zoomOrg,
-                              fitWindow=self.fitWindow, fitWidth=self.fitWidth,
-                              zoomActions=zoomActions,
-                              fileMenuActions=(
-                                  self.open, self.opendir, self.save, self.saveAs, self.closeAction, self.resetAllAction, self.quit),
-                              beginner=(), advanced=(),
-                              editMenu=(self.edit, self.copy, self.deleteAction,
-                                        None, self.color1, self.drawSquaresOption),
-                              beginnerContext=(self.create, self.edit, self.copy, self.deleteAction, self.detect),
-                              advancedContext=(self.createMode, self.editMode, self.edit, self.copy,
-                                               self.deleteAction, self.shapeLineColor, self.shapeFillColor),
-                              onLoadActive=(
-                                  self.closeAction, self.create, self.detect, self.createMode, self.editMode),
-                              onShapesPresent=(self.saveAs, self.hideAll, self.showAll))
+        self.actions = struct(
+            save=self.save,
+            save_format=self.save_format,
+            saveAs=self.saveAs,
+            open=self.open,
+            close=self.closeAction,
+            resetAll=self.resetAllAction,
+            lineColor=self.color1,
+            create=self.create,
+            detect=self.detect,
+            delete=self.deleteAction,
+            edit=self.edit,
+            copy=self.copy,
+            createMode=self.createMode,
+            editMode=self.editMode,
+            advancedMode=self.advancedMode,
+            shapeLineColor=self.shapeLineColor,
+            shapeFillColor=self.shapeFillColor,
+            zoom=zoom,
+            zoomIn=self.zoomIn,
+            zoomOut=self.zoomOut,
+            zoomOrg=self.zoomOrg,
+            fitWindow=self.fitWindow,
+            fitWidth=self.fitWidth,
+            zoomActions=zoomActions,
+            fileMenuActions=(self.open, self.opendir, self.save, self.saveAs,
+                             self.closeAction, self.resetAllAction, self.quit),
+            beginner=(),
+            advanced=(),
+            editMenu=(self.edit, self.copy, self.deleteAction, None,
+                      self.color1, self.drawSquaresOption),
+            beginnerContext=(self.create, self.edit, self.copy,
+                             self.deleteAction, self.detect),
+            advancedContext=(self.createMode, self.editMode, self.edit,
+                             self.copy, self.deleteAction, self.shapeLineColor,
+                             self.shapeFillColor),
+            onLoadActive=(self.closeAction, self.create, self.detect,
+                          self.createMode, self.editMode),
+            onShapesPresent=(self.saveAs, self.hideAll, self.showAll))
 
         self.menus = struct(
             file=self.menu('&File'),
@@ -435,6 +479,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
             help=self.menu('&Help'),
             recentFiles=QMenu('Open &Recent'),
             labelList=labelMenu)
+
 
         # Auto saving : Enable auto saving if pressing next
         self.autoSaving = QAction(getStr('autoSaveMode'), self)
@@ -475,7 +520,8 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
             action('&Copy here', self.copyShape),
             action('&Move here', self.moveShape)))
 
-        self.tools = self.toolbar('Tools')
+        # self.tools = self.toolbar('Tools')
+
         self.actions.beginner = (
             self.open, self.opendir, self.changeSavedir, self.openNextImgAction,
             self.openPrevImgAction, self.verify, self.save, self.save_format,
@@ -617,8 +663,8 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
             tool, menu = self.actions.beginner, self.actions.beginnerContext
         else:
             tool, menu = self.actions.advanced, self.actions.advancedContext
-        self.tools.clear()
-        addActions(self.tools, tool)
+        # self.tools.clear()
+        # addActions(self.tools, tool)
         self.canvas.menus[0].clear()
         addActions(self.canvas.menus[0], menu)
         self.menus.edit.clear()
@@ -626,13 +672,13 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
             else (self.actions.createMode, self.actions.editMode)
         addActions(self.menus.edit, actions + self.actions.editMenu)
 
-    def setBeginner(self):
-        self.tools.clear()
-        addActions(self.tools, self.actions.beginner)
+    # def setBeginner(self):
+    #     # self.tools.clear()
+    #     addActions(self.tools, self.actions.beginner)
 
-    def setAdvanced(self):
-        self.tools.clear()
-        addActions(self.tools, self.actions.advanced)
+    # def setAdvanced(self):
+    #     self.tools.clear()
+    #     addActions(self.tools, self.actions.advanced)
 
     def setDirty(self):
         self.dirty = True
@@ -1098,13 +1144,19 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.adjustScale()
 
     def hidePolygons(self):
-        togglePolygons(False)
+        self.togglePolygons(False)
 
     def showPolygons(self):
-        togglePolygons(True)
+        self.togglePolygons(True)
+
+    # def on_toolButton_ShowSeed_triggered(self):
+    #     print("on_toolButton_ShowSeed_triggered")
 
     def togglePolygons(self, value):
         for item, shape in self.itemsToShapes.items():
+            # print("label", shape.label)
+            # print("item", item)
+            # if (shape.label == "seed"):
             item.setCheckState(Qt.Checked if value else Qt.Unchecked)
 
     def loadFile(self, filePath=None):
