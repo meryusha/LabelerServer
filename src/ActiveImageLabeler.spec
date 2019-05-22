@@ -3,8 +3,8 @@
 block_cipher = None
 
 
-a = Analysis(['src/ActiveImageLabeler.py'],
-             pathex=['/Users/giancos/git/ActiveImageLabeler'],
+a = Analysis(['ActiveImageLabeler.py'],
+             pathex=['/Users/giancos/git/ActiveImageLabeler/src'],
              binaries=[],
              datas=[],
              hiddenimports=[],
