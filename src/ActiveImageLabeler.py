@@ -95,6 +95,7 @@ if __name__ == '__main__':
     win.detect.triggered.connect(api.detectObjects)
     # API Object Found connected to Window add Shape to current Image
     api.ObjectFound.connect(win.addShape)
+    api.ObjectsFound.connect(win.addShapes)
 
     # Show window and run QtApplication
     win.showMaximized()

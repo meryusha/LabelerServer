@@ -98,9 +98,9 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
     #     print("detect Pressed")
 
 
-    def on_quit_triggered(self):
-        logging.debug("quit Triggered")
-        self.close()
+    # def on_quit_triggered(self):
+    #     logging.debug("quit Triggered")
+    #     self.close()
 
     # def on_detect_triggered(self):
     #     print("detect Triggered")
@@ -227,6 +227,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.canvas.scrollRequest.connect(self.scrollRequest)
 
         self.canvas.newShape.connect(self.newShape)
+        self.canvas.newShapes.connect(self.newShapes)
         self.canvas.shapeMoved.connect(self.setDirty)
         self.canvas.selectionChanged.connect(self.shapeSelectionChanged)
         self.canvas.drawingPolygon.connect(self.toggleDrawingSensitive)
@@ -244,7 +245,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
 
 
 
-        # self.quit.triggered.connect(self.close)
+        self.quit.triggered.connect(self.close)
         # self.quit.setStatusTip('Quit application')
         # quit = action(getStr('quit'), self.close,
         #               'Ctrl+Q', 'quit', getStr('quitApp'))
@@ -1000,6 +1001,30 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         else:  # User probably changed item visibility
             self.canvas.setShapeVisible(shape, item.checkState() == Qt.Checked)
 
+    def addShapes(self, boxes):
+        # add all shapes
+        for box, label in boxes:
+            # self.addShape(box, label)
+            # TODO add all shape at once
+            minX = box[0]
+            minY = box[1]
+            maxX = box[0] + box[2]
+            maxY = box[1] + box[3]
+            self.canvas.current = Shape()
+            self.canvas.current.addPoint(QPointF(minX, minY))
+            self.canvas.current.addPoint(QPointF(maxX, minY))
+            self.canvas.current.addPoint(QPointF(maxX, maxY))
+            self.canvas.current.addPoint(QPointF(minX, maxY))
+            self.canvas.current.label = label
+            self.canvas.current.close()
+            self.canvas.shapes.append(self.canvas.current)
+
+        # repaint only once
+        self.canvas.current = None
+        self.canvas.newShapes.emit(len(boxes))
+        self.canvas.update()
+        self.canvas.repaint()
+
     def addShape(self, box, label):
         # print("GUI addShape", box)
         minX = box[0]
@@ -1020,6 +1045,64 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.canvas.update()
         self.canvas.repaint()
         return
+
+
+
+    # Callback functions:
+    def newShapes(self, n):
+        """Pop-up and give focus to the label editor.
+
+        position MUST be in global coordinates.
+        """
+        for i in range(n):
+            shape = self.canvas.shapes[-1 - i]
+            # print(i, shape.label)
+            if shape.label is not None:
+                text = shape.label
+            elif not self.useDefaultLabelCheckbox.isChecked() or not self.defaultLabelTextLine.text():
+                if len(self.labelHist) > 0:
+                    self.labelDialog = LabelDialog(
+                        parent=self, listItem=self.labelHist)
+
+                # Sync single class mode from PR#106
+                if self.singleClassMode.isChecked() and self.lastLabel:
+                    text = self.lastLabel
+                else:
+                    text = self.labelDialog.popUp(text=self.prevLabelText)
+                    self.lastLabel = text
+            else:
+                text = self.defaultLabelTextLine.text()
+
+            # Add Chris
+            self.diffcButton.setChecked(False)
+            if text is not None:
+                self.prevLabelText = text
+                generate_color = generateColorByText(text)
+                # shape = self.canvas.setLastLabel(text, generate_color, generate_color)
+
+                assert text
+                shape.label = text
+                if generate_color:
+                    shape.line_color = generate_color
+
+                if generate_color:
+                    shape.fill_color = generate_color
+
+                self.addLabel(shape)
+
+                if text not in self.labelHist:
+                    self.labelHist.append(text)
+            else:
+                # self.canvas.undoLastLine()
+                self.canvas.resetAllLines()
+
+        if self.beginner():  # Switch to edit mode.
+            self.canvas.setEditing(True)
+            self.actions.create.setEnabled(True)
+            self.actions.detect.setEnabled(True)
+        else:
+            self.actions.editMode.setEnabled(True)
+        self.setDirty()
 
     # Callback functions:
     def newShape(self):

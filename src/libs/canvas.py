@@ -1,4 +1,3 @@
-
 try:
     from PyQt5.QtGui import *
     from PyQt5.QtCore import *
@@ -28,6 +27,7 @@ class Canvas(QWidget):
     zoomRequest = pyqtSignal(int)
     scrollRequest = pyqtSignal(int, int)
     newShape = pyqtSignal()
+    newShapes = pyqtSignal(int)
     selectionChanged = pyqtSignal(bool)
     shapeMoved = pyqtSignal()
     drawingPolygon = pyqtSignal(bool)
@@ -45,7 +45,7 @@ class Canvas(QWidget):
         self.selectedShape = None  # save the selected shape here
         self.selectedShapeCopy = None
         self.drawingLineColor = QColor(0, 0, 255)
-        self.drawingRectColor = QColor(0, 0, 255) 
+        self.drawingRectColor = QColor(0, 0, 255)
         self.line = Shape(line_color=self.drawingLineColor)
         self.prevPoint = QPointF()
         self.offsets = QPointF(), QPointF()
@@ -665,7 +665,7 @@ class Canvas(QWidget):
         self.shapes[-1].label = text
         if line_color:
             self.shapes[-1].line_color = line_color
-        
+
         if fill_color:
             self.shapes[-1].fill_color = fill_color
 
@@ -723,7 +723,7 @@ class Canvas(QWidget):
     #         minY = germ[1]
     #         maxX = germ[0] + germ[2]
     #         maxY = germ[1] + germ[3]
-            
+
     #         self.current = Shape()
     #         self.current.addPoint(QPointF(minX, minY))
     #         self.current.addPoint(QPointF(maxX, minY))
@@ -738,13 +738,13 @@ class Canvas(QWidget):
     #         self.update()
     #         self.repaint()
 
-            
+
     #     for germ in cnt_nongerm:
     #         minX = germ[0]
     #         minY = germ[1]
     #         maxX = germ[0] + germ[2]
     #         maxY = germ[1] + germ[3]
-            
+
     #         self.current = Shape()
     #         self.current.addPoint(QPointF(minX, minY))
     #         self.current.addPoint(QPointF(maxX, minY))
@@ -758,8 +758,8 @@ class Canvas(QWidget):
     #         self.newShape.emit()
     #         self.update()
     #         self.repaint()
-            
-            
+
+
 
     def setShapeVisible(self, shape, value):
         self.visible[shape] = value
