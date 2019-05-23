@@ -63,29 +63,29 @@ def util_qt_strlistclass():
     return QStringList if have_qstring() else list
 
 
-class WindowMixin(object):
+# class WindowMixin(object):
 
-    # def menu(self, title, actions=None):
-    # menu = self.menuBar.addMenu(title)
-    # if actions:
-    # addActions(menu, actions)
-    # return menu
+    # # def menu(self, title, actions=None):
+    # # menu = self.menuBar.addMenu(title)
+    # # if actions:
+    # # addActions(menu, actions)
+    # # return menu
 
-    def toolbar(self, title, actions=None):
-        toolbar = ToolBar(title)
-        toolbar.setObjectName(u'%sToolBar' % title)
-        # toolbar.setOrientation(Qt.Vertical)
-        toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        if actions:
-            addActions(toolbar, actions)
-        self.addToolBar(Qt.LeftToolBarArea, toolbar)
-        return toolbar
+    # def toolbar(self, title, actions=None):
+    #     toolbar = ToolBar(title)
+    #     toolbar.setObjectName(u'%sToolBar' % title)
+    #     # toolbar.setOrientation(Qt.Vertical)
+    #     toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+    #     if actions:
+    #         addActions(toolbar, actions)
+    #     self.addToolBar(Qt.LeftToolBarArea, toolbar)
+    #     return toolbar
 
 from gui.ui_mainwindow import Ui_MainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
+class LabelerWindow(QMainWindow, Ui_MainWindow):
     FIT_WINDOW, FIT_WIDTH, MANUAL_ZOOM = list(range(3))
 
 
@@ -140,7 +140,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.dirty = False
 
         self._noSelectionSlot = False
-        self._beginner = True
+        # self._beginner = True
         self.screencastViewer = self.getAvailableScreencastViewer()
         self.screencast = "https://youtu.be/p0nR2YsCY_U"
 
@@ -332,7 +332,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         # self.detect = action("Detect Shapes", self.detectShape,
         # 'd', 'detect', getStr('crtBoxDetail'), enabled=False)
 
-        self.advancedMode.triggered.connect(self.toggleAdvancedMode)
+        # self.advancedMode.triggered.connect(self.toggleAdvancedMode)
         # self.advancedMode = action(getStr('advancedMode'), self.toggleAdvancedMode,
         #                       'Ctrl+Shift+A', 'expert', getStr('advancedModeDetail'),
         #                       checkable=True)
@@ -460,15 +460,15 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
             zoomActions=zoomActions,
             fileMenuActions=(self.open, self.opendir, self.save, self.saveAs,
                              self.closeAction, self.resetAllAction, self.quit),
-            beginner=(),
-            advanced=(),
+            # beginner=(),
+            # advanced=(),
             editMenu=(self.edit, self.copy, self.deleteAction, None,
                       self.color1),
-            beginnerContext=(self.create, self.edit, self.copy,
-                             self.deleteAction, self.detect),
-            advancedContext=(self.createMode, self.editMode, self.edit,
-                             self.copy, self.deleteAction, self.shapeLineColor,
-                             self.shapeFillColor),
+            # beginnerContext=(self.create, self.edit, self.copy,
+            #                  self.deleteAction, self.detect),
+            # advancedContext=(self.createMode, self.editMode, self.edit,
+            #                  self.copy, self.deleteAction, self.shapeLineColor,
+            #                  self.shapeFillColor),
             onLoadActive=(self.closeAction, self.create, self.detect,
                           self.createMode, self.editMode),
             onShapesPresent=(self.saveAs, self.hideAll, self.showAll))
@@ -516,24 +516,24 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.menu_File.aboutToShow.connect(self.updateFileMenu)
 
         # Custom context menu for the canvas widget:
-        addActions(self.canvas.menus[0], self.actions.beginnerContext)
-        addActions(self.canvas.menus[1], (
-            action('&Copy here', self.copyShape),
-            action('&Move here', self.moveShape)))
+        # addActions(self.canvas.menus[0], self.actions.beginnerContext)
+        # addActions(self.canvas.menus[1], (
+        #     action('&Copy here', self.copyShape),
+        #     action('&Move here', self.moveShape)))
 
         # self.tools = self.toolbar('Tools')
 
-        self.actions.beginner = (
-            self.open, self.opendir, self.changeSavedir, self.openNextImgAction,
-            self.openPrevImgAction, self.verify, self.save, self.save_format,
-            None, self.create, self.copy, self.deleteAction, self.detect, None,
-            self.zoomIn, zoom, self.zoomOut, self.fitWindow, self.fitWidth)
+        # self.actions.beginner = (
+        #     self.open, self.opendir, self.changeSavedir, self.openNextImgAction,
+        #     self.openPrevImgAction, self.verify, self.save, self.save_format,
+        #     None, self.create, self.copy, self.deleteAction, self.detect, None,
+        #     self.zoomIn, zoom, self.zoomOut, self.fitWindow, self.fitWidth)
 
-        self.actions.advanced = (
-            self.open, self.opendir, self.changeSavedir, self.openNextImgAction,
-            self.openPrevImgAction, self.save, self.save_format, None,
-            self.createMode, self.editMode, None,
-            self.hideAll, self.showAll)
+        # self.actions.advanced = (
+        #     self.open, self.opendir, self.changeSavedir, self.openNextImgAction,
+        #     self.openPrevImgAction, self.save, self.save_format, None,
+        #     self.createMode, self.editMode, None,
+        #     self.hideAll, self.showAll)
 
         self.statusBar().showMessage('%s started.' % __appname__)
         self.statusBar().show()
@@ -588,9 +588,9 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
                 return x.toBool()
             return bool(x)
 
-        if xbool(self.settings.get(SETTING_ADVANCE_MODE, False)):
-            self.actions.advancedMode.setChecked(True)
-            self.toggleAdvancedMode()
+        # if xbool(self.settings.get(SETTING_ADVANCE_MODE, False)):
+        #     self.actions.advancedMode.setChecked(True)
+        #     self.toggleAdvancedMode()
 
         # Populate the File menu dynamically.
         self.updateFileMenu()
@@ -604,7 +604,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         # Callbacks:
         self.zoomWidget.valueChanged.connect(self.paintCanvas)
 
-        self.populateModeActions()
+        # self.populateModeActions()
 
         # Display cursor coordinates at the right of status bar
         self.labelCoordinates = QLabel('')
@@ -647,39 +647,39 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
     def noShapes(self):
         return not self.itemsToShapes
 
-    def toggleAdvancedMode(self, value=True):
-        self._beginner = not value
-        self.canvas.setEditing(True)
-        self.populateModeActions()
-        self.editButton.setVisible(not value)
-        if value:
-            self.actions.createMode.setEnabled(True)
-            self.actions.editMode.setEnabled(False)
+    # def toggleAdvancedMode(self, value=True):
+    #     self._beginner = not value
+    #     self.canvas.setEditing(True)
+    #     self.populateModeActions()
+    #     self.editButton.setVisible(not value)
+    #     if value:
+    #         self.actions.createMode.setEnabled(True)
+    #         self.actions.editMode.setEnabled(False)
             # self.dockLabel.setFeatures(self.dockLabel.features() | self.dockFeatures)
         # else:
         # self.dockLabel.setFeatures(self.dockLabel.features() ^ self.dockFeatures)
 
-    def populateModeActions(self):
-        if self.beginner():
-            tool, menu = self.actions.beginner, self.actions.beginnerContext
-        else:
-            tool, menu = self.actions.advanced, self.actions.advancedContext
-        # self.tools.clear()
-        # addActions(self.tools, tool)
-        self.canvas.menus[0].clear()
-        addActions(self.canvas.menus[0], menu)
-        self.menu_Edit.clear()
-        actions = (self.actions.create, self.actions.detect,) if self.beginner()\
-            else (self.actions.createMode, self.actions.editMode)
-        addActions(self.menu_Edit, actions + self.actions.editMenu)
+    # def populateModeActions(self):
+    #     # if self.beginner():
+    #     tool, menu = self.actions.beginner, self.actions.beginnerContext
+    #     # else:
+    #     #     tool, menu = self.actions.advanced, self.actions.advancedContext
+    #     # self.tools.clear()
+    #     # addActions(self.tools, tool)
+    #     self.canvas.menus[0].clear()
+    #     addActions(self.canvas.menus[0], menu)
+    #     self.menu_Edit.clear()
+    #     actions = (self.actions.create, self.actions.detect,) if self.beginner()\
+    #         else (self.actions.createMode, self.actions.editMode)
+    #     addActions(self.menu_Edit, actions + self.actions.editMenu)
 
-    def setBeginner(self):
-        # self.tools.clear()
-        addActions(self.tools, self.actions.beginner)
+    # def setBeginner(self):
+    #     # self.tools.clear()
+    #     addActions(self.tools, self.actions.beginner)
 
-    def setAdvanced(self):
-        self.tools.clear()
-        addActions(self.tools, self.actions.advanced)
+    # def setAdvanced(self):
+    #     self.tools.clear()
+    #     addActions(self.tools, self.actions.advanced)
 
     def setDirty(self):
         self.dirty = True
@@ -727,11 +727,11 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
             self.recentFiles.pop()
         self.recentFiles.insert(0, filePath)
 
-    def beginner(self):
-        return self._beginner
+    # def beginner(self):
+    #     return self._beginner
 
-    def advanced(self):
-        return not self.beginner()
+    # def advanced(self):
+    #     return not self.beginner()
 
     def getAvailableScreencastViewer(self):
         osName = platform.system()
@@ -752,7 +752,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         QMessageBox.information(self, u'Information', msg)
 
     def createShape(self):
-        assert self.beginner()
+        # assert self.beginner()
         self.canvas.setEditing(False)
         self.actions.create.setEnabled(False)
         self.actions.detect.setEnabled(False)
@@ -760,7 +760,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
 
 
     def detectShape(self):
-        assert self.beginner()
+        # assert self.beginner()
         # self.canvas.setEditing(False)
         # self.actions.create.setEnabled(False)
         # self.actions.detect.setEnabled(False)
@@ -775,7 +775,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
     def toggleDrawingSensitive(self, drawing=True):
         """In the middle of drawing, toggling between modes should be disabled."""
         self.actions.editMode.setEnabled(not drawing)
-        if not drawing and self.beginner():
+        if not drawing:
             # Cancel creation.
             print('Cancel creation.')
             self.canvas.setEditing(True)
@@ -789,11 +789,11 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.actions.editMode.setEnabled(not edit)
 
     def setCreateMode(self):
-        assert self.advanced()
+        # assert self.advanced()
         self.toggleDrawMode(False)
 
     def setEditMode(self):
-        assert self.advanced()
+        # assert self.advanced()
         self.toggleDrawMode(True)
         self.labelSelectionChanged()
 
@@ -1097,12 +1097,12 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
                 # self.canvas.undoLastLine()
                 self.canvas.resetAllLines()
 
-        if self.beginner():  # Switch to edit mode.
-            self.canvas.setEditing(True)
-            self.actions.create.setEnabled(True)
-            self.actions.detect.setEnabled(True)
-        else:
-            self.actions.editMode.setEnabled(True)
+        # if self.beginner():  # Switch to edit mode.
+        self.canvas.setEditing(True)
+        self.actions.create.setEnabled(True)
+        self.actions.detect.setEnabled(True)
+        # else:
+        #     self.actions.editMode.setEnabled(True)
         self.setDirty()
 
     # Callback functions:
@@ -1135,12 +1135,12 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
             generate_color = generateColorByText(text)
             shape = self.canvas.setLastLabel(text, generate_color, generate_color)
             self.addLabel(shape)
-            if self.beginner():  # Switch to edit mode.
-                self.canvas.setEditing(True)
-                self.actions.create.setEnabled(True)
-                self.actions.detect.setEnabled(True)
-            else:
-                self.actions.editMode.setEnabled(True)
+            # if self.beginner():  # Switch to edit mode.
+            self.canvas.setEditing(True)
+            self.actions.create.setEnabled(True)
+            self.actions.detect.setEnabled(True)
+            # else:
+            #     self.actions.editMode.setEnabled(True)
             self.setDirty()
 
             if text not in self.labelHist:
@@ -1227,11 +1227,11 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.zoomMode = self.FIT_WIDTH if value else self.MANUAL_ZOOM
         self.adjustScale()
 
-    def hidePolygons(self):
-        self.togglePolygons(False)
+    # def hidePolygons(self):
+    #     self.togglePolygons(False)
 
-    def showPolygons(self):
-        self.togglePolygons(True)
+    # def showPolygons(self):
+    #     self.togglePolygons(True)
 
     # def on_toolButton_ShowSeed_triggered(self):
     #     print("on_toolButton_ShowSeed_triggered")
@@ -1385,7 +1385,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.settings[SETTING_LINE_COLOR] = self.lineColor
         self.settings[SETTING_FILL_COLOR] = self.fillColor
         self.settings[SETTING_RECENT_FILES] = self.recentFiles
-        self.settings[SETTING_ADVANCE_MODE] = not self._beginner
+        # self.settings[SETTING_ADVANCE_MODE] = not self._beginner
         if self.defaultSaveDir and os.path.exists(self.defaultSaveDir):
             self.settings[SETTING_SAVE_DIR] = ustr(self.defaultSaveDir)
         else:

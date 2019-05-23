@@ -307,6 +307,11 @@
     <property name="title">
      <string>Edit</string>
     </property>
+    <addaction name="create"/>
+    <addaction name="deleteAction"/>
+    <addaction name="edit"/>
+    <addaction name="copy"/>
+    <addaction name="detect"/>
    </widget>
    <widget class="QMenu" name="menu_View">
     <property name="title">
