@@ -384,7 +384,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         #                   checkable=True, enabled=False)
         # Group zoom controls into a list for easier toggling.
 
-        zoomActions = (self.zoomWidget, self.zoomIn, self.zoomOut,
+        self.zoomActions = (self.zoomWidget, self.zoomIn, self.zoomOut,
                        self.zoomOrg, self.fitWindow, self.fitWidth)
         self.zoomMode = self.MANUAL_ZOOM
         self.scalers = {
@@ -433,45 +433,50 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
 
         # Store actions for further handling.
-        self.actions = struct(
-            save=self.save,
-            save_format=self.save_format,
-            saveAs=self.saveAs,
-            open=self.open,
-            close=self.closeAction,
-            resetAll=self.resetAllAction,
-            lineColor=self.color1,
-            create=self.create,
-            detect=self.detect,
-            delete=self.deleteAction,
-            edit=self.edit,
-            copy=self.copy,
-            createMode=self.createMode,
-            editMode=self.editMode,
-            advancedMode=self.advancedMode,
-            shapeLineColor=self.shapeLineColor,
-            shapeFillColor=self.shapeFillColor,
-            zoom=zoom,
-            zoomIn=self.zoomIn,
-            zoomOut=self.zoomOut,
-            zoomOrg=self.zoomOrg,
-            fitWindow=self.fitWindow,
-            fitWidth=self.fitWidth,
-            zoomActions=zoomActions,
-            fileMenuActions=(self.open, self.opendir, self.save, self.saveAs,
-                             self.closeAction, self.resetAllAction, self.quit),
-            # beginner=(),
-            # advanced=(),
-            editMenu=(self.edit, self.copy, self.deleteAction, None,
-                      self.color1),
-            # beginnerContext=(self.create, self.edit, self.copy,
-            #                  self.deleteAction, self.detect),
-            # advancedContext=(self.createMode, self.editMode, self.edit,
-            #                  self.copy, self.deleteAction, self.shapeLineColor,
-            #                  self.shapeFillColor),
-            onLoadActive=(self.closeAction, self.create, self.detect,
-                          self.createMode, self.editMode),
-            onShapesPresent=(self.saveAs, self.hideAll, self.showAll))
+        # self.actions = struct(
+        #     save=self.save,
+        #     save_format=self.save_format,
+        #     saveAs=self.saveAs,
+        #     open=self.open,
+        #     close=self.closeAction,
+        #     resetAll=self.resetAllAction,
+        #     lineColor=self.color1,
+        #     create=self.create,
+        #     detect=self.detect,
+        #     delete=self.deleteAction,
+        #     edit=self.edit,
+        #     copy=self.copy,
+        #     createMode=self.createMode,
+        #     editMode=self.editMode,
+        #     advancedMode=self.advancedMode,
+        #     shapeLineColor=self.shapeLineColor,
+        #     shapeFillColor=self.shapeFillColor,
+        #     zoom=zoom,
+        #     zoomIn=self.zoomIn,
+        #     zoomOut=self.zoomOut,
+        #     zoomOrg=self.zoomOrg,
+        #     fitWindow=self.fitWindow,
+        #     fitWidth=self.fitWidth,
+        #     zoomActions=self.zoomActions,
+        #     fileMenuActions=(self.open, self.opendir, self.save, self.saveAs,
+        #                      self.closeAction, self.resetAllAction, self.quit),
+        #     # beginner=(),
+        #     # advanced=(),
+        #     editMenu=(self.edit, self.copy, self.deleteAction, None,
+        #               self.color1),
+        #     # beginnerContext=(self.create, self.edit, self.copy,
+        #     #                  self.deleteAction, self.detect),
+        #     # advancedContext=(self.createMode, self.editMode, self.edit,
+        #     #                  self.copy, self.deleteAction, self.shapeLineColor,
+        #     #                  self.shapeFillColor),
+        #     onLoadActive=(self.closeAction, self.create, self.detect,
+        #                   self.createMode, self.editMode),
+        #     onShapesPresent=(self.saveAs, self.hideAll, self.showAll))
+
+        self.onLoadActive = (self.closeAction, self.create, self.detect,
+                          self.createMode, self.editMode)
+
+        self.onShapesPresent = (self.saveAs, self.hideAll, self.showAll)
 
         # self.menus = struct(
         #     # file=self.menu('&File'),
@@ -627,15 +632,15 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     ## Support Functions ##
     def set_format(self, save_format):
         if save_format == FORMAT_PASCALVOC:
-            self.actions.save_format.setText(FORMAT_PASCALVOC)
-            self.actions.save_format.setIcon(newIcon("format_voc"))
+            self.save_format.setText(FORMAT_PASCALVOC)
+            self.save_format.setIcon(newIcon("format_voc"))
             self.usingPascalVocFormat = True
             self.usingYoloFormat = False
             LabelFile.suffix = XML_EXT
 
         elif save_format == FORMAT_YOLO:
-            self.actions.save_format.setText(FORMAT_YOLO)
-            self.actions.save_format.setIcon(newIcon("format_yolo"))
+            self.save_format.setText(FORMAT_YOLO)
+            self.save_format.setIcon(newIcon("format_yolo"))
             self.usingPascalVocFormat = False
             self.usingYoloFormat = True
             LabelFile.suffix = TXT_EXT
@@ -683,19 +688,19 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     def setDirty(self):
         self.dirty = True
-        self.actions.save.setEnabled(True)
+        self.save.setEnabled(True)
 
     def setClean(self):
         self.dirty = False
-        self.actions.save.setEnabled(False)
-        self.actions.create.setEnabled(True)
-        self.actions.detect.setEnabled(True)
+        self.save.setEnabled(False)
+        self.create.setEnabled(True)
+        self.detect.setEnabled(True)
 
     def toggleActions(self, value=True):
         """Enable/Disable widgets which depend on an opened image."""
-        for z in self.actions.zoomActions:
+        for z in self.zoomActions:
             z.setEnabled(value)
-        for action in self.actions.onLoadActive:
+        for action in self.onLoadActive:
             action.setEnabled(value)
 
     def queueEvent(self, function):
@@ -754,8 +759,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def createShape(self):
         # assert self.beginner()
         self.canvas.setEditing(False)
-        self.actions.create.setEnabled(False)
-        self.actions.detect.setEnabled(False)
+        self.create.setEnabled(False)
+        self.detect.setEnabled(False)
         self.updateCount()
 
 
@@ -774,19 +779,19 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     def toggleDrawingSensitive(self, drawing=True):
         """In the middle of drawing, toggling between modes should be disabled."""
-        self.actions.editMode.setEnabled(not drawing)
+        self.editMode.setEnabled(not drawing)
         if not drawing:
             # Cancel creation.
             print('Cancel creation.')
             self.canvas.setEditing(True)
             self.canvas.restoreCursor()
-            self.actions.create.setEnabled(True)
-            self.actions.detect.setEnabled(True)
+            self.create.setEnabled(True)
+            self.detect.setEnabled(True)
 
     def toggleDrawMode(self, edit=True):
         self.canvas.setEditing(edit)
-        self.actions.createMode.setEnabled(edit)
-        self.actions.editMode.setEnabled(not edit)
+        self.createMode.setEnabled(edit)
+        self.editMode.setEnabled(not edit)
 
     def setCreateMode(self):
         # assert self.advanced()
@@ -872,11 +877,11 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
                 self.shapesToItems[shape].setSelected(True)
             else:
                 self.labelList.clearSelection()
-        self.actions.delete.setEnabled(selected)
-        self.actions.copy.setEnabled(selected)
-        self.actions.edit.setEnabled(selected)
-        self.actions.shapeLineColor.setEnabled(selected)
-        self.actions.shapeFillColor.setEnabled(selected)
+        self.deleteAction.setEnabled(selected)
+        self.copy.setEnabled(selected)
+        self.edit.setEnabled(selected)
+        self.shapeLineColor.setEnabled(selected)
+        self.shapeFillColor.setEnabled(selected)
         self.updateCount()
 
     def addLabel(self, shape):
@@ -888,7 +893,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.itemsToShapes[item] = shape
         self.shapesToItems[shape] = item
         self.labelList.addItem(item)
-        for action in self.actions.onShapesPresent:
+        for action in self.onShapesPresent:
             action.setEnabled(True)
         self.updateCount()
 
@@ -1099,8 +1104,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
         # if self.beginner():  # Switch to edit mode.
         self.canvas.setEditing(True)
-        self.actions.create.setEnabled(True)
-        self.actions.detect.setEnabled(True)
+        self.create.setEnabled(True)
+        self.detect.setEnabled(True)
         # else:
         #     self.actions.editMode.setEnabled(True)
         self.setDirty()
@@ -1137,8 +1142,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             self.addLabel(shape)
             # if self.beginner():  # Switch to edit mode.
             self.canvas.setEditing(True)
-            self.actions.create.setEnabled(True)
-            self.actions.detect.setEnabled(True)
+            self.create.setEnabled(True)
+            self.detect.setEnabled(True)
             # else:
             #     self.actions.editMode.setEnabled(True)
             self.setDirty()
@@ -1155,8 +1160,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         bar.setValue(bar.value() + bar.singleStep() * units)
 
     def setZoom(self, value):
-        self.actions.fitWidth.setChecked(False)
-        self.actions.fitWindow.setChecked(False)
+        self.fitWidth.setChecked(False)
+        self.fitWindow.setChecked(False)
         self.zoomMode = self.MANUAL_ZOOM
         self.zoomWidget.setValue(value)
 
@@ -1217,13 +1222,13 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     def setFitWindow(self, value=True):
         if value:
-            self.actions.fitWidth.setChecked(False)
+            self.fitWidth.setChecked(False)
         self.zoomMode = self.FIT_WINDOW if value else self.MANUAL_ZOOM
         self.adjustScale()
 
     def setFitWidth(self, value=True):
         if value:
-            self.actions.fitWindow.setChecked(False)
+            self.fitWindow.setChecked(False)
         self.zoomMode = self.FIT_WIDTH if value else self.MANUAL_ZOOM
         self.adjustScale()
 
@@ -1613,7 +1618,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.setClean()
         self.toggleActions(False)
         self.canvas.setEnabled(False)
-        self.actions.saveAs.setEnabled(False)
+        self.saveAs.setEnabled(False)
 
     def resetAll(self):
         self.settings.reset()
@@ -1650,7 +1655,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.remLabel(self.canvas.deleteSelected())
         self.setDirty()
         if self.noShapes():
-            for action in self.actions.onShapesPresent:
+            for action in self.onShapesPresent:
                 action.setEnabled(False)
 
     def chshapeLineColor(self):
