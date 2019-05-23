@@ -65,11 +65,11 @@ def util_qt_strlistclass():
 
 class WindowMixin(object):
 
-    def menu(self, title, actions=None):
-        menu = self.menuBar().addMenu(title)
-        if actions:
-            addActions(menu, actions)
-        return menu
+    # def menu(self, title, actions=None):
+    # menu = self.menuBar.addMenu(title)
+    # if actions:
+    # addActions(menu, actions)
+    # return menu
 
     def toolbar(self, title, actions=None):
         toolbar = ToolBar(title)
@@ -213,7 +213,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
 
         self.canvas = Canvas(parent=self)
         self.canvas.zoomRequest.connect(self.zoomRequest)
-        self.canvas.setDrawingShapeToSquare(self.settings.get(SETTING_DRAW_SQUARE, False))
+        # self.canvas.setDrawingShapeToSquare(self.settings.get(SETTING_DRAW_SQUARE, False))
 
         # scroll = self.scroll
         # scroll = QScrollArea()
@@ -417,18 +417,18 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
 
         #TODO push actions management into the GUI QtCreator
         # Lavel list context menu.
-        labelMenu = QMenu()
-        addActions(labelMenu, (self.edit, self.deleteAction))
+        self.labelMenu = QMenu()
+        addActions(self.labelMenu, (self.edit, self.deleteAction))
         self.labelList.setContextMenuPolicy(Qt.CustomContextMenu)
         self.labelList.customContextMenuRequested.connect(
             self.popLabelListMenu)
 
         # Draw squares/rectangles
-        self.drawSquaresOption = QAction('Draw Squares', self)
-        self.drawSquaresOption.setShortcut('Ctrl+Shift+R')
-        self.drawSquaresOption.setCheckable(True)
-        self.drawSquaresOption.setChecked(self.settings.get(SETTING_DRAW_SQUARE, False))
-        self.drawSquaresOption.triggered.connect(self.toogleDrawSquare)
+        # self.drawSquaresOption = QAction('Draw Squares', self)
+        # self.drawSquaresOption.setShortcut('Ctrl+Shift+R')
+        # self.drawSquaresOption.setCheckable(True)
+        # self.drawSquaresOption.setChecked(self.settings.get(SETTING_DRAW_SQUARE, False))
+        # self.drawSquaresOption.triggered.connect(self.toogleDrawSquare)
 
 
 
@@ -463,7 +463,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
             beginner=(),
             advanced=(),
             editMenu=(self.edit, self.copy, self.deleteAction, None,
-                      self.color1, self.drawSquaresOption),
+                      self.color1),
             beginnerContext=(self.create, self.edit, self.copy,
                              self.deleteAction, self.detect),
             advancedContext=(self.createMode, self.editMode, self.edit,
@@ -473,13 +473,13 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
                           self.createMode, self.editMode),
             onShapesPresent=(self.saveAs, self.hideAll, self.showAll))
 
-        self.menus = struct(
-            file=self.menu('&File'),
-            edit=self.menu('&Edit'),
-            view=self.menu('&View'),
-            help=self.menu('&Help'),
-            recentFiles=QMenu('Open &Recent'),
-            labelList=labelMenu)
+        # self.menus = struct(
+        #     # file=self.menu('&File'),
+        #     # edit=self.menu('&Edit'),
+        #     # view=self.menu('&View'),
+        #     # help=self.menu('&Help'),
+        #     recentFiles=QMenu('Open &Recent'),
+        #     labelList=labelMenu)
 
 
         # Auto saving : Enable auto saving if pressing next
@@ -499,12 +499,12 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.displayLabelOption.setChecked(self.settings.get(SETTING_PAINT_LABEL, False))
         self.displayLabelOption.triggered.connect(self.togglePaintLabelsOption)
 
-        addActions(self.menus.file,
-                   (self.open, self.opendir, self.changeSavedir, self.openAnnotation,
-                   self.menus.recentFiles, self.save, self.save_format, self.saveAs,
-                   self.closeAction, self.resetAllAction, self.quit))
-        addActions(self.menus.help, (self.help, self.showInfo))
-        addActions(self.menus.view, (
+        # addActions(self.menu_File,
+        #            (self.open, self.opendir, self.changeSavedir, self.openAnnotation,
+        #            self.menu_RecentFiles, self.save, self.save_format, self.saveAs,
+        #            self.closeAction, self.resetAllAction, self.quit))
+        # addActions(self.menu_Help, (self.help, self.showInfo))
+        addActions(self.menu_View, (
             self.autoSaving,
             self.singleClassMode,
             self.displayLabelOption,
@@ -513,7 +513,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
             self.zoomIn, self.zoomOut, self.zoomOrg, None,
             self.fitWindow, self.fitWidth))
 
-        self.menus.file.aboutToShow.connect(self.updateFileMenu)
+        self.menu_File.aboutToShow.connect(self.updateFileMenu)
 
         # Custom context menu for the canvas widget:
         addActions(self.canvas.menus[0], self.actions.beginnerContext)
@@ -668,18 +668,18 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         # addActions(self.tools, tool)
         self.canvas.menus[0].clear()
         addActions(self.canvas.menus[0], menu)
-        self.menus.edit.clear()
+        self.menu_Edit.clear()
         actions = (self.actions.create, self.actions.detect,) if self.beginner()\
             else (self.actions.createMode, self.actions.editMode)
-        addActions(self.menus.edit, actions + self.actions.editMenu)
+        addActions(self.menu_Edit, actions + self.actions.editMenu)
 
-    # def setBeginner(self):
-    #     # self.tools.clear()
-    #     addActions(self.tools, self.actions.beginner)
+    def setBeginner(self):
+        # self.tools.clear()
+        addActions(self.tools, self.actions.beginner)
 
-    # def setAdvanced(self):
-    #     self.tools.clear()
-    #     addActions(self.tools, self.actions.advanced)
+    def setAdvanced(self):
+        self.tools.clear()
+        addActions(self.tools, self.actions.advanced)
 
     def setDirty(self):
         self.dirty = True
@@ -802,7 +802,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
 
         def exists(filename):
             return os.path.exists(filename)
-        menu = self.menus.recentFiles
+        menu = self.menu_RecentFiles
         menu.clear()
         files = [f for f in self.recentFiles if f !=
                  currFilePath and exists(f)]
@@ -814,7 +814,8 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
             menu.addAction(action)
 
     def popLabelListMenu(self, point):
-        self.menus.labelList.exec_(self.labelList.mapToGlobal(point))
+        print(point)
+        self.labelMenu.exec_(self.labelList.mapToGlobal(point))
 
     def editLabel(self):
         if not self.canvas.editing():
@@ -1398,7 +1399,7 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         self.settings[SETTING_AUTO_SAVE] = self.autoSaving.isChecked()
         self.settings[SETTING_SINGLE_CLASS] = self.singleClassMode.isChecked()
         self.settings[SETTING_PAINT_LABEL] = self.displayLabelOption.isChecked()
-        self.settings[SETTING_DRAW_SQUARE] = self.drawSquaresOption.isChecked()
+        # self.settings[SETTING_DRAW_SQUARE] = self.drawSquaresOption.isChecked()
         self.settings.save()
 
     def loadRecent(self, filename):
@@ -1717,8 +1718,8 @@ class LabelerWindow(QMainWindow, WindowMixin, Ui_MainWindow):
         for shape in self.canvas.shapes:
             shape.paintLabel = self.displayLabelOption.isChecked()
 
-    def toogleDrawSquare(self):
-        self.canvas.setDrawingShapeToSquare(self.drawSquaresOption.isChecked())
+    # def toogleDrawSquare(self):
+    #     self.canvas.setDrawingShapeToSquare(self.drawSquaresOption.isChecked())
 
 
 
