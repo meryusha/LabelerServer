@@ -27,6 +27,7 @@ except ImportError:
     from PyQt4.QtGui import *
     from PyQt4.QtCore import *
 
+
 import resources
 # Add internal libs
 from libs.constants import *
@@ -65,21 +66,21 @@ def util_qt_strlistclass():
 
 # class WindowMixin(object):
 
-    # # def menu(self, title, actions=None):
-    # # menu = self.menuBar.addMenu(title)
-    # # if actions:
-    # # addActions(menu, actions)
-    # # return menu
+# # def menu(self, title, actions=None):
+# # menu = self.menuBar.addMenu(title)
+# # if actions:
+# # addActions(menu, actions)
+# # return menu
 
-    # def toolbar(self, title, actions=None):
-    #     toolbar = ToolBar(title)
-    #     toolbar.setObjectName(u'%sToolBar' % title)
-    #     # toolbar.setOrientation(Qt.Vertical)
-    #     toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-    #     if actions:
-    #         addActions(toolbar, actions)
-    #     self.addToolBar(Qt.LeftToolBarArea, toolbar)
-    #     return toolbar
+# def toolbar(self, title, actions=None):
+#     toolbar = ToolBar(title)
+#     toolbar.setObjectName(u'%sToolBar' % title)
+#     # toolbar.setOrientation(Qt.Vertical)
+#     toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+#     if actions:
+#         addActions(toolbar, actions)
+#     self.addToolBar(Qt.LeftToolBarArea, toolbar)
+#     return toolbar
 
 from gui.ui_mainwindow import Ui_MainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -116,10 +117,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
         self.setupUi(self)
 
-        # Load setting in the main thread
-        self.settings = Settings()
-        self.settings.load()
-        # settings = self.settings
 
         # Load string bundle for i18n
         self.stringBundle = StringBundle.getBundle()
@@ -411,12 +408,11 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         #                         icon='color', tip=getStr('shapeFillColorDetail'),
         #                         enabled=False)
 
-        self.labels = self.dockLabel.toggleViewAction()
-        self.labels.setText(getStr('showHide'))
-        self.labels.setShortcut('Ctrl+Shift+L')
+        # self.labels = self.dockLabel.toggleViewAction()
+        # self.labels.setText(getStr('showHide'))
+        # self.labels.setShortcut('Ctrl+Shift+L')
 
-        #TODO push actions management into the GUI QtCreator
-        # Lavel list context menu.
+        # Label list context menu.
         self.labelMenu = QMenu()
         addActions(self.labelMenu, (self.edit, self.deleteAction))
         self.labelList.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -473,9 +469,11 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         #                   self.createMode, self.editMode),
         #     onShapesPresent=(self.saveAs, self.hideAll, self.showAll))
 
+        # Active actions on Load
         self.onLoadActive = (self.closeAction, self.create, self.detect,
                           self.createMode, self.editMode)
 
+        # Active actions when Shape are present
         self.onShapesPresent = (self.saveAs, self.hideAll, self.showAll)
 
         # self.menus = struct(
@@ -487,36 +485,38 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         #     labelList=labelMenu)
 
 
-        # Auto saving : Enable auto saving if pressing next
-        self.autoSaving = QAction(getStr('autoSaveMode'), self)
-        self.autoSaving.setCheckable(True)
-        self.autoSaving.setChecked(self.settings.get(SETTING_AUTO_SAVE, False))
+        # SETTINGS
+        # Auto saving: Enable auto saving if pressing next
+        # self.autoSaving = QAction(getStr('autoSaveMode'), self)
+        # self.autoSaving.setCheckable(True)
+        # self.autoSaving.setChecked(self.settings.get(SETTING_AUTO_SAVE, False))
         # Sync single class mode from PR#106
-        self.singleClassMode = QAction(getStr('singleClsMode'), self)
-        self.singleClassMode.setShortcut("Ctrl+Shift+S")
-        self.singleClassMode.setCheckable(True)
-        self.singleClassMode.setChecked(self.settings.get(SETTING_SINGLE_CLASS, False))
+        # self.singleClassMode = QAction(getStr('singleClsMode'), self)
+        # self.singleClassMode.setShortcut("Ctrl+Shift+S")
+        # self.singleClassMode.setCheckable(True)
+        # self.singleClassMode.setChecked(self.settings.get(SETTING_SINGLE_CLASS, False))
         self.lastLabel = None
         # Add option to enable/disable labels being displayed at the top of bounding boxes
-        self.displayLabelOption = QAction(getStr('displayLabel'), self)
-        self.displayLabelOption.setShortcut("Ctrl+Shift+P")
-        self.displayLabelOption.setCheckable(True)
-        self.displayLabelOption.setChecked(self.settings.get(SETTING_PAINT_LABEL, False))
+        # self.displayLabelOption = QAction(getStr('displayLabel'), self)
+        # self.displayLabelOption.setShortcut("Ctrl+Shift+P")
+        # self.displayLabelOption.setCheckable(True)
+        # self.displayLabelOption.setChecked(self.settings.get(SETTING_PAINT_LABEL, False))
         self.displayLabelOption.triggered.connect(self.togglePaintLabelsOption)
+
 
         # addActions(self.menu_File,
         #            (self.open, self.opendir, self.changeSavedir, self.openAnnotation,
         #            self.menu_RecentFiles, self.save, self.save_format, self.saveAs,
         #            self.closeAction, self.resetAllAction, self.quit))
         # addActions(self.menu_Help, (self.help, self.showInfo))
-        addActions(self.menu_View, (
-            self.autoSaving,
-            self.singleClassMode,
-            self.displayLabelOption,
-            self.labels, self.advancedMode, None,
-            self.hideAll, self.showAll, None,
-            self.zoomIn, self.zoomOut, self.zoomOrg, None,
-            self.fitWindow, self.fitWidth))
+        # addActions(self.menu_View, (
+        #     self.autoSaving,
+        #     self.singleClassMode,
+        #     self.displayLabelOption,
+        #     self.labels, self.advancedMode, None,
+        #     self.hideAll, self.showAll, None,
+        #     self.zoomIn, self.zoomOut, self.zoomOrg, None,
+        #     self.fitWindow, self.fitWidth))
 
         self.menu_File.aboutToShow.connect(self.updateFileMenu)
 
@@ -540,6 +540,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         #     self.createMode, self.editMode, None,
         #     self.hideAll, self.showAll)
 
+        # STATUS BAR
         self.statusBar().showMessage('%s started.' % __appname__)
         self.statusBar().show()
 
@@ -554,6 +555,16 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.fit_window = False
         # Add Chris
         self.difficult = False
+
+
+        # Load setting in the main thread
+        self.settings = Settings()
+        self.settings.load()
+        # settings = self.settings
+
+        self.autoSaving.setChecked(self.settings.get(SETTING_AUTO_SAVE, False))
+        self.singleClassMode.setChecked(self.settings.get(SETTING_SINGLE_CLASS, False))
+        self.displayLabelOption.setChecked(self.settings.get(SETTING_PAINT_LABEL, False))
 
         ## Fix the compatible issue for qt4 and qt5. Convert the QStringList to python list
         if self.settings.get(SETTING_RECENT_FILES):
@@ -660,9 +671,9 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     #     if value:
     #         self.actions.createMode.setEnabled(True)
     #         self.actions.editMode.setEnabled(False)
-            # self.dockLabel.setFeatures(self.dockLabel.features() | self.dockFeatures)
-        # else:
-        # self.dockLabel.setFeatures(self.dockLabel.features() ^ self.dockFeatures)
+    # self.dockLabel.setFeatures(self.dockLabel.features() | self.dockFeatures)
+    # else:
+    # self.dockLabel.setFeatures(self.dockLabel.features() ^ self.dockFeatures)
 
     # def populateModeActions(self):
     #     # if self.beginner():
@@ -820,6 +831,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     def popLabelListMenu(self, point):
         print(point)
+        # self.menu_Edit.exec_(self.labelList.mapToGlobal(point))
         self.labelMenu.exec_(self.labelList.mapToGlobal(point))
 
     def editLabel(self):

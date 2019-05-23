@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>470</width>
-    <height>598</height>
+    <width>624</width>
+    <height>562</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,8 +37,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>129</width>
-         <height>475</height>
+         <width>283</width>
+         <height>439</height>
         </rect>
        </property>
       </widget>
@@ -278,7 +278,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>470</width>
+     <width>624</width>
      <height>22</height>
     </rect>
    </property>
@@ -317,6 +317,19 @@
     <property name="title">
      <string>View</string>
     </property>
+    <addaction name="autoSaving"/>
+    <addaction name="singleClassMode"/>
+    <addaction name="displayLabelOption"/>
+    <addaction name="separator"/>
+    <addaction name="hideAll"/>
+    <addaction name="showAll"/>
+    <addaction name="separator"/>
+    <addaction name="zoomIn"/>
+    <addaction name="zoomOut"/>
+    <addaction name="zoomOrg"/>
+    <addaction name="fitWindow"/>
+    <addaction name="fitWidth"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -1058,6 +1071,36 @@ bounding boxes</string>
   <action name="actiontest">
    <property name="text">
     <string>test</string>
+   </property>
+  </action>
+  <action name="autoSaving">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Auto Save mode</string>
+   </property>
+  </action>
+  <action name="singleClassMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Single Class Mode</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="displayLabelOption">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Display Labels</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+P</string>
    </property>
   </action>
  </widget>
