@@ -75,7 +75,7 @@ if __name__ == '__main__':
             # stream handler
             logging.StreamHandler()
         ])
-    logging.info(f"Running with config:\n{CFG}")
+    # logging.info(f"Running with config:\n{CFG}")
 
     # create QtApplication
     app = QApplication(sys.argv)
@@ -92,7 +92,8 @@ if __name__ == '__main__':
     # Connect API to GUI
     # GUI detection button connected to API Object Detection
     # (parameter is OpenCV Image)
-    win.detect.triggered.connect(api.detectObjects)
+    win.detect.triggered.connect(lambda: api.detectObjects(win.filePath))
+    # win.detect.triggered.connect(lambda: api.detectObjects(win.image))
     # API Object Found connected to Window add Shape to current Image
     api.ObjectFound.connect(win.addShape)
     api.ObjectsFound.connect(win.addShapes)

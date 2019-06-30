@@ -1019,21 +1019,21 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         else:  # User probably changed item visibility
             self.canvas.setShapeVisible(shape, item.checkState() == Qt.Checked)
 
-    def addShapes(self, boxes):
+    #params: tuple of (boxes, labels) 
+    def addShapes(self, box_label_tup):
+        boxes, labels = box_label_tup
         # add all shapes
-        for box, label in boxes:
+        for box, label in zip(boxes, labels):
             # self.addShape(box, label)
             # TODO add all shape at once
-            minX = box[0]
-            minY = box[1]
-            maxX = box[0] + box[2]
-            maxY = box[1] + box[3]
+            # print(label)
+            minX, minY, maxX, maxY  = box
             self.canvas.current = Shape()
             self.canvas.current.addPoint(QPointF(minX, minY))
             self.canvas.current.addPoint(QPointF(maxX, minY))
             self.canvas.current.addPoint(QPointF(maxX, maxY))
             self.canvas.current.addPoint(QPointF(minX, maxY))
-            self.canvas.current.label = label
+            self.canvas.current.label = str(label)
             self.canvas.current.close()
             self.canvas.shapes.append(self.canvas.current)
 
@@ -1045,10 +1045,14 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     def addShape(self, box, label):
         # print("GUI addShape", box)
+        # minX = box[0]
+        # minY = box[1]
+        # maxX = box[0] + box[2]
+        # maxY = box[1] + box[3]
         minX = box[0]
         minY = box[1]
-        maxX = box[0] + box[2]
-        maxY = box[1] + box[3]
+        maxX = box[2]
+        maxY = box[3]
         self.canvas.current = Shape()
         self.canvas.current.addPoint(QPointF(minX, minY))
         self.canvas.current.addPoint(QPointF(maxX, minY))
