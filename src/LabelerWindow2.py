@@ -246,20 +246,6 @@ class LabelerWindow2(QMainWindow, Ui_MainWindow):
         self.statusBar().show()
 
 
-
-
-        def xbool(x):
-            if isinstance(x, QVariant):
-                return x.toBool()
-            return bool(x)
-
-        # if xbool(self.settings.get(SETTING_ADVANCE_MODE, False)):
-        #     self.actions.advancedMode.setChecked(True)
-        #     self.toggleAdvancedMode()
-
-        # Populate the File menu dynamically.
-        self.updateFileMenu()
-
         # Since loading the file may take some time, make sure it runs in the background.
         if self.filePath and os.path.isdir(self.filePath):
             self.queueEvent(partial(self.importDirImages, self.filePath or ""))
@@ -299,7 +285,9 @@ class LabelerWindow2(QMainWindow, Ui_MainWindow):
                 break
         self.resize(size)
         self.move(position)
-        self.restoreState(self._settings.get(SETTING_WIN_STATE, QByteArray()))
+        self.restoreState(self._model.settings.get(SETTING_WIN_STATE, QByteArray()))
+        # Populate the File menu dynamically.
+        self.updateFileMenu()
 
     def update_status_bar(self, dir):
         self.statusBar().showMessage('%s started. Annotation will be saved to %s' %(__appname__, dir))
@@ -450,7 +438,7 @@ class LabelerWindow2(QMainWindow, Ui_MainWindow):
         self.labelSelectionChanged()
 
     def updateFileMenu(self):
-        currFilePath = self.filePath
+        currFilePath = self._model.filePath
 
         def exists(filename):
             return os.path.exists(filename)
