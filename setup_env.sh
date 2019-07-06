@@ -5,7 +5,7 @@ conda --version
 conda create -y -n ActiveImageLabeler
 
 conda activate ActiveImageLabeler
-# conda install -y python
+conda install -y python
 conda install -y  pylint pep8 flake8 yapf lxml pandas
 
 conda install -y opencv -c menpo 

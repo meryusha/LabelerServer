@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['ActiveImageLabeler.py'],
-             pathex=['/Users/giancos/git/ActiveImageLabeler/src'],
+             pathex=['/home/ramazam/Documents/Labeler/ActiveImageLabeler/src'],
              binaries=[],
              datas=[],
              hiddenimports=[],

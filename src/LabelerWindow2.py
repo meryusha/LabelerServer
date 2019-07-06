@@ -54,67 +54,40 @@ import numpy as np
 
 __appname__ = 'labelImg'
 
-# Utility functions and classes.
 
-def have_qstring():
-    '''p3/qt5 get rid of QString wrapper as py3 has native unicode str type'''
-    return not (sys.version_info.major >= 3 or QT_VERSION_STR.startswith('5.'))
-
-def util_qt_strlistclass():
-    return QStringList if have_qstring() else list
 
 
 from gui.ui_mainwindow import Ui_MainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class LabelerWindow(QMainWindow, Ui_MainWindow):
+class LabelerWindow2(QMainWindow, Ui_MainWindow):
     FIT_WINDOW, FIT_WIDTH, MANUAL_ZOOM = list(range(3))
 
-    def __init__(self, defaultFilename=None, defaultPrefdefClassFile=None, defaultPrefdefColorFile=None, defaultSaveDir=None):
+    def __init__(self, model, controller):
         super(LabelerWindow, self).__init__()
         # QtCore.QMetaObject.connectSlotsByName(self) #TODO connect SlotsByName!
 
         self.setupUi(self)
 
+        self._model = model 
+        self._controller = controller
+        self._controller.restore_app_state()
+        self.build_model_signals()
 
-        # Load string bundle for i18n
-        self.stringBundle = StringBundle.getBundle()
-        getStr = lambda strId: self.stringBundle.getString(strId)
-
-        # Save as Pascal voc xml
-        self.defaultSaveDir = defaultSaveDir
-        # print(defaultSaveDir)
-        self.usingPascalVocFormat = True
-        self.usingYoloFormat = False
-
-        # For loading all image under a directory
-        self.mImgList = []
-        self.dirname = None
-
-        #Merey: Labels - loaded from the file
-        self.labelHist = []
-        self.colorHist = []
-        self.lastOpenDir = None
-
-        # Whether we need to save or not.
-        #TODO: change the var name
-        self.dirty = False
-
-         # what is it? 
-        self._noSelectionSlot = False
-
+        # # Load string bundle for i18n
+        # self.stringBundle = StringBundle.getBundle()
+        # getStr = lambda strId: self.stringBundle.getString(strId)
         self.screencastViewer = self.getAvailableScreencastViewer()
         #TODO: put our tutorial there
         self.screencast = "https://youtu.be/p0nR2YsCY_U"
 
-        # Load predefined classes to the list
-        self.loadPredefinedClasses(defaultPrefdefClassFile)
 
-        # Merey Load predefined colors to the list
-        # self.loadPredefinedColors(defaultPrefdefColorFile)
+         # what is it? 
+        self._noSelectionSlot = False
+
         # Main widgets and related state.
-        self.labelDialog = LabelDialog(parent=self, listItem=self.labelHist)
+        self.labelDialog = LabelDialog(parent=self, listItem=self._controller.labelHist)
 
         self.itemsToShapes = {}
         self.shapesToItems = {}
@@ -272,61 +245,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.statusBar().showMessage('%s started.' % __appname__)
         self.statusBar().show()
 
-        # Application state.
-        self.image = QImage()
-        self.filePath = ustr(defaultFilename)
-        self.recentFiles = []
-        self.maxRecent = 7
-        self.lineColor = None
-        self.fillColor = None
-        self.zoom_level = 100
-        self.fit_window = False
-        # Add Chris
-        self.difficult = False
-        # import pdb;
-        # pyqtRemoveInputHook(); pdb.set_trace()
 
-        # Load setting in the main thread
-        self.settings = Settings()
-        self.settings.load()
-        # settings = self.settings
 
-        self.autoSaving.setChecked(self.settings.get(SETTING_AUTO_SAVE, False))
-        self.singleClassMode.setChecked(self.settings.get(SETTING_SINGLE_CLASS, False))
-        self.displayLabelOption.setChecked(self.settings.get(SETTING_PAINT_LABEL, False))
-
-        ## Fix the compatible issue for qt4 and qt5. Convert the QStringList to python list
-        if self.settings.get(SETTING_RECENT_FILES):
-            if have_qstring():
-                recentFileQStringList = self.settings.get(SETTING_RECENT_FILES)
-                self.recentFiles = [ustr(i) for i in recentFileQStringList]
-            else:
-                self.recentFiles = recentFileQStringList = self.settings.get(SETTING_RECENT_FILES)
-
-        size = self.settings.get(SETTING_WIN_SIZE, QSize(600, 500))
-        position = QPoint(0, 0)
-        saved_position = self.settings.get(SETTING_WIN_POSE, position)
-        # Fix the multiple monitors issue
-        for i in range(QApplication.desktop().screenCount()):
-            if QApplication.desktop().availableGeometry(i).contains(saved_position):
-                position = saved_position
-                break
-        self.resize(size)
-        self.move(position)
-        saveDir = ustr(self.settings.get(SETTING_SAVE_DIR, None))
-        self.lastOpenDir = ustr(self.settings.get(SETTING_LAST_OPEN_DIR, None))
-        if self.defaultSaveDir is None and saveDir is not None and os.path.exists(saveDir):
-            self.defaultSaveDir = saveDir
-            self.statusBar().showMessage('%s started. Annotation will be saved to %s' %
-                                         (__appname__, self.defaultSaveDir))
-            self.statusBar().show()
-
-        self.restoreState(self.settings.get(SETTING_WIN_STATE, QByteArray()))
-        Shape.line_color = self.lineColor = QColor(self.settings.get(SETTING_LINE_COLOR, DEFAULT_LINE_COLOR))
-        Shape.fill_color = self.fillColor = QColor(self.settings.get(SETTING_FILL_COLOR, DEFAULT_FILL_COLOR))
-        self.canvas.setDrawingColor(self.lineColor)
-        # Add chris
-        Shape.difficult = self.difficult
 
         def xbool(x):
             if isinstance(x, QVariant):
@@ -359,6 +279,45 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         if self.filePath and os.path.isdir(self.filePath):
             self.openDirDialog(dirpath=self.filePath)
 
+    def build_model_signals(self):
+        self._model.settings_loaded.connect(self.restore_app_state)
+        self._model.update_status_bar.connect(self.update_status_bar)
+
+                  
+
+    def restore_app_state(self):
+        self.autoSaving.setChecked(self._model.settings.get(SETTING_AUTO_SAVE, False))
+        self.singleClassMode.setChecked(self._model.settings.get(SETTING_SINGLE_CLASS, False))
+        self.displayLabelOption.setChecked(self._model.settings.get(SETTING_PAINT_LABEL, False))
+        size = self._model.settings.get(SETTING_WIN_SIZE, QSize(600, 500))
+        position = QPoint(0, 0)
+        saved_position = self._model.settings.get(SETTING_WIN_POSE, position)
+        # Fix the multiple monitors issue
+        for i in range(QApplication.desktop().screenCount()):
+            if QApplication.desktop().availableGeometry(i).contains(saved_position):
+                position = saved_position
+                break
+        self.resize(size)
+        self.move(position)
+        self.restoreState(self._settings.get(SETTING_WIN_STATE, QByteArray()))
+
+    def update_status_bar(self, dir):
+        self.statusBar().showMessage('%s started. Annotation will be saved to %s' %(__appname__, dir))
+        self.statusBar().show() 
+
+    def getAvailableScreencastViewer(self):
+        osName = platform.system()
+
+        if osName == 'Windows':
+            return ['C:\\Program Files\\Internet Explorer\\iexplore.exe']
+        elif osName == 'Linux':
+            return ['xdg-open']
+        elif osName == 'Darwin':
+            return ['open', '-a', 'Safari']
+
+    ## Callbacks ##
+    def showTutorialDialog(self):
+        subprocess.Popen(self.screencastViewer + [self.screencast])
 
     def keyReleaseEvent(self, event):
         if event.key() == Qt.Key_Control:
@@ -438,19 +397,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             self.recentFiles.pop()
         self.recentFiles.insert(0, filePath)
 
-    def getAvailableScreencastViewer(self):
-        osName = platform.system()
-
-        if osName == 'Windows':
-            return ['C:\\Program Files\\Internet Explorer\\iexplore.exe']
-        elif osName == 'Linux':
-            return ['xdg-open']
-        elif osName == 'Darwin':
-            return ['open', '-a', 'Safari']
-
-    ## Callbacks ##
-    def showTutorialDialog(self):
-        subprocess.Popen(self.screencastViewer + [self.screencast])
+   
 
     def showInfoDialog(self):
         msg = u'Name:{0} \nApp Version:{1} \n{2} '.format(__appname__, __version__, sys.version_info)
@@ -504,7 +451,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     def updateFileMenu(self):
         currFilePath = self.filePath
-        print(currFilePath)
 
         def exists(filename):
             return os.path.exists(filename)
@@ -1400,26 +1346,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def moveShape(self):
         self.canvas.endMove(copy=False)
         self.setDirty()
-
-    def loadPredefinedClasses(self, predefClassesFile):
-        if os.path.exists(predefClassesFile) is True:
-            with codecs.open(predefClassesFile, 'r', 'utf8') as f:
-                for line in f:
-                    line = line.strip()
-                    if self.labelHist is None:
-                        self.labelHist = [line]
-                    else:
-                        self.labelHist.append(line)
-
-    # def loadPredefinedColors(self, predefColorsFile):
-    #     if os.path.exists(predefColorsFile) is True:
-    #         with codecs.open(predefColorsFile, 'r', 'utf8') as f:
-    #             for line in f:
-    #                 line = line.strip()
-    #                 if self.colorHist is None:
-    #                     self.colorHist = [line]
-    #                 else:
-    #                     self.colorHist.append(line)
 
 
     def loadPascalXMLByFilename(self, xmlPath):

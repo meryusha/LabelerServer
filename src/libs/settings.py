@@ -26,6 +26,8 @@ class Settings(object):
             with open(self.path, 'wb') as f:
                 pickle.dump(self.data, f, pickle.HIGHEST_PROTOCOL)
                 return True
+        else:
+            print('Save path does not exists')
         return False
 
     def load(self):
@@ -33,7 +35,10 @@ class Settings(object):
             if os.path.exists(self.path):
                 with open(self.path, 'rb') as f:
                     self.data = pickle.load(f)
+                    print('Loading the data ', self.path)
                     return True
+            else:
+                print('Load path does not exists')
         except:
             print('Loading setting failed')
         return False

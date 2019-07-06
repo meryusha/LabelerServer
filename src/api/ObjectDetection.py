@@ -19,7 +19,7 @@ class FasterRCNN(QWidget):
         self.pippo = 1
 
     def detectObjects(self, image_path):
-        start_time = time.time()
+        # start_time = time.time()
         print("FasterRCNN detectObjects")
 
         # self.ObjectFound.emit([100, 100, 30, 200], "myLabelClass")
@@ -40,7 +40,7 @@ class FasterRCNN(QWidget):
 
         # shapes = list(predictions._split_into_xyxy())
        
-        print("Time: {:.2f} s / img".format(time.time() - start_time))
+        # print("Time: {:.2f} s / img".format(time.time() - start_time))
         self.ObjectsFound.emit((boxes, labels_words))
         # self.ObjectsFound.emit([[[100, 100, 30, 200], "myLabelClass"],
         #                         [[200, 200, 60, 400], "myLabelClass2"]])
