@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'src/gui/mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.3
+# Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -13,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(624, 562)
+        MainWindow.resize(2422, 1653)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_4 = QtWidgets.QGridLayout(self.centralwidget)
@@ -23,7 +23,7 @@ class Ui_MainWindow(object):
         self.scroll.setWidgetResizable(True)
         self.scroll.setObjectName("scroll")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 283, 439))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 1672, 1479))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.scroll.setWidget(self.scrollAreaWidgetContents)
         self.gridLayout_4.addWidget(self.scroll, 0, 0, 1, 1)
@@ -123,7 +123,7 @@ class Ui_MainWindow(object):
         self.dockWidget_View.setWidget(self.dockWidgetContents)
         MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(2), self.dockWidget_View)
         self.menuBar = QtWidgets.QMenuBar(MainWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 624, 22))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 2422, 34))
         self.menuBar.setObjectName("menuBar")
         self.menu_File = QtWidgets.QMenu(self.menuBar)
         self.menu_File.setObjectName("menu_File")
@@ -148,10 +148,6 @@ class Ui_MainWindow(object):
         icon = QtGui.QIcon.fromTheme(":/open")
         self.opendir.setIcon(icon)
         self.opendir.setObjectName("opendir")
-        self.changeSavedir = QtWidgets.QAction(MainWindow)
-        icon = QtGui.QIcon.fromTheme(":/open")
-        self.changeSavedir.setIcon(icon)
-        self.changeSavedir.setObjectName("changeSavedir")
         self.openAnnotation = QtWidgets.QAction(MainWindow)
         icon = QtGui.QIcon.fromTheme(":/open")
         self.openAnnotation.setIcon(icon)
@@ -260,7 +256,7 @@ class Ui_MainWindow(object):
         icon = QtGui.QIcon.fromTheme(":/zoom")
         self.zoomOrg.setIcon(icon)
         self.zoomOrg.setIconVisibleInMenu(True)
-        self.zoomOrg.setShortcutVisibleInContextMenu(True)
+        self.zoomOrg.setProperty("shortcutVisibleInContextMenu", True)
         self.zoomOrg.setObjectName("zoomOrg")
         self.fitWindow = QtWidgets.QAction(MainWindow)
         self.fitWindow.setEnabled(False)
@@ -297,7 +293,6 @@ class Ui_MainWindow(object):
         self.displayLabelOption.setObjectName("displayLabelOption")
         self.toolBar_Open.addAction(self.open)
         self.toolBar_Open.addAction(self.opendir)
-        self.toolBar_Open.addAction(self.changeSavedir)
         self.toolBar_Open.addAction(self.openPrevImgAction)
         self.toolBar_Open.addAction(self.openNextImgAction)
         self.toolBar_Open.addAction(self.verify)
@@ -316,7 +311,6 @@ class Ui_MainWindow(object):
         self.menu_RecentFiles.addAction(self.actiontest)
         self.menu_File.addAction(self.open)
         self.menu_File.addAction(self.opendir)
-        self.menu_File.addAction(self.changeSavedir)
         self.menu_File.addAction(self.openAnnotation)
         self.menu_File.addAction(self.menu_RecentFiles.menuAction())
         self.menu_File.addAction(self.save)
@@ -393,13 +387,6 @@ class Ui_MainWindow(object):
         self.opendir.setStatusTip(_translate("MainWindow", "Open Directory"))
         self.opendir.setWhatsThis(_translate("MainWindow", "Open Directory"))
         self.opendir.setShortcut(_translate("MainWindow", "Ctrl+U"))
-        self.changeSavedir.setText(_translate("MainWindow", "Change Save Dir"))
-        self.changeSavedir.setIconText(_translate("MainWindow", "Change\n"
-"Save Dir"))
-        self.changeSavedir.setToolTip(_translate("MainWindow", "Change default saved Annotation dir"))
-        self.changeSavedir.setStatusTip(_translate("MainWindow", "Change default saved Annotation dir"))
-        self.changeSavedir.setWhatsThis(_translate("MainWindow", "Change default saved Annotation dir"))
-        self.changeSavedir.setShortcut(_translate("MainWindow", "Ctrl+R"))
         self.openAnnotation.setText(_translate("MainWindow", "Open Annotation"))
         self.openAnnotation.setToolTip(_translate("MainWindow", "Open an annotation file"))
         self.openAnnotation.setStatusTip(_translate("MainWindow", "Open an annotation file"))

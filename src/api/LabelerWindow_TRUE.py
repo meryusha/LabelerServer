@@ -21,11 +21,12 @@ except ImportError:
     # Ref:
     # http://pyqt.sourceforge.net/Docs/PyQt4/incompatible_apis.html
     # http://stackoverflow.com/questions/21217399/pyqt4-qtcore-qvariant-object-instead-of-a-string
-    if sys.version_info.major >= 3:
-        import sip
-        sip.setapi('QVariant', 2)
-    from PyQt4.QtGui import *
-    from PyQt4.QtCore import *
+    # if sys.version_info.major >= 3:
+    #     import sip
+    #     sip.setapi('QVariant', 2)
+    # from PyQt4.QtGui import *
+    # from PyQt4.QtCore import *
+    pass
 
 
 import resources
@@ -48,8 +49,7 @@ from libs.yolo_io import TXT_EXT
 from libs.ustr import ustr
 from libs.version import __version__
 from libs.hashableQListWidgetItem import HashableQListWidgetItem
-from project import Project
-from zoom import Zoom
+
 import collections
 import numpy as np
 
@@ -70,65 +70,57 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class LabelerWindow(QMainWindow, Ui_MainWindow):
+    FIT_WINDOW, FIT_WIDTH, MANUAL_ZOOM = list(range(3))
 
-
-    def __init__(self, defaultFilename=None, defaultPrefdefClassFile=None, defaultPrefdefColorFile=None):
+    def __init__(self, defaultFilename=None, defaultPrefdefClassFile=None, defaultPrefdefColorFile=None, defaultSaveDir=None):
         super(LabelerWindow, self).__init__()
         # QtCore.QMetaObject.connectSlotsByName(self) #TODO connect SlotsByName!
 
         self.setupUi(self)
-        self.defaultFilename = defaultFilename
-        self.project = Project("./")
-        self.project.is_VOC_format = True
-        self.project.categories = []
-        self.load_views()
-        self.zoom_navig = Zoom(self)
-        self.setup_connections()       
-        self.load_settings()
-  
-          # For loading all image under a directory
+
+
+        # Load string bundle for i18n
+        self.stringBundle = StringBundle.getBundle()
+        getStr = lambda strId: self.stringBundle.getString(strId)
+
+        # Save as Pascal voc xml
+        self.defaultSaveDir = defaultSaveDir
+        # print(defaultSaveDir)
+        self.usingPascalVocFormat = True
+        self.usingYoloFormat = False
+
+        # For loading all image under a directory
         self.mImgList = []
         self.dirname = None
 
+        #Merey: Labels - loaded from the file
+        self.labelHist = []
+        self.colorHist = []
         self.lastOpenDir = None
 
         # Whether we need to save or not.
         #TODO: change the var name
         self.dirty = False
+
          # what is it? 
         self._noSelectionSlot = False
 
-        
-        def xbool(x):
-            if isinstance(x, QVariant):
-                return x.toBool()
-            return bool(x)
+        self.screencastViewer = self.getAvailableScreencastViewer()
+        #TODO: put our tutorial there
+        self.screencast = "https://youtu.be/p0nR2YsCY_U"
 
-        # if xbool(self.settings.get(SETTING_ADVANCE_MODE, False)):
-        #     self.actions.advancedMode.setChecked(True)
-        #     self.toggleAdvancedMode()
+        # Load predefined classes to the list
+        self.loadPredefinedClasses(defaultPrefdefClassFile)
 
-        # Populate the File menu dynamically.
-        self.updateFileMenu()
+        # Merey Load predefined colors to the list
+        # self.loadPredefinedColors(defaultPrefdefColorFile)
+        # Main widgets and related state.
+        self.labelDialog = LabelDialog(parent=self, listItem=self.labelHist)
 
-        # Since loading the file may take some time, make sure it runs in the background.
-        if self.filePath and os.path.isdir(self.filePath):
-            self.queueEvent(partial(self.importDirImages, self.filePath or ""))
-        elif self.filePath:
-            self.queueEvent(partial(self.loadFile, self.filePath or ""))
+        self.itemsToShapes = {}
+        self.shapesToItems = {}
+        self.prevLabelText = ''
 
-
-        # self.populateModeActions()
-
-        # Display cursor coordinates at the right of status bar
-        self.labelCoordinates = QLabel('')
-        self.statusBar().addPermanentWidget(self.labelCoordinates)
-
-        # Open Dir if deafult file
-        if self.filePath and os.path.isdir(self.filePath):
-            self.openDirDialog(dirpath=self.filePath)
-
-    def setup_connections(self):
         self.diffcButton.stateChanged.connect(self.btnstate)
        
         self.labelList.itemActivated.connect(self.labelSelectionChanged)
@@ -138,7 +130,21 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.labelList.itemChanged.connect(self.labelItemChanged)
       
         self.fileListWidget.itemDoubleClicked.connect(self.fileitemDoubleClicked)
-         # self.scrollArea = self.scroll
+   
+
+        self.zoomWidget = ZoomWidget()
+        self.colorDialog = ColorDialog(parent=self)
+
+        self.canvas = Canvas(parent=self)
+        self.canvas.zoomRequest.connect(self.zoomRequest)
+      
+        self.scroll.setWidget(self.canvas)
+        # scroll.setWidgetResizable(True)
+        self.scrollBars = {
+            Qt.Vertical: self.scroll.verticalScrollBar(),
+            Qt.Horizontal: self.scroll.horizontalScrollBar()
+        }
+        # self.scrollArea = self.scroll
         self.canvas.scrollRequest.connect(self.scrollRequest)
 
         self.canvas.newShape.connect(self.newShape)
@@ -148,7 +154,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.canvas.drawingPolygon.connect(self.toggleDrawingSensitive)
 
       
-        # action = partial(newAction, self)
+        action = partial(newAction, self)
 
         self.quit.triggered.connect(self.close)
        
@@ -157,7 +163,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
         self.opendir.triggered.connect(self.openDirDialog)
       
-        # self.changeSavedir.triggered.connect(self.changeSavedirDialog)
+        self.changeSavedir.triggered.connect(self.changeSavedirDialog)
 
 
         self.openAnnotation.triggered.connect(self.openAnnotationDialog)
@@ -205,6 +211,34 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.showInfo.triggered.connect(self.showInfoDialog)
 
       
+        zoom = QWidgetAction(self)
+        zoom.setDefaultWidget(self.zoomWidget)
+        self.zoomWidget.setWhatsThis(
+            u"Zoom in or out of the image. Also accessible with"
+            " %s and %s from the canvas." % (fmtShortcut("Ctrl+[-+]"),
+                                             fmtShortcut("Ctrl+Wheel")))
+        self.zoomWidget.setEnabled(False)
+
+
+        self.zoomIn.triggered.connect(partial(self.addZoom, 10))
+        self.zoomOut.triggered.connect(partial(self.addZoom, -10))
+        self.zoomOrg.triggered.connect(partial(self.setZoom, 100))
+
+
+        self.fitWindow.triggered.connect(self.setFitWindow)
+        self.fitWidth.triggered.connect(self.setFitWidth)
+
+
+        self.zoomActions = (self.zoomWidget, self.zoomIn, self.zoomOut,
+                       self.zoomOrg, self.fitWindow, self.fitWidth)
+        self.zoomMode = self.MANUAL_ZOOM
+        self.scalers = {
+            self.FIT_WINDOW: self.scaleFitWindow,
+            self.FIT_WIDTH: self.scaleFitWidth,
+            # Set to one to scale to 100% when loading files.
+            self.MANUAL_ZOOM: lambda: 1,
+        }
+
         self.edit.triggered.connect(self.editLabel)
 
         self.editButton.setDefaultAction(self.edit)
@@ -212,41 +246,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
         self.shapeLineColor.triggered.connect(self.chshapeLineColor)
         self.shapeFillColor.triggered.connect(self.chshapeFillColor)
-   
-        
-        self.canvas.zoomRequest.connect(self.zoom_navig.zoomRequest)
-
-    def load_views(self):
-        self.screencastViewer = self.getAvailableScreencastViewer()
-        #TODO: put our tutorial there
-        self.screencast = "https://youtu.be/p0nR2YsCY_U"
-
-        # Load string bundle for i18n
-        self.stringBundle = StringBundle.getBundle()
-        getStr = lambda strId: self.stringBundle.getString(strId)
-        self.canvas = Canvas(parent=self)
-        self.colorDialog = ColorDialog(parent=self)
-        # Load predefined classes to the list
-        # self.loadPredefinedClasses(defaultPrefdefClassFile)
-
-        # Merey Load predefined colors to the list
-        # self.loadPredefinedColors(defaultPrefdefColorFile)
-        # Main widgets and related state.
-        self.labelDialog = LabelDialog(parent=self, listItem=self.project.categories)
-
-        self.itemsToShapes = {}
-        self.shapesToItems = {}
-        self.prevLabelText = ''
-
-       
-      
-        self.scroll.setWidget(self.canvas)
-        # scroll.setWidgetResizable(True)
-        self.scrollBars = {
-            Qt.Vertical: self.scroll.verticalScrollBar(),
-            Qt.Horizontal: self.scroll.horizontalScrollBar()
-        }
-       
 
 
         self.labelMenu = QMenu()
@@ -274,13 +273,9 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.statusBar().showMessage('%s started.' % __appname__)
         self.statusBar().show()
 
-
-
-    def load_settings(self):
-
         # Application state.
         self.image = QImage()
-        self.filePath = ustr(self.defaultFilename)
+        self.filePath = ustr(defaultFilename)
         self.recentFiles = []
         self.maxRecent = 7
         self.lineColor = None
@@ -291,7 +286,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.difficult = False
         # import pdb;
         # pyqtRemoveInputHook(); pdb.set_trace()
-         # Load setting in the main thread
+
+        # Load setting in the main thread
         self.settings = Settings()
         self.settings.load()
         # settings = self.settings
@@ -320,10 +316,10 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.move(position)
         saveDir = ustr(self.settings.get(SETTING_SAVE_DIR, None))
         self.lastOpenDir = ustr(self.settings.get(SETTING_LAST_OPEN_DIR, None))
-        if self.project.path is None and saveDir is not None and os.path.exists(saveDir):
-            self.project.path = saveDir
+        if self.defaultSaveDir is None and saveDir is not None and os.path.exists(saveDir):
+            self.defaultSaveDir = saveDir
             self.statusBar().showMessage('%s started. Annotation will be saved to %s' %
-                                         (__appname__, self.project.path))
+                                         (__appname__, self.defaultSaveDir))
             self.statusBar().show()
 
         self.restoreState(self.settings.get(SETTING_WIN_STATE, QByteArray()))
@@ -332,6 +328,38 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.canvas.setDrawingColor(self.lineColor)
         # Add chris
         Shape.difficult = self.difficult
+
+        def xbool(x):
+            if isinstance(x, QVariant):
+                return x.toBool()
+            return bool(x)
+
+        # if xbool(self.settings.get(SETTING_ADVANCE_MODE, False)):
+        #     self.actions.advancedMode.setChecked(True)
+        #     self.toggleAdvancedMode()
+
+        # Populate the File menu dynamically.
+        self.updateFileMenu()
+
+        # Since loading the file may take some time, make sure it runs in the background.
+        if self.filePath and os.path.isdir(self.filePath):
+            self.queueEvent(partial(self.importDirImages, self.filePath or ""))
+        elif self.filePath:
+            self.queueEvent(partial(self.loadFile, self.filePath or ""))
+
+        # Callbacks:
+        self.zoomWidget.valueChanged.connect(self.paintCanvas)
+
+        # self.populateModeActions()
+
+        # Display cursor coordinates at the right of status bar
+        self.labelCoordinates = QLabel('')
+        self.statusBar().addPermanentWidget(self.labelCoordinates)
+
+        # Open Dir if deafult file
+        if self.filePath and os.path.isdir(self.filePath):
+            self.openDirDialog(dirpath=self.filePath)
+
 
     def keyReleaseEvent(self, event):
         if event.key() == Qt.Key_Control:
@@ -377,7 +405,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     def toggleActions(self, value=True):
         """Enable/Disable widgets which depend on an opened image."""
-        for z in self.zoom_navig.zoomActions:
+        for z in self.zoomActions:
             z.setEnabled(value)
         for action in self.onLoadActive:
             action.setEnabled(value)
@@ -645,7 +673,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             elif self.usingYoloFormat is True:
                 if annotationFilePath[-4:].lower() != ".txt":
                     annotationFilePath += TXT_EXT
-                self.labelFile.saveYoloFormat(annotationFilePath, shapes, self.filePath, self.imageData, self.project.categories,
+                self.labelFile.saveYoloFormat(annotationFilePath, shapes, self.filePath, self.imageData, self.labelHist,
                                                    self.lineColor.getRgb(), self.fillColor.getRgb())
             else:
                 self.labelFile.save(annotationFilePath, shapes, self.filePath, self.imageData,
@@ -748,9 +776,9 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             if shape.label is not None:
                 text = shape.label
             elif not self.useDefaultLabelCheckbox.isChecked() or not self.defaultLabelTextLine.text():
-                if len(self.project.categories) > 0:
+                if len(self.labelHist) > 0:
                     self.labelDialog = LabelDialog(
-                        parent=self, listItem=self.project.categories)
+                        parent=self, listItem=self.labelHist)
 
                 # Sync single class mode from PR#106
                 if self.singleClassMode.isChecked() and self.lastLabel:
@@ -778,8 +806,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
                 self.addLabel(shape)
 
-                if text not in self.project.categories:
-                    self.project.categories.append(text)
+                if text not in self.labelHist:
+                    self.labelHist.append(text)
             else:
                 # self.canvas.undoLastLine()
                 self.canvas.resetAllLines()
@@ -804,9 +832,9 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         if self.canvas.shapes[-1].label is not None:
             text = self.canvas.shapes[-1].label
         elif not self.useDefaultLabelCheckbox.isChecked() or not self.defaultLabelTextLine.text():
-            if len(self.project.categories) > 0:
+            if len(self.labelHist) > 0:
                 self.labelDialog = LabelDialog(
-                    parent=self, listItem=self.project.categories)
+                    parent=self, listItem=self.labelHist)
 
             # Sync single class mode from PR#106
             if self.singleClassMode.isChecked() and self.lastLabel:
@@ -832,8 +860,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             #     self.actions.editMode.setEnabled(True)
             self.setDirty()
 
-            if text not in self.project.categories:
-                self.project.categories.append(text)
+            if text not in self.labelHist:
+                self.labelHist.append(text)
         else:
             # self.canvas.undoLastLine()
             self.canvas.resetAllLines()
@@ -843,6 +871,87 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         bar = self.scrollBars[orientation]
         bar.setValue(bar.value() + bar.singleStep() * units)
 
+    def setZoom(self, value):
+        self.fitWidth.setChecked(False)
+        self.fitWindow.setChecked(False)
+        self.zoomMode = self.MANUAL_ZOOM
+        self.zoomWidget.setValue(value)
+
+    def addZoom(self, increment=10):
+        self.setZoom(self.zoomWidget.value() + increment)
+
+    def zoomRequest(self, delta):
+        # get the current scrollbar positions
+        # calculate the percentages ~ coordinates
+        h_bar = self.scrollBars[Qt.Horizontal]
+        v_bar = self.scrollBars[Qt.Vertical]
+
+        # get the current maximum, to know the difference after zooming
+        h_bar_max = h_bar.maximum()
+        v_bar_max = v_bar.maximum()
+
+        # get the cursor position and canvas size
+        # calculate the desired movement from 0 to 1
+        # where 0 = move left
+        #       1 = move right
+        # up and down analogous
+        cursor = QCursor()
+        pos = cursor.pos()
+        relative_pos = QWidget.mapFromGlobal(self, pos)
+
+        cursor_x = relative_pos.x()
+        cursor_y = relative_pos.y()
+
+        w = self.scroll.width()
+        h = self.scroll.height()
+
+        # the scaling from 0 to 1 has some padding
+        # you don't have to hit the very leftmost pixel for a maximum-left movement
+        margin = 0.1
+        move_x = (cursor_x - margin * w) / (w - 2 * margin * w)
+        move_y = (cursor_y - margin * h) / (h - 2 * margin * h)
+
+        # clamp the values from 0 to 1
+        move_x = min(max(move_x, 0), 1)
+        move_y = min(max(move_y, 0), 1)
+
+        # zoom in
+        units = delta / (8 * 15)
+        scale = 10
+        self.addZoom(scale * units)
+
+        # get the difference in scrollbar values
+        # this is how far we can move
+        d_h_bar_max = h_bar.maximum() - h_bar_max
+        d_v_bar_max = v_bar.maximum() - v_bar_max
+
+        # get the new scrollbar values
+        new_h_bar_value = h_bar.value() + move_x * d_h_bar_max
+        new_v_bar_value = v_bar.value() + move_y * d_v_bar_max
+
+        h_bar.setValue(new_h_bar_value)
+        v_bar.setValue(new_v_bar_value)
+
+    def setFitWindow(self, value=True):
+        if value:
+            self.fitWidth.setChecked(False)
+        self.zoomMode = self.FIT_WINDOW if value else self.MANUAL_ZOOM
+        self.adjustScale()
+
+    def setFitWidth(self, value=True):
+        if value:
+            self.fitWindow.setChecked(False)
+        self.zoomMode = self.FIT_WIDTH if value else self.MANUAL_ZOOM
+        self.adjustScale()
+
+    # def hidePolygons(self):
+    #     self.togglePolygons(False)
+
+    # def showPolygons(self):
+    #     self.togglePolygons(True)
+
+    # def on_toolButton_ShowSeed_triggered(self):
+    #     print("on_toolButton_ShowSeed_triggered")
 
     def togglePolygons(self, value):
         for item, shape in self.itemsToShapes.items():
@@ -910,19 +1019,19 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
                 self.loadLabels(self.labelFile.shapes)
             self.setClean()
             self.canvas.setEnabled(True)
-            self.zoom_navig.adjustScale(initial=True)
-            self.zoom_navig.paintCanvas()
+            self.adjustScale(initial=True)
+            self.paintCanvas()
             self.addRecentFile(self.filePath)
             self.toggleActions(True)
 
             # Label xml file and show bound box according to its filename
             # if self.usingPascalVocFormat is True:
-            if self.project.path is not None:
-                print("DEFAULT SAVE DIR OS NOT NULL")
+            if self.defaultSaveDir is not None:
+                ptint("DEFAULT SAVE DIR OS NOT NULL")
                 basename = os.path.basename(
                     os.path.splitext(self.filePath)[0])
-                xmlPath = os.path.join(self.project.path, basename + XML_EXT)
-                txtPath = os.path.join(self.project.path, basename + TXT_EXT)
+                xmlPath = os.path.join(self.defaultSaveDir, basename + XML_EXT)
+                txtPath = os.path.join(self.defaultSaveDir, basename + TXT_EXT)
 
                 """Annotation file priority:
                 PascalXML > YOLO
@@ -951,7 +1060,38 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             return True
         return False
 
+    def resizeEvent(self, event):
+        if self.canvas and not self.image.isNull()\
+           and self.zoomMode != self.MANUAL_ZOOM:
+            self.adjustScale()
+        super(LabelerWindow, self).resizeEvent(event)
 
+    def paintCanvas(self):
+        assert not self.image.isNull(), "cannot paint null image"
+        self.canvas.scale = 0.01 * self.zoomWidget.value()
+        self.canvas.adjustSize()
+        self.canvas.update()
+
+    def adjustScale(self, initial=False):
+        value = self.scalers[self.FIT_WINDOW if initial else self.zoomMode]()
+        self.zoomWidget.setValue(int(100 * value))
+
+    def scaleFitWindow(self):
+        """Figure out the size of the pixmap in order to fit the main widget."""
+        e = 2.0  # So that no scrollbars are generated.
+        w1 = self.centralWidget().width() - e
+        h1 = self.centralWidget().height() - e
+        a1 = w1 / h1
+        # Calculate a new scale value based on the pixmap's aspect ratio.
+        w2 = self.canvas.pixmap.width() - 0.0
+        h2 = self.canvas.pixmap.height() - 0.0
+        a2 = w2 / h2
+        return w1 / w2 if a2 >= a1 else h1 / h2
+
+    def scaleFitWidth(self):
+        # The epsilon does not seem to work too well here.
+        w = self.centralWidget().width() - 2.0
+        return w / self.canvas.pixmap.width()
 
     def closeEvent(self, event):
         if not self.mayContinue():
@@ -970,8 +1110,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.settings[SETTING_FILL_COLOR] = self.fillColor
         self.settings[SETTING_RECENT_FILES] = self.recentFiles
         # self.settings[SETTING_ADVANCE_MODE] = not self._beginner
-        if self.project.path and os.path.exists(self.project.path):
-            self.settings[SETTING_SAVE_DIR] = ustr(self.project.path)
+        if self.defaultSaveDir and os.path.exists(self.defaultSaveDir):
+            self.settings[SETTING_SAVE_DIR] = ustr(self.defaultSaveDir)
         else:
             self.settings[SETTING_SAVE_DIR] = ''
 
@@ -1004,8 +1144,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         return images
 
     def changeSavedirDialog(self, _value=False):
-        if self.project.path is not None:
-            path = ustr(self.project.path)
+        if self.defaultSaveDir is not None:
+            path = ustr(self.defaultSaveDir)
         else:
             path = '.'
 
@@ -1014,10 +1154,10 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
                                                        | QFileDialog.DontResolveSymlinks))
 
         if dirpath is not None and len(dirpath) > 1:
-            self.project.path = dirpath
+            self.defaultSaveDir = dirpath
 
         self.statusBar().showMessage('%s . Annotation will be saved to %s' %
-                                     ('Change saved folder', self.project.path))
+                                     ('Change saved folder', self.defaultSaveDir))
         self.statusBar().show()
 
     def openAnnotationDialog(self, _value=False):
@@ -1086,7 +1226,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def openPrevImg(self, _value=False):
         # Proceding prev image without dialog if having any label
         if self.autoSaving.isChecked():
-            if self.project.path is not None:
+            if self.defaultSaveDir is not None:
                 if self.dirty is True:
                     self.saveFile()
             else:
@@ -1111,7 +1251,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def openNextImg(self, _value=False):
         # Proceding prev image without dialog if having any label
         if self.autoSaving.isChecked():
-            if self.project.path is not None:
+            if self.defaultSaveDir is not None:
                 if self.dirty is True:
                     self.saveFile()
             else:
@@ -1148,11 +1288,11 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             self.loadFile(filename)
 
     def saveFile(self, _value=False):
-        if self.project.path is not None and len(ustr(self.project.path)):
+        if self.defaultSaveDir is not None and len(ustr(self.defaultSaveDir)):
             if self.filePath:
                 imgFileName = os.path.basename(self.filePath)
                 savedFileName = os.path.splitext(imgFileName)[0]
-                savedPath = os.path.join(ustr(self.project.path), savedFileName)
+                savedPath = os.path.join(ustr(self.defaultSaveDir), savedFileName)
                 self._saveFile(savedPath)
         else:
             imgFileDir = os.path.dirname(self.filePath)
@@ -1262,15 +1402,15 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.canvas.endMove(copy=False)
         self.setDirty()
 
-    # def loadPredefinedClasses(self, predefClassesFile):
-    #     if os.path.exists(predefClassesFile) is True:
-    #         with codecs.open(predefClassesFile, 'r', 'utf8') as f:
-    #             for line in f:
-    #                 line = line.strip()
-    #                 if self.project.categories is None:
-    #                     self.project.categories = [line]
-    #                 else:
-    #                     self.project.categories.append(line)
+    def loadPredefinedClasses(self, predefClassesFile):
+        if os.path.exists(predefClassesFile) is True:
+            with codecs.open(predefClassesFile, 'r', 'utf8') as f:
+                for line in f:
+                    line = line.strip()
+                    if self.labelHist is None:
+                        self.labelHist = [line]
+                    else:
+                        self.labelHist.append(line)
 
     # def loadPredefinedColors(self, predefColorsFile):
     #     if os.path.exists(predefColorsFile) is True:

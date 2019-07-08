@@ -7,16 +7,16 @@ import sys
 from datetime import datetime
 import argparse
 import logging
-
+import torch
 from libs.config import CFG
 
-try:
-    from PyQt5.QtWidgets import QApplication
-except ImportError:
-    if sys.version_info.major >= 3:
-        import sip
-        sip.setapi('QVariant', 2)
-    from PyQt4.QtCore import QApplication
+# try:
+from PyQt5.QtWidgets import QApplication
+# except ImportError:
+    # if sys.version_info.major >= 3:
+        # import sip
+        # sip.setapi('QVariant', 2)
+    # from PyQt4.QtCore import QApplication
 
 from libs.lib import newIcon
 from gui.LabelerWindow import LabelerWindow
@@ -29,11 +29,9 @@ class ActiveImageLabelerWindow(LabelerWindow):
                  defaultFilename=None,
                  defaultPrefdefClassFile=os.path.join(
                      os.path.dirname(sys.argv[0]), 'data',
-                     'predefined_classes.txt'),
-                 defaultSaveDir=None):
+                     'predefined_classes.txt'),):
         super(ActiveImageLabelerWindow,
-              self).__init__(defaultFilename, defaultPrefdefClassFile,
-                             defaultSaveDir)
+              self).__init__(defaultFilename, defaultPrefdefClassFile,)
         self.pippo = 1
 
 
@@ -51,10 +49,10 @@ if __name__ == '__main__':
                         default='predefined_classes.txt',
                         type=str,
                         help="defaultPrefdefClassFile")
-    parser.add_argument("--defaultSaveDir",
-                        default=None,
-                        type=str,
-                        help="defaultSaveDir")
+    # parser.add_argument("--defaultSaveDir",
+    #                     default=None,
+    #                     type=str,
+    #                     help="defaultSaveDir")
     args = parser.parse_args()
 
     # define logging level (DEBUG/INFO/WARNING/ERROR)
@@ -84,8 +82,7 @@ if __name__ == '__main__':
 
     # Create GUI
     win = ActiveImageLabelerWindow(args.defaultFilename,
-                                   args.defaultPrefdefClassFile,
-                                   args.defaultSaveDir)
+                                   args.defaultPrefdefClassFile)
     # Create API
     api = FasterRCNN()
 

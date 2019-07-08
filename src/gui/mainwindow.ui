@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>624</width>
-    <height>562</height>
+    <width>2422</width>
+    <height>1653</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,8 +37,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>283</width>
-         <height>439</height>
+         <width>1672</width>
+         <height>1479</height>
         </rect>
        </property>
       </widget>
@@ -168,7 +168,6 @@
    </attribute>
    <addaction name="open"/>
    <addaction name="opendir"/>
-   <addaction name="changeSavedir"/>
    <addaction name="openPrevImgAction"/>
    <addaction name="openNextImgAction"/>
    <addaction name="verify"/>
@@ -278,8 +277,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>624</width>
-     <height>22</height>
+     <width>2422</width>
+     <height>34</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -294,7 +293,6 @@
     </widget>
     <addaction name="open"/>
     <addaction name="opendir"/>
-    <addaction name="changeSavedir"/>
     <addaction name="openAnnotation"/>
     <addaction name="menu_RecentFiles"/>
     <addaction name="save"/>
@@ -404,31 +402,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+U</string>
-   </property>
-  </action>
-  <action name="changeSavedir">
-   <property name="icon">
-    <iconset theme=":/open">
-     <normaloff>../resources/icons/open.png</normaloff>../resources/icons/open.png</iconset>
-   </property>
-   <property name="text">
-    <string>Change Save Dir</string>
-   </property>
-   <property name="iconText">
-    <string>Change
-Save Dir</string>
-   </property>
-   <property name="toolTip">
-    <string>Change default saved Annotation dir</string>
-   </property>
-   <property name="statusTip">
-    <string>Change default saved Annotation dir</string>
-   </property>
-   <property name="whatsThis">
-    <string>Change default saved Annotation dir</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="openAnnotation">
@@ -958,7 +931,7 @@ bounding boxes</string>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
    </property>
-   <property name="shortcutVisibleInContextMenu">
+   <property name="shortcutVisibleInContextMenu" stdset="0">
     <bool>true</bool>
    </property>
   </action>

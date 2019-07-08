@@ -3,8 +3,13 @@
 # from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QWidget
+import sys
+import torch
+# sys.path.append("..")
+# from .. import maskrcnn_benchmark
 from maskrcnn_benchmark.structures.bounding_box import BoxList
-# import sys
+
+
 from maskrcnn_benchmark.config import cfg
 import torch
 from maskrcnn_benchmark.data.datasets.evaluation.seed.seed_predict import SeedPredict

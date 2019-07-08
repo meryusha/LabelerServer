@@ -10,6 +10,7 @@ class Project(object):
         self._num_images = 0
         self._categories = []
         self._colors = []
+        self._is_VOC_format = True
 
     @property
     def verified_images(self):
@@ -36,6 +37,8 @@ class Project(object):
     @num_images.setter
     def num_images(self, value):
         #TODO: check that required format is satisfied.
+        if not isinstance(value, int):
+            raise ValueError("Not an int")    
         self._num_images = value
 
     @property
@@ -46,6 +49,20 @@ class Project(object):
     def categories(self, value):
         #TODO: check that required format is satisfied.
         self._categories = value
+
+
+    @property
+    def is_VOC_format(self):
+        return self._is_VOC_format
+
+    @is_VOC_format.setter
+    def is_VOC_format(self, value):
+        #TODO: check that required format is satisfied.
+        if not isinstance(value, bool):
+            raise ValueError("Not a boolean")
+        self._is_VOC_format = value
+
+
 
     #appends a new class to the project's list if does not exist yet
     def append_class(self, new_class):
