@@ -49,7 +49,7 @@ from libs.yolo_io import TXT_EXT
 from libs.ustr import ustr
 from libs.version import __version__
 from libs.hashableQListWidgetItem import HashableQListWidgetItem
-from project import Project
+from libs.project import Project
 from zoom import Zoom
 import collections
 import numpy as np
@@ -73,7 +73,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class LabelerWindow(QMainWindow, Ui_MainWindow):
 
 
-    def __init__(self, defaultFilename=None, defaultPrefdefClassFile=None, defaultPrefdefColorFile=None):
+    def __init__(self, defaultDir=None, defaultPrefdefClassFile=None, defaultPrefdefColorFile=None):
         super(LabelerWindow, self).__init__()
         # QtCore.QMetaObject.connectSlotsByName(self) #TODO connect SlotsByName!
 
@@ -81,12 +81,14 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
         #No project selected when open
         self.project  = None
-        self.defaultFilename = defaultFilename
+        self.defaultDir = defaultDir
+        if self.defaultDir is None:
+            self.defaultDir = '.'
         self.load_views()
         self.zoom_navig = Zoom(self)
         self.setup_connections()       
         self.load_settings()
-        self.defaultDir = '.'
+       
         # For loading all image under a directory
         self.mImgList = []
         # self.dirname = None
@@ -165,18 +167,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.canvas.drawingPolygon.connect(self.toggleDrawingSensitive)        
         self.canvas.zoomRequest.connect(self.zoom_navig.zoomRequest)
 
-      
-        # action = partial(newAction, self)
-        # self.opendir.triggered.connect(self.openDirDialog)          
-        # self.changeSavedir.triggered.connect(self.changeSavedirDialog)
-        # self.openAnnotation.triggered.connect(self.openAnnotationDialog)
-        # self.color1.triggered.connect(self.chooseColor1)
-        # self.createMode.triggered.connect(self.setCreateMode)
-        # self.editMode.triggered.connect(self.setEditMode)
-
-        # self.shapeLineColor.triggered.connect(self.chshapeLineColor)
-        # self.shapeFillColor.triggered.connect(self.chshapeFillColor)
-
 
     def load_views(self):
         self.screencastViewer = self.getAvailableScreencastViewer()
@@ -184,8 +174,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.screencast = "https://youtu.be/p0nR2YsCY_U"
 
         # Load string bundle for i18n
-        self.stringBundle = StringBundle.getBundle()
-        getStr = lambda strId: self.stringBundle.getString(strId)
+        # self.stringBundle = StringBundle.getBundle()
+        # getStr = lambda strId: self.stringBundle.getString(strId)
         self.canvas = Canvas(parent=self)
         self.colorDialog = ColorDialog(parent=self)
  
@@ -244,7 +234,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         if self.project is not None:
         # Application state.
             self.image = QImage()
-            self.filePath = ustr(self.defaultFilename)
+            self.filePath = ustr(self.defaultDir)
             # self.recent_files = []
             self.lineColor = None
             self.fillColor = None
@@ -429,15 +419,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.canvas.setEditing(edit)
         self.createMode.setEnabled(edit)
         self.editMode.setEnabled(not edit)
-
-    # def setCreateMode(self):
-    #     # assert self.advanced()
-    #     self.toggleDrawMode(False)
-
-    # def setEditMode(self):
-    #     # assert self.advanced()
-    #     self.toggleDrawMode(True)
-    #     self.labelSelectionChanged()
 
     def updateFileMenu(self):
         if self.project is not None:
@@ -917,6 +898,50 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         return False
 
 
+    def selectProjectToOpen(self, filePath=None):
+        print("Selecting project file")
+        # import pdb;
+        # pyqtRemoveInputHook(); pdb.set_trace()
+        """Load the specified file, or the last opened file if None."""
+        if filePath is None:
+            return
+        self.resetState()
+        self.canvas.setEnabled(False)
+       
+        # filePath = self.settings.get(SETTING_FILENAME)
+
+        # Make sure that filePath is a regular python string, rather than QString
+        filePath = ustr(filePath)
+        unicodeFilePath = ustr(filePath)
+        # Tzutalin 20160906 : Add file list and dock to move faster
+        # Highlight the file item
+
+        # if unicodeFilePath and self.fileListWidget.count() > 0:
+        #     index = self.mImgList.index(unicodeFilePath)
+        #     fileWidgetItem = self.fileListWidget.item(index)
+        #     fileWidgetItem.setSelected(True)
+
+        if unicodeFilePath and os.path.exists(unicodeFilePath):
+            if Project.is_project_file(unicodeFilePath):
+                #TODO: change path to the current dir
+                project = Project('.', project_file = unicodeFilePath)
+                try:
+                    if project.load_project_file():
+                        self.project =  project 
+                        self.status("Loaded %s" % os.path.basename(unicodeFilePath))
+                        return True                   
+                except ProjectFileError as e:
+                    self.errorMessage(u'Error opening project',
+                                      (u"<p><b>%s</b></p>"
+                                       u"<p>Make sure <i>%s</i> is a valid label file.")
+                                      % (e, unicodeFilePath))
+                    self.status("Error reading %s" % unicodeFilePath)
+                    return False
+            else:
+                self.errorMessage(u'Error opening project',
+                                      (u"<p>Make sure <i>%s</i> is a valid project file.")
+                                      % ( unicodeFilePath))         
+        return False
 
     def closeEvent(self, event):
         if not self.mayContinue():
@@ -973,22 +998,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.statusBar().showMessage('%s . Annotation will be saved to %s' %
                                      ('Change saved folder', self.project.path))
         self.statusBar().show()
-
-    # def openAnnotationDialog(self, _value=False):
-    #     if self.filePath is None:
-    #         self.statusBar().showMessage('Please select image first')
-    #         self.statusBar().show()
-    #         return
-
-    #     path = os.path.dirname(ustr(self.filePath))\
-    #         if self.filePath else '.'
-    #     if self.usingPascalVocFormat:
-    #         filters = "Open Annotation XML file (%s)" % ' '.join(['*.xml'])
-    #         filename = ustr(QFileDialog.getOpenFileName(self,'%s - Choose a xml file' % __appname__, path, filters))
-    #         if filename:
-    #             if isinstance(fileopenAnnotationDialogname, (tuple, list)):
-    #                 filename = filename[0]
-    #         self.loadPascalXMLByFilename(filename)
 
     def createProjectDialog(self, _value=False, dirpath=None):
         if not self.mayContinue():
@@ -1095,13 +1104,14 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         if not self.mayContinue():
             return
         path = os.path.dirname(ustr(self.defaultDir)) if self.defaultDir else '.'
-        formats = ['*.%s' % fmt.data().decode("ascii").lower() for fmt in QImageReader.supportedImageFormats()]
-        filters = "Project files (%s)" % ' '.join(formats + ['*%s' % LabelFile.suffix])
+        # formats = ['*.%s' % fmt.data().decode("ascii").lower() for fmt in QImageReader.supportedImageFormats()]
+        filters = "Project files (%s)" % ' '.join(['*%s' % Project.suffix])
         filename = QFileDialog.getOpenFileName(self, '%s - Choose Project file' % __appname__, path, filters)
         if filename:
             if isinstance(filename, (tuple, list)):
                 filename = filename[0]
-            self.loadFile(filename)
+            self.selectProjectToOpen(filename)
+            # self.loadFile(filename)
 
     def saveFile(self, _value=False):
         if self.project.path is not None and len(ustr(self.project.path)):
@@ -1176,15 +1186,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def currentPath(self):
         return os.path.dirname(self.filePath) if self.filePath else '.'
 
-    # def chooseColor1(self):
-    #     color = self.colorDialog.getColor(self.lineColor, u'Choose line color',
-    #                                       default=DEFAULT_LINE_COLOR)
-    #     if color:
-    #         self.lineColor = color
-    #         Shape.line_color = color
-    #         self.canvas.setDrawingColor(color)
-    #         self.canvas.update()
-    #         self.setDirty()
 
     def deleteSelectedShape(self):
         self.remLabel(self.canvas.deleteSelected())
@@ -1193,21 +1194,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             for action in self.onShapesPresent:
                 action.setEnabled(False)
 
-    # def chshapeLineColor(self):
-    #     color = self.colorDialog.getColor(self.lineColor, u'Choose line color',
-    #                                       default=DEFAULT_LINE_COLOR)
-    #     if color:
-    #         self.canvas.selectedShape.line_color = color
-    #         self.canvas.update()
-    #         self.setDirty()
-
-    # def chshapeFillColor(self):
-    #     color = self.colorDialog.getColor(self.fillColor, u'Choose fill color',
-    #                                       default=DEFAULT_FILL_COLOR)
-    #     if color:
-    #         self.canvas.selectedShape.fill_color = color
-    #         self.canvas.update()
-    #         self.setDirty()
+   
 
     def copyShape(self):
         self.canvas.endMove(copy=True)
@@ -1217,26 +1204,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def moveShape(self):
         self.canvas.endMove(copy=False)
         self.setDirty()
-
-    # def loadPredefinedClasses(self, predefClassesFile):
-    #     if os.path.exists(predefClassesFile) is True:
-    #         with codecs.open(predefClassesFile, 'r', 'utf8') as f:
-    #             for line in f:
-    #                 line = line.strip()
-    #                 if self.project.categories is None:
-    #                     self.project.categories = [line]
-    #                 else:
-    #                     self.project.categories.append(line)
-
-    # def loadPredefinedColors(self, predefColorsFile):
-    #     if os.path.exists(predefColorsFile) is True:
-    #         with codecs.open(predefColorsFile, 'r', 'utf8') as f:
-    #             for line in f:
-    #                 line = line.strip()
-    #                 if self.colorHist is None:
-    #                     self.colorHist = [line]
-    #                 else:
-    #                     self.colorHist.append(line)
 
 
     def loadPascalXMLByFilename(self, xmlPath):
@@ -1268,11 +1235,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def togglePaintLabelsOption(self):
         for shape in self.canvas.shapes:
             shape.paintLabel = self.displayLabelOption.isChecked()
-
-    # def toogleDrawSquare(self):
-    #     self.canvas.setDrawingShapeToSquare(self.drawSquaresOption.isChecked())
-
-
 
 def inverted(color):
     return QColor(*[255 - v for v in color.getRgb()])

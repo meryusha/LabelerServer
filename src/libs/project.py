@@ -1,9 +1,14 @@
 import random
+import os
 from category import Category
 from libs.file_loader import FileLoader
-class Project(object):
+from libs.project_settings import ProjectSettings
+from libs.constants import PROJECT_FILE_EXT
 
-    def __init__(self, path):
+class Project(object):
+    #TODO : load file from the project file
+    suffix = PROJECT_FILE_EXT
+    def __init__(self, path, project_file = None):
         self.path = path
         self._verified_images = []
         self._non_verified_images = []
@@ -12,7 +17,13 @@ class Project(object):
         self._colors = []
         self._is_VOC_format = True
         self.recent_files = []
-        self.file_loader = FileLoader(self.path)
+        self.file_loader = FileLoader(self.path)       
+        #currently holds just a path to the Pickle file
+        self._project_file = None
+        if Project.is_project_file(project_file):
+            self._project_file = project_file
+        # self._project_settings = ProjectSettings(self.path)
+        self._project_settings = None
 
     @property
     def verified_images(self):
@@ -66,6 +77,34 @@ class Project(object):
 
 
 
+    @staticmethod
+    def is_project_file(filename):
+        #TODO: check that Pickle file exists
+        fileSuffix = os.path.splitext(filename)[1].lower()
+        return fileSuffix == Project.suffix
+
+    def save_project_file(self):
+         pass
+
+    #Try to load project file and setings file 
+    def load_project_file(self):
+        print('Trying to load the project file')
+        if self._project_file is not None and os.path.exists(self._project_file):
+            try:
+                with open(self._project_file, "r") as f:
+                    last_saved = f.read()
+                    last_saved = last_saved.strip()
+                    settings = ProjectSettings(last_saved)
+                    if settings.load():
+                        self._project_settings = settings 
+                        return True                   
+            except IOError:
+                # if file doesn't exist, maybe because it has just been
+                # deleted by a separate process
+                pass
+        return False
+                
+
     #appends a new class to the project's list if does not exist yet
     def append_class(self, new_class):
         if self._categories is not None:
@@ -74,7 +113,7 @@ class Project(object):
             if new_class in self._categories:
                 #TODO notify user that class already exists
                 return False
-            assign_color(new_class)
+            self.assign_color(new_class)
             self._categories.append(new_class)
             return True
 
