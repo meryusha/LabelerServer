@@ -9,6 +9,8 @@ class Project(object):
     #TODO : load file from the project file
     suffix = PROJECT_FILE_EXT
     def __init__(self, path, project_file = None):
+        #TODO: let user choose the name
+        self.name = 'project'
         self.path = path
         self._verified_images = []
         self._non_verified_images = []
@@ -20,7 +22,7 @@ class Project(object):
         self.file_loader = FileLoader(self.path)       
         #currently holds just a path to the Pickle file
         self._project_file = None
-        if Project.is_project_file(project_file):
+        if project_file is not None and Project.is_project_file(project_file):
             self._project_file = project_file
         # self._project_settings = ProjectSettings(self.path)
         self._project_settings = None
@@ -80,11 +82,17 @@ class Project(object):
     @staticmethod
     def is_project_file(filename):
         #TODO: check that Pickle file exists
+        if not os.path.exists(filename):
+            return False
         fileSuffix = os.path.splitext(filename)[1].lower()
         return fileSuffix == Project.suffix
 
+    #saves the project in 'name.annt' format
     def save_project_file(self):
-         pass
+        if self._project_settings is not None:
+            save_file = os.path.join(self.path, "{}.{}".format(self.name, Project.suffix))
+            with open(self.path, "w") as f:
+                f.write(save_file)
 
     #Try to load project file and setings file 
     def load_project_file(self):
@@ -94,7 +102,9 @@ class Project(object):
                 with open(self._project_file, "r") as f:
                     last_saved = f.read()
                     last_saved = last_saved.strip()
-                    settings = ProjectSettings(last_saved)
+                    # last_saved = os.path.join(self.path, last_saved)
+                    settings = ProjectSettings(self, last_saved)
+                    #if valid settings file
                     if settings.load():
                         self._project_settings = settings 
                         return True                   
@@ -102,6 +112,8 @@ class Project(object):
                 # if file doesn't exist, maybe because it has just been
                 # deleted by a separate process
                 pass
+            except ValueError as e:
+                print (e)
         return False
                 
 

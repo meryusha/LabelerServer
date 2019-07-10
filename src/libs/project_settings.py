@@ -4,12 +4,16 @@ import sys
 
 
 class ProjectSettings(object):
-    def __init__(self, path):
+    def __init__(self,  project, rel_path):
         # Be default, the home will be in the same folder as labelImg
         # home = os.path.expanduser("~")
+        self.project  = project
         self.data = {}
         # self.path = os.path.join(home, '.labelImgSettings.pkl')
-        self.path = os.path.join(path, '.projectSettings.pkl')
+        full_path = os.path.join(self.project.path, rel_path)
+        if not os.path.exists(full_path):
+            raise ValueError(f'not a valid path {full_path}')
+        self.path = full_path
 
     def __setitem__(self, key, value):
         self.data[key] = value
@@ -33,6 +37,7 @@ class ProjectSettings(object):
 
     def load(self):
         try:
+            print(self.path)
             if os.path.exists(self.path):
                 with open(self.path, 'rb') as f:
                     self.data = pickle.load(f)

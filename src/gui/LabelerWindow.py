@@ -121,10 +121,11 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.resetAllAction.triggered.connect(self.resetAll)
 
         ###MAIN TOOLBAR
-        self.open.triggered.connect(self.openProject)
+        self.openProj.triggered.connect(self.openProjectDialog)
         self.quit.triggered.connect(self.close)
         self.createProject.triggered.connect(self.createProjectDialog)
-        self.save.triggered.connect(self.saveFile)
+        self.saveAnnot.triggered.connect(self.saveFile)
+        self.saveProj.triggered.connect(self.saveProject)
         self.save_format.triggered.connect(self.change_format)
         self.saveAs.triggered.connect(self.saveFileAs)
         self.closeAction.triggered.connect(self.closeFile)
@@ -390,14 +391,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.detect.setEnabled(False)
         self.updateCount()
 
-
-    # def detectShape(self):
-    #     # assert self.beginner()
-    #     # self.canvas.setEditing(False)
-    #     # self.actions.create.setEnabled(False)
-    #     # self.actions.detect.setEnabled(False)
-    #     self.canvas.detectShapes(self.image)
-    #     self.updateCount()
 
     @property
     def imageCV(self):
@@ -808,7 +801,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
         # Make sure that filePath is a regular python string, rather than QString
         filePath = ustr(filePath)
-
+        print(filePath)
         unicodeFilePath = ustr(filePath)
         # Tzutalin 20160906 : Add file list and dock to move faster
         # Highlight the file item
@@ -898,50 +891,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         return False
 
 
-    def selectProjectToOpen(self, filePath=None):
-        print("Selecting project file")
-        # import pdb;
-        # pyqtRemoveInputHook(); pdb.set_trace()
-        """Load the specified file, or the last opened file if None."""
-        if filePath is None:
-            return
-        self.resetState()
-        self.canvas.setEnabled(False)
-       
-        # filePath = self.settings.get(SETTING_FILENAME)
-
-        # Make sure that filePath is a regular python string, rather than QString
-        filePath = ustr(filePath)
-        unicodeFilePath = ustr(filePath)
-        # Tzutalin 20160906 : Add file list and dock to move faster
-        # Highlight the file item
-
-        # if unicodeFilePath and self.fileListWidget.count() > 0:
-        #     index = self.mImgList.index(unicodeFilePath)
-        #     fileWidgetItem = self.fileListWidget.item(index)
-        #     fileWidgetItem.setSelected(True)
-
-        if unicodeFilePath and os.path.exists(unicodeFilePath):
-            if Project.is_project_file(unicodeFilePath):
-                #TODO: change path to the current dir
-                project = Project('.', project_file = unicodeFilePath)
-                try:
-                    if project.load_project_file():
-                        self.project =  project 
-                        self.status("Loaded %s" % os.path.basename(unicodeFilePath))
-                        return True                   
-                except ProjectFileError as e:
-                    self.errorMessage(u'Error opening project',
-                                      (u"<p><b>%s</b></p>"
-                                       u"<p>Make sure <i>%s</i> is a valid label file.")
-                                      % (e, unicodeFilePath))
-                    self.status("Error reading %s" % unicodeFilePath)
-                    return False
-            else:
-                self.errorMessage(u'Error opening project',
-                                      (u"<p>Make sure <i>%s</i> is a valid project file.")
-                                      % ( unicodeFilePath))         
-        return False
 
     def closeEvent(self, event):
         if not self.mayContinue():
@@ -1004,13 +953,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             return
 
         defaultOpenDirPath = dirpath if dirpath else '.'
-        # if self.lastOpenDir and os.path.exists(self.lastOpenDir):
-        #     defaultOpenDirPath = self.lastOpenDir
-        # else:
-        # defaultOpenDirPath = os.path.dirname(self.filePath) if self.filePath else '.'
-
-        targetDirPath = ustr(QFileDialog.getExistingDirectory(self,
-                                                     '%s - Open Directory' % __appname__, defaultOpenDirPath,
+        targetDirPath = ustr(QFileDialog.getExistingDirectory(self, '%s - Open Directory' % __appname__, defaultOpenDirPath,
                                                      QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks))
         self.project = Project(targetDirPath)
         self.importDirImages(targetDirPath)
@@ -1100,7 +1043,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         if filename:
             self.loadFile(filename)
 
-    def openProject(self, _value=False):
+    def openProjectDialog(self, _value=False):
         if not self.mayContinue():
             return
         path = os.path.dirname(ustr(self.defaultDir)) if self.defaultDir else '.'
@@ -1110,8 +1053,45 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         if filename:
             if isinstance(filename, (tuple, list)):
                 filename = filename[0]
-            self.selectProjectToOpen(filename)
+            self.openProject(filename)
             # self.loadFile(filename)
+
+    def openProject(self, filePath=None):
+        print("Selecting project file")
+        # import pdb;
+        # pyqtRemoveInputHook(); pdb.set_trace()
+        """Load the specified file, or the last opened file if None."""
+        if filePath is None:
+            return
+        self.resetState()
+        self.canvas.setEnabled(False)
+       
+        # filePath = self.settings.get(SETTING_FILENAME)
+
+        # Make sure that filePath is a regular python string, rather than QString
+        filePath = ustr(filePath)
+        unicodeFilePath = ustr(filePath)
+
+        if unicodeFilePath and os.path.exists(unicodeFilePath):
+            if Project.is_project_file(unicodeFilePath):
+                #TODO: change path to the current dir
+                project = Project(os.path.dirname(filePath), project_file = unicodeFilePath)
+                if project.load_project_file():
+                    self.project =  project 
+                    self.status("Loaded %s" % os.path.basename(unicodeFilePath))
+                    self.importDirImages(project.path)
+                    return True
+                else:                  
+                    self.errorMessage(u'Error opening project',
+                                    (u"<p>Could open <i>%s</i>. But could not restore the files")
+                                    % (unicodeFilePath))
+                    self.status("Error reading %s" % unicodeFilePath)
+                    return False
+            else:
+                self.errorMessage(u'Error opening project',
+                                      (u"<p>Make sure <i>%s</i> is a valid project file.")
+                                      % ( unicodeFilePath))         
+        return False
 
     def saveFile(self, _value=False):
         if self.project.path is not None and len(ustr(self.project.path)):
@@ -1131,7 +1111,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def saveFileAs(self, _value=False):
         assert not self.image.isNull(), "cannot save empty image"
         self._saveFile(self.saveFileDialog())
-
+    def saveProject(self):
+        pass
     def saveFileDialog(self, removeExt=True):
         caption = '%s - Choose File' % __appname__
         filters = 'File (*%s)' % LabelFile.suffix
