@@ -38,6 +38,7 @@ from libs.stringBundle import StringBundle
 from libs.canvas import Canvas
 from libs.zoomWidget import ZoomWidget
 from libs.labelDialog import LabelDialog
+from libs.projectDialog import ProjectDialog
 from libs.colorDialog import ColorDialog
 from libs.labelFile import LabelFile, LabelFileError
 from libs.toolBar import ToolBar
@@ -77,20 +78,19 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         # QtCore.QMetaObject.connectSlotsByName(self) #TODO connect SlotsByName!
 
         self.setupUi(self)
+
+        #No project selected when open
+        self.project  = None
         self.defaultFilename = defaultFilename
-        self.project = Project("./")
-        self.project.is_VOC_format = True
-        self.project.categories = []
         self.load_views()
         self.zoom_navig = Zoom(self)
         self.setup_connections()       
         self.load_settings()
-  
-          # For loading all image under a directory
+        self.defaultDir = '.'
+        # For loading all image under a directory
         self.mImgList = []
-        self.dirname = None
-
-        self.lastOpenDir = None
+        # self.dirname = None
+        # self.lastOpenDir = None
 
         # Whether we need to save or not.
         #TODO: change the var name
@@ -98,123 +98,85 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
          # what is it? 
         self._noSelectionSlot = False
 
-        
-        def xbool(x):
-            if isinstance(x, QVariant):
-                return x.toBool()
-            return bool(x)
-
-        # if xbool(self.settings.get(SETTING_ADVANCE_MODE, False)):
-        #     self.actions.advancedMode.setChecked(True)
-        #     self.toggleAdvancedMode()
-
-        # Populate the File menu dynamically.
-        self.updateFileMenu()
-
         # Since loading the file may take some time, make sure it runs in the background.
-        if self.filePath and os.path.isdir(self.filePath):
-            self.queueEvent(partial(self.importDirImages, self.filePath or ""))
-        elif self.filePath:
-            self.queueEvent(partial(self.loadFile, self.filePath or ""))
+        # if self.filePath and os.path.isdir(self.filePath):
+        #     self.queueEvent(partial(self.importDirImages, self.filePath or ""))
+        # elif self.filePath:
+        #     self.queueEvent(partial(self.loadFile, self.filePath or ""))
 
 
-        # self.populateModeActions()
-
-        # Display cursor coordinates at the right of status bar
-        self.labelCoordinates = QLabel('')
-        self.statusBar().addPermanentWidget(self.labelCoordinates)
-
-        # Open Dir if deafult file
-        if self.filePath and os.path.isdir(self.filePath):
-            self.openDirDialog(dirpath=self.filePath)
+        # # Open Dir if deafult file
+        # if self.filePath and os.path.isdir(self.filePath):
+        #     self.createProjectDialog(dirpath=self.filePath)
 
     def setup_connections(self):
+
+        ###MENU 
+        self.hideAll.triggered.connect(partial(self.togglePolygons, False))
+        self.showAll.triggered.connect(partial(self.togglePolygons, True))
+        self.help.triggered.connect(self.showTutorialDialog)
+        self.showInfo.triggered.connect(self.showInfoDialog)
+        self.resetAllAction.triggered.connect(self.resetAll)
+
+        ###MAIN TOOLBAR
+        self.open.triggered.connect(self.openProject)
+        self.quit.triggered.connect(self.close)
+        self.createProject.triggered.connect(self.createProjectDialog)
+        self.save.triggered.connect(self.saveFile)
+        self.save_format.triggered.connect(self.change_format)
+        self.saveAs.triggered.connect(self.saveFileAs)
+        self.closeAction.triggered.connect(self.closeFile)
+        self.openNextImgAction.triggered.connect(self.openNextImg)
+        self.openPrevImgAction.triggered.connect(self.openPrevImg)      
+        self.verify.triggered.connect(self.verifyImg)
+
+
+        ###RECTBOX
+        #create Rect box pressed
+        self.create.triggered.connect(self.createShape)
+        #deleteShape is pressed
+        self.deleteAction.triggered.connect(self.deleteSelectedShape)
+        #copy shape is pressed
+        self.copy.triggered.connect(self.copySelectedShape)
+        self.edit.triggered.connect(self.editLabel)
+
+
+        ###BOXLABELS & LABELLIST
         self.diffcButton.stateChanged.connect(self.btnstate)
-       
+        self.editButton.setDefaultAction(self.edit)
         self.labelList.itemActivated.connect(self.labelSelectionChanged)
         self.labelList.itemSelectionChanged.connect(self.labelSelectionChanged)
         self.labelList.itemDoubleClicked.connect(self.editLabel)
-
         self.labelList.itemChanged.connect(self.labelItemChanged)
-      
-        self.fileListWidget.itemDoubleClicked.connect(self.fileitemDoubleClicked)
-         # self.scrollArea = self.scroll
-        self.canvas.scrollRequest.connect(self.scrollRequest)
 
+
+        ###FILELIST    
+        self.fileListWidget.itemDoubleClicked.connect(self.fileitemDoubleClicked)         
+        self.menu_File.aboutToShow.connect(self.updateFileMenu)
+         # self.scrollArea = self.scroll
+
+
+         ###CANVAS
+        self.canvas.scrollRequest.connect(self.scrollRequest)
         self.canvas.newShape.connect(self.newShape)
         self.canvas.newShapes.connect(self.newShapes)
         self.canvas.shapeMoved.connect(self.setDirty)
         self.canvas.selectionChanged.connect(self.shapeSelectionChanged)
-        self.canvas.drawingPolygon.connect(self.toggleDrawingSensitive)
+        self.canvas.drawingPolygon.connect(self.toggleDrawingSensitive)        
+        self.canvas.zoomRequest.connect(self.zoom_navig.zoomRequest)
 
       
         # action = partial(newAction, self)
-
-        self.quit.triggered.connect(self.close)
-       
-        self.open.triggered.connect(self.openFile)
-      
-
-        self.opendir.triggered.connect(self.openDirDialog)
-      
+        # self.opendir.triggered.connect(self.openDirDialog)          
         # self.changeSavedir.triggered.connect(self.changeSavedirDialog)
+        # self.openAnnotation.triggered.connect(self.openAnnotationDialog)
+        # self.color1.triggered.connect(self.chooseColor1)
+        # self.createMode.triggered.connect(self.setCreateMode)
+        # self.editMode.triggered.connect(self.setEditMode)
 
+        # self.shapeLineColor.triggered.connect(self.chshapeLineColor)
+        # self.shapeFillColor.triggered.connect(self.chshapeFillColor)
 
-        self.openAnnotation.triggered.connect(self.openAnnotationDialog)
-
-        self.openNextImgAction.triggered.connect(self.openNextImg)
-
-      
-        self.openPrevImgAction.triggered.connect(self.openPrevImg)
-
-       
-        self.verify.triggered.connect(self.verifyImg)
-
-   
-        self.save.triggered.connect(self.saveFile)
-
-        self.save_format.triggered.connect(self.change_format)
-
-        self.saveAs.triggered.connect(self.saveFileAs)
-
-        self.closeAction.triggered.connect(self.closeFile)
-
-        self.resetAllAction.triggered.connect(self.resetAll)
-        self.color1.triggered.connect(self.chooseColor1)
-
-
-        self.createMode.triggered.connect(self.setCreateMode)
-
-        self.editMode.triggered.connect(self.setEditMode)
-
-
-
-        self.create.triggered.connect(self.createShape)
-
-        self.deleteAction.triggered.connect(self.deleteSelectedShape)
-
-        self.copy.triggered.connect(self.copySelectedShape)
-       
-
-        self.hideAll.triggered.connect(partial(self.togglePolygons, False))
-        self.showAll.triggered.connect(partial(self.togglePolygons, True))
-
-
-
-        self.help.triggered.connect(self.showTutorialDialog)
-        self.showInfo.triggered.connect(self.showInfoDialog)
-
-      
-        self.edit.triggered.connect(self.editLabel)
-
-        self.editButton.setDefaultAction(self.edit)
-
-
-        self.shapeLineColor.triggered.connect(self.chshapeLineColor)
-        self.shapeFillColor.triggered.connect(self.chshapeFillColor)
-   
-        
-        self.canvas.zoomRequest.connect(self.zoom_navig.zoomRequest)
 
     def load_views(self):
         self.screencastViewer = self.getAvailableScreencastViewer()
@@ -226,18 +188,19 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         getStr = lambda strId: self.stringBundle.getString(strId)
         self.canvas = Canvas(parent=self)
         self.colorDialog = ColorDialog(parent=self)
-        # Load predefined classes to the list
+ 
+        self.labelDialog = LabelDialog(parent=self, listItem=[])
+        self.projectDialog = ProjectDialog(parent = self)
+        self.itemsToShapes = {}
+        self.shapesToItems = {}
+        self.prevLabelText = ''
+
+       # Load predefined classes to the list
         # self.loadPredefinedClasses(defaultPrefdefClassFile)
 
         # Merey Load predefined colors to the list
         # self.loadPredefinedColors(defaultPrefdefColorFile)
         # Main widgets and related state.
-        self.labelDialog = LabelDialog(parent=self, listItem=self.project.categories)
-
-        self.itemsToShapes = {}
-        self.shapesToItems = {}
-        self.prevLabelText = ''
-
        
       
         self.scroll.setWidget(self.canvas)
@@ -247,7 +210,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             Qt.Horizontal: self.scroll.horizontalScrollBar()
         }
        
-
 
         self.labelMenu = QMenu()
         addActions(self.labelMenu, (self.edit, self.deleteAction))
@@ -266,72 +228,73 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
        
         self.displayLabelOption.triggered.connect(self.togglePaintLabelsOption)
 
-
-
-        self.menu_File.aboutToShow.connect(self.updateFileMenu)
-
         # STATUS BAR
         self.statusBar().showMessage('%s started.' % __appname__)
         self.statusBar().show()
 
+        # Populate the File menu dynamically.
+        self.updateFileMenu()
+
+        # Display cursor coordinates at the right of status bar
+        self.labelCoordinates = QLabel('')
+        self.statusBar().addPermanentWidget(self.labelCoordinates)
 
 
     def load_settings(self):
-
+        if self.project is not None:
         # Application state.
-        self.image = QImage()
-        self.filePath = ustr(self.defaultFilename)
-        self.recentFiles = []
-        self.maxRecent = 7
-        self.lineColor = None
-        self.fillColor = None
-        self.zoom_level = 100
-        self.fit_window = False
-        # Add Chris
-        self.difficult = False
-        # import pdb;
-        # pyqtRemoveInputHook(); pdb.set_trace()
-         # Load setting in the main thread
-        self.settings = Settings()
-        self.settings.load()
-        # settings = self.settings
+            self.image = QImage()
+            self.filePath = ustr(self.defaultFilename)
+            # self.recent_files = []
+            self.lineColor = None
+            self.fillColor = None
+            self.zoom_level = 100
+            self.fit_window = False
+            # Add Chris
+            self.difficult = False
+            # import pdb;
+            # pyqtRemoveInputHook(); pdb.set_trace()
+            # Load setting in the main thread
+            self.settings = Settings()
+            self.settings.load()
+            # settings = self.settings
 
-        self.autoSaving.setChecked(self.settings.get(SETTING_AUTO_SAVE, False))
-        self.singleClassMode.setChecked(self.settings.get(SETTING_SINGLE_CLASS, False))
-        self.displayLabelOption.setChecked(self.settings.get(SETTING_PAINT_LABEL, False))
+            self.autoSaving.setChecked(self.settings.get(SETTING_AUTO_SAVE, False))
+            self.singleClassMode.setChecked(self.settings.get(SETTING_SINGLE_CLASS, False))
+            self.displayLabelOption.setChecked(self.settings.get(SETTING_PAINT_LABEL, False))
 
-        ## Fix the compatible issue for qt4 and qt5. Convert the QStringList to python list
-        if self.settings.get(SETTING_RECENT_FILES):
-            if have_qstring():
-                recentFileQStringList = self.settings.get(SETTING_RECENT_FILES)
-                self.recentFiles = [ustr(i) for i in recentFileQStringList]
-            else:
-                self.recentFiles = recentFileQStringList = self.settings.get(SETTING_RECENT_FILES)
+            ## Fix the compatible issue for qt4 and qt5. Convert the QStringList to python list
+            if self.settings.get(SETTING_RECENT_FILES):
+                if have_qstring():
+                    recentFileQStringList = self.settings.get(SETTING_RECENT_FILES)
+                    self.project.recent_files = [ustr(i) for i in recentFileQStringList]
+                else:
+                    self.project.recent_files = recentFileQStringList = self.settings.get(SETTING_RECENT_FILES)
 
-        size = self.settings.get(SETTING_WIN_SIZE, QSize(600, 500))
-        position = QPoint(0, 0)
-        saved_position = self.settings.get(SETTING_WIN_POSE, position)
-        # Fix the multiple monitors issue
-        for i in range(QApplication.desktop().screenCount()):
-            if QApplication.desktop().availableGeometry(i).contains(saved_position):
-                position = saved_position
-                break
-        self.resize(size)
-        self.move(position)
-        saveDir = ustr(self.settings.get(SETTING_SAVE_DIR, None))
-        self.lastOpenDir = ustr(self.settings.get(SETTING_LAST_OPEN_DIR, None))
-        if self.project.path is None and saveDir is not None and os.path.exists(saveDir):
-            self.project.path = saveDir
-            self.statusBar().showMessage('%s started. Annotation will be saved to %s' %
-                                         (__appname__, self.project.path))
-            self.statusBar().show()
+            size = self.settings.get(SETTING_WIN_SIZE, QSize(600, 500))
+            position = QPoint(0, 0)
+            saved_position = self.settings.get(SETTING_WIN_POSE, position)
+            # Fix the multiple monitors issue
+            for i in range(QApplication.desktop().screenCount()):
+                if QApplication.desktop().availableGeometry(i).contains(saved_position):
+                    position = saved_position
+                    break
+            self.resize(size)
+            self.move(position)
+            saveDir = ustr(self.settings.get(SETTING_PROJECT_DIR, None))
+            # self.lastOpenDir = ustr(self.settings.get(SETTING_LAST_OPEN_DIR, None))
+            if self.project.path is None and saveDir is not None and os.path.exists(saveDir):
+                self.project.path = saveDir
+                self.statusBar().showMessage('%s started. Annotation will be saved to %s' %
+                                            (__appname__, self.project.path))
+                self.statusBar().show()
 
-        self.restoreState(self.settings.get(SETTING_WIN_STATE, QByteArray()))
-        Shape.line_color = self.lineColor = QColor(self.settings.get(SETTING_LINE_COLOR, DEFAULT_LINE_COLOR))
-        Shape.fill_color = self.fillColor = QColor(self.settings.get(SETTING_FILL_COLOR, DEFAULT_FILL_COLOR))
-        self.canvas.setDrawingColor(self.lineColor)
-        # Add chris
-        Shape.difficult = self.difficult
+            self.restoreState(self.settings.get(SETTING_WIN_STATE, QByteArray()))
+            Shape.line_color = self.lineColor = QColor(self.settings.get(SETTING_LINE_COLOR, DEFAULT_LINE_COLOR))
+            Shape.fill_color = self.fillColor = QColor(self.settings.get(SETTING_FILL_COLOR, DEFAULT_FILL_COLOR))
+            self.canvas.setDrawingColor(self.lineColor)
+            # Add chris
+            Shape.difficult = self.difficult
 
     def keyReleaseEvent(self, event):
         if event.key() == Qt.Key_Control:
@@ -405,11 +368,12 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         return None
 
     def addRecentFile(self, filePath):
-        if filePath in self.recentFiles:
-            self.recentFiles.remove(filePath)
-        elif len(self.recentFiles) >= self.maxRecent:
-            self.recentFiles.pop()
-        self.recentFiles.insert(0, filePath)
+        if self.project is not None:
+            if filePath in self.project.recent_files:
+                self.project.recent_files.remove(filePath)
+            elif len(self.project.recent_files) >= MAX_RECENT:
+                self.project.recent_files.pop()
+            self.project.recent_files.insert(0, filePath)
 
     def getAvailableScreencastViewer(self):
         osName = platform.system()
@@ -466,31 +430,32 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.createMode.setEnabled(edit)
         self.editMode.setEnabled(not edit)
 
-    def setCreateMode(self):
-        # assert self.advanced()
-        self.toggleDrawMode(False)
+    # def setCreateMode(self):
+    #     # assert self.advanced()
+    #     self.toggleDrawMode(False)
 
-    def setEditMode(self):
-        # assert self.advanced()
-        self.toggleDrawMode(True)
-        self.labelSelectionChanged()
+    # def setEditMode(self):
+    #     # assert self.advanced()
+    #     self.toggleDrawMode(True)
+    #     self.labelSelectionChanged()
 
     def updateFileMenu(self):
-        currFilePath = self.filePath
-        print(currFilePath)
+        if self.project is not None:
+            currFilePath = self.project.path
+            print(currFilePath)
 
-        def exists(filename):
-            return os.path.exists(filename)
-        menu = self.menu_RecentFiles
-        menu.clear()
-        files = [f for f in self.recentFiles if f !=
-                 currFilePath and exists(f)]
-        for i, f in enumerate(files):
-            icon = newIcon('labels')
-            action = QAction(
-                icon, '&%d %s' % (i + 1, QFileInfo(f).fileName()), self)
-            action.triggered.connect(partial(self.loadRecent, f))
-            menu.addAction(action)
+            def exists(filename):
+                return os.path.exists(filename)
+            menu = self.menu_RecentFiles
+            menu.clear()
+            files = [f for f in self.project.recent_files if f !=
+                    currFilePath and exists(f)]
+            for i, f in enumerate(files):
+                icon = newIcon('labels')
+                action = QAction(
+                    icon, '&%d %s' % (i + 1, QFileInfo(f).fileName()), self)
+                action.triggered.connect(partial(self.loadRecent, f))
+                menu.addAction(action)
 
     def popLabelListMenu(self, point):
         print(point)
@@ -958,50 +923,39 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             event.ignore()
         # settings = self.settings
         # If it loads images from dir, don't load it at the begining
-        if self.dirname is None:
-            self.settings[SETTING_FILENAME] = self.filePath if self.filePath else ''
-        else:
-            self.settings[SETTING_FILENAME] = ''
+        if self.project is not None:
+            if self.project.path is None:
+                self.settings[SETTING_FILENAME] = self.filePath if self.filePath else ''
+            else:
+                self.settings[SETTING_FILENAME] = ''
 
-        self.settings[SETTING_WIN_SIZE] = self.size()
-        self.settings[SETTING_WIN_POSE] = self.pos()
-        self.settings[SETTING_WIN_STATE] = self.saveState()
-        self.settings[SETTING_LINE_COLOR] = self.lineColor
-        self.settings[SETTING_FILL_COLOR] = self.fillColor
-        self.settings[SETTING_RECENT_FILES] = self.recentFiles
-        # self.settings[SETTING_ADVANCE_MODE] = not self._beginner
-        if self.project.path and os.path.exists(self.project.path):
-            self.settings[SETTING_SAVE_DIR] = ustr(self.project.path)
-        else:
-            self.settings[SETTING_SAVE_DIR] = ''
+            self.settings[SETTING_WIN_SIZE] = self.size()
+            self.settings[SETTING_WIN_POSE] = self.pos()
+            self.settings[SETTING_WIN_STATE] = self.saveState()
+            self.settings[SETTING_LINE_COLOR] = self.lineColor
+            self.settings[SETTING_FILL_COLOR] = self.fillColor
+            self.settings[SETTING_RECENT_FILES] = self.project.recent_files
+            # self.settings[SETTING_ADVANCE_MODE] = not self._beginner
+            if self.project.path and os.path.exists(self.project.path):
+                self.settings[SETTING_PROJECT_DIR] = ustr(self.project.path)
+            else:
+                self.settings[SETTING_PROJECT_DIR] = ''
 
-        if self.lastOpenDir and os.path.exists(self.lastOpenDir):
-            self.settings[SETTING_LAST_OPEN_DIR] = self.lastOpenDir
-        else:
-            self.settings[SETTING_LAST_OPEN_DIR] = ''
+            # if self.lastOpenDir and os.path.exists(self.lastOpenDir):
+            #     self.settings[SETTING_LAST_OPEN_DIR] = self.lastOpenDir
+            # else:
+            #     self.settings[SETTING_LAST_OPEN_DIR] = ''
 
-        self.settings[SETTING_AUTO_SAVE] = self.autoSaving.isChecked()
-        self.settings[SETTING_SINGLE_CLASS] = self.singleClassMode.isChecked()
-        self.settings[SETTING_PAINT_LABEL] = self.displayLabelOption.isChecked()
-        # self.settings[SETTING_DRAW_SQUARE] = self.drawSquaresOption.isChecked()
-        self.settings.save()
+            self.settings[SETTING_AUTO_SAVE] = self.autoSaving.isChecked()
+            self.settings[SETTING_SINGLE_CLASS] = self.singleClassMode.isChecked()
+            self.settings[SETTING_PAINT_LABEL] = self.displayLabelOption.isChecked()
+            # self.settings[SETTING_DRAW_SQUARE] = self.drawSquaresOption.isChecked()
+            self.settings.save()
 
     def loadRecent(self, filename):
         if self.mayContinue():
             self.loadFile(filename)
 
-    def scanAllImages(self, folderPath):
-        extensions = ['.%s' % fmt.data().decode("ascii").lower() for fmt in QImageReader.supportedImageFormats()]
-        images = []
-
-        for root, dirs, files in os.walk(folderPath):
-            for file in files:
-                if file.lower().endswith(tuple(extensions)):
-                    relativePath = os.path.join(root, file)
-                    path = ustr(os.path.abspath(relativePath))
-                    images.append(path)
-        images.sort(key=lambda x: x.lower())
-        return images
 
     def changeSavedirDialog(self, _value=False):
         if self.project.path is not None:
@@ -1020,46 +974,48 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
                                      ('Change saved folder', self.project.path))
         self.statusBar().show()
 
-    def openAnnotationDialog(self, _value=False):
-        if self.filePath is None:
-            self.statusBar().showMessage('Please select image first')
-            self.statusBar().show()
-            return
+    # def openAnnotationDialog(self, _value=False):
+    #     if self.filePath is None:
+    #         self.statusBar().showMessage('Please select image first')
+    #         self.statusBar().show()
+    #         return
 
-        path = os.path.dirname(ustr(self.filePath))\
-            if self.filePath else '.'
-        if self.usingPascalVocFormat:
-            filters = "Open Annotation XML file (%s)" % ' '.join(['*.xml'])
-            filename = ustr(QFileDialog.getOpenFileName(self,'%s - Choose a xml file' % __appname__, path, filters))
-            if filename:
-                if isinstance(filename, (tuple, list)):
-                    filename = filename[0]
-            self.loadPascalXMLByFilename(filename)
+    #     path = os.path.dirname(ustr(self.filePath))\
+    #         if self.filePath else '.'
+    #     if self.usingPascalVocFormat:
+    #         filters = "Open Annotation XML file (%s)" % ' '.join(['*.xml'])
+    #         filename = ustr(QFileDialog.getOpenFileName(self,'%s - Choose a xml file' % __appname__, path, filters))
+    #         if filename:
+    #             if isinstance(fileopenAnnotationDialogname, (tuple, list)):
+    #                 filename = filename[0]
+    #         self.loadPascalXMLByFilename(filename)
 
-    def openDirDialog(self, _value=False, dirpath=None):
+    def createProjectDialog(self, _value=False, dirpath=None):
         if not self.mayContinue():
             return
 
         defaultOpenDirPath = dirpath if dirpath else '.'
-        if self.lastOpenDir and os.path.exists(self.lastOpenDir):
-            defaultOpenDirPath = self.lastOpenDir
-        else:
-            defaultOpenDirPath = os.path.dirname(self.filePath) if self.filePath else '.'
+        # if self.lastOpenDir and os.path.exists(self.lastOpenDir):
+        #     defaultOpenDirPath = self.lastOpenDir
+        # else:
+        # defaultOpenDirPath = os.path.dirname(self.filePath) if self.filePath else '.'
 
         targetDirPath = ustr(QFileDialog.getExistingDirectory(self,
                                                      '%s - Open Directory' % __appname__, defaultOpenDirPath,
                                                      QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks))
+        self.project = Project(targetDirPath)
         self.importDirImages(targetDirPath)
+        
 
     def importDirImages(self, dirpath):
         if not self.mayContinue() or not dirpath:
             return
 
-        self.lastOpenDir = dirpath
-        self.dirname = dirpath
+        # self.lastOpenDir = dirpath
+        # self.project.path = dirpath
         self.filePath = None
         self.fileListWidget.clear()
-        self.mImgList = self.scanAllImages(dirpath)
+        self.mImgList = self.project.file_loader.scanAllImages()
         self.openNextImg()
         for imgPath in self.mImgList:
             item = QListWidgetItem(imgPath)
@@ -1135,13 +1091,13 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         if filename:
             self.loadFile(filename)
 
-    def openFile(self, _value=False):
+    def openProject(self, _value=False):
         if not self.mayContinue():
             return
-        path = os.path.dirname(ustr(self.filePath)) if self.filePath else '.'
+        path = os.path.dirname(ustr(self.defaultDir)) if self.defaultDir else '.'
         formats = ['*.%s' % fmt.data().decode("ascii").lower() for fmt in QImageReader.supportedImageFormats()]
-        filters = "Image & Label files (%s)" % ' '.join(formats + ['*%s' % LabelFile.suffix])
-        filename = QFileDialog.getOpenFileName(self, '%s - Choose Image or Label file' % __appname__, path, filters)
+        filters = "Project files (%s)" % ' '.join(formats + ['*%s' % LabelFile.suffix])
+        filename = QFileDialog.getOpenFileName(self, '%s - Choose Project file' % __appname__, path, filters)
         if filename:
             if isinstance(filename, (tuple, list)):
                 filename = filename[0]
@@ -1220,15 +1176,15 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def currentPath(self):
         return os.path.dirname(self.filePath) if self.filePath else '.'
 
-    def chooseColor1(self):
-        color = self.colorDialog.getColor(self.lineColor, u'Choose line color',
-                                          default=DEFAULT_LINE_COLOR)
-        if color:
-            self.lineColor = color
-            Shape.line_color = color
-            self.canvas.setDrawingColor(color)
-            self.canvas.update()
-            self.setDirty()
+    # def chooseColor1(self):
+    #     color = self.colorDialog.getColor(self.lineColor, u'Choose line color',
+    #                                       default=DEFAULT_LINE_COLOR)
+    #     if color:
+    #         self.lineColor = color
+    #         Shape.line_color = color
+    #         self.canvas.setDrawingColor(color)
+    #         self.canvas.update()
+    #         self.setDirty()
 
     def deleteSelectedShape(self):
         self.remLabel(self.canvas.deleteSelected())
@@ -1237,21 +1193,21 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             for action in self.onShapesPresent:
                 action.setEnabled(False)
 
-    def chshapeLineColor(self):
-        color = self.colorDialog.getColor(self.lineColor, u'Choose line color',
-                                          default=DEFAULT_LINE_COLOR)
-        if color:
-            self.canvas.selectedShape.line_color = color
-            self.canvas.update()
-            self.setDirty()
+    # def chshapeLineColor(self):
+    #     color = self.colorDialog.getColor(self.lineColor, u'Choose line color',
+    #                                       default=DEFAULT_LINE_COLOR)
+    #     if color:
+    #         self.canvas.selectedShape.line_color = color
+    #         self.canvas.update()
+    #         self.setDirty()
 
-    def chshapeFillColor(self):
-        color = self.colorDialog.getColor(self.fillColor, u'Choose fill color',
-                                          default=DEFAULT_FILL_COLOR)
-        if color:
-            self.canvas.selectedShape.fill_color = color
-            self.canvas.update()
-            self.setDirty()
+    # def chshapeFillColor(self):
+    #     color = self.colorDialog.getColor(self.fillColor, u'Choose fill color',
+    #                                       default=DEFAULT_FILL_COLOR)
+    #     if color:
+    #         self.canvas.selectedShape.fill_color = color
+    #         self.canvas.update()
+    #         self.setDirty()
 
     def copyShape(self):
         self.canvas.endMove(copy=True)

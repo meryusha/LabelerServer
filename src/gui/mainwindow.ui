@@ -167,7 +167,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="open"/>
-   <addaction name="opendir"/>
+   <addaction name="createProject"/>
    <addaction name="openPrevImgAction"/>
    <addaction name="openNextImgAction"/>
    <addaction name="verify"/>
@@ -292,7 +292,7 @@
      <addaction name="actiontest"/>
     </widget>
     <addaction name="open"/>
-    <addaction name="opendir"/>
+    <addaction name="createProject"/>
     <addaction name="openAnnotation"/>
     <addaction name="menu_RecentFiles"/>
     <addaction name="save"/>
@@ -383,13 +383,13 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="opendir">
+  <action name="createProject">
    <property name="icon">
     <iconset theme=":/open">
      <normaloff>../resources/icons/open.png</normaloff>../resources/icons/open.png</iconset>
    </property>
    <property name="text">
-    <string>Open Dir</string>
+    <string>Create Project</string>
    </property>
    <property name="toolTip">
     <string>Open Directory</string>

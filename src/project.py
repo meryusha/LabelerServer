@@ -1,6 +1,6 @@
 import random
 from category import Category
-
+from libs.file_loader import FileLoader
 class Project(object):
 
     def __init__(self, path):
@@ -11,6 +11,8 @@ class Project(object):
         self._categories = []
         self._colors = []
         self._is_VOC_format = True
+        self.recent_files = []
+        self.file_loader = FileLoader(self.path)
 
     @property
     def verified_images(self):

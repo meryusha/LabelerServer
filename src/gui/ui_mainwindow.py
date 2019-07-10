@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'src/gui/mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.0
+# Created by: PyQt5 UI code generator 5.12.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -144,10 +144,10 @@ class Ui_MainWindow(object):
         icon = QtGui.QIcon.fromTheme(":/open")
         self.open.setIcon(icon)
         self.open.setObjectName("open")
-        self.opendir = QtWidgets.QAction(MainWindow)
+        self.createProject = QtWidgets.QAction(MainWindow)
         icon = QtGui.QIcon.fromTheme(":/open")
-        self.opendir.setIcon(icon)
-        self.opendir.setObjectName("opendir")
+        self.createProject.setIcon(icon)
+        self.createProject.setObjectName("createProject")
         self.openAnnotation = QtWidgets.QAction(MainWindow)
         icon = QtGui.QIcon.fromTheme(":/open")
         self.openAnnotation.setIcon(icon)
@@ -292,7 +292,7 @@ class Ui_MainWindow(object):
         self.displayLabelOption.setCheckable(True)
         self.displayLabelOption.setObjectName("displayLabelOption")
         self.toolBar_Open.addAction(self.open)
-        self.toolBar_Open.addAction(self.opendir)
+        self.toolBar_Open.addAction(self.createProject)
         self.toolBar_Open.addAction(self.openPrevImgAction)
         self.toolBar_Open.addAction(self.openNextImgAction)
         self.toolBar_Open.addAction(self.verify)
@@ -310,7 +310,7 @@ class Ui_MainWindow(object):
         self.toolBar_Edit.addAction(self.deleteAction)
         self.menu_RecentFiles.addAction(self.actiontest)
         self.menu_File.addAction(self.open)
-        self.menu_File.addAction(self.opendir)
+        self.menu_File.addAction(self.createProject)
         self.menu_File.addAction(self.openAnnotation)
         self.menu_File.addAction(self.menu_RecentFiles.menuAction())
         self.menu_File.addAction(self.save)
@@ -382,11 +382,11 @@ class Ui_MainWindow(object):
         self.open.setStatusTip(_translate("MainWindow", "Open image or label file"))
         self.open.setWhatsThis(_translate("MainWindow", "Open image or label file"))
         self.open.setShortcut(_translate("MainWindow", "Ctrl+O"))
-        self.opendir.setText(_translate("MainWindow", "Open Dir"))
-        self.opendir.setToolTip(_translate("MainWindow", "Open Directory"))
-        self.opendir.setStatusTip(_translate("MainWindow", "Open Directory"))
-        self.opendir.setWhatsThis(_translate("MainWindow", "Open Directory"))
-        self.opendir.setShortcut(_translate("MainWindow", "Ctrl+U"))
+        self.createProject.setText(_translate("MainWindow", "Create Project"))
+        self.createProject.setToolTip(_translate("MainWindow", "Open Directory"))
+        self.createProject.setStatusTip(_translate("MainWindow", "Open Directory"))
+        self.createProject.setWhatsThis(_translate("MainWindow", "Open Directory"))
+        self.createProject.setShortcut(_translate("MainWindow", "Ctrl+U"))
         self.openAnnotation.setText(_translate("MainWindow", "Open Annotation"))
         self.openAnnotation.setToolTip(_translate("MainWindow", "Open an annotation file"))
         self.openAnnotation.setStatusTip(_translate("MainWindow", "Open an annotation file"))
