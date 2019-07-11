@@ -19,7 +19,8 @@ class Project(object):
         self._colors = []
         self._is_VOC_format = True
         self.recent_files = []
-        self.file_loader = FileLoader(self.path)       
+        self.file_loader = FileLoader(self.path)   
+        self._is_saved = False    
         #currently holds just a path to the Pickle file
         self._project_file = None
         if project_file is not None and Project.is_project_file(project_file):
@@ -77,6 +78,15 @@ class Project(object):
             raise ValueError("Not a boolean")
         self._is_VOC_format = value
 
+    @property
+    def is_saved(self):
+        return self._is_saved
+    
+    @is_saved.setter
+    def is_saved(self, value):
+        if not isinstance(value, bool):
+            raise ValueError("Not a boolean")
+        self._is_saved = value
 
 
     @staticmethod
@@ -87,12 +97,24 @@ class Project(object):
         fileSuffix = os.path.splitext(filename)[1].lower()
         return fileSuffix == Project.suffix
 
-    #saves the project in 'name.annt' format
+    
     def save_project_file(self):
+    '''saves the project in 'name.annt' format
+        returns True if saved, False otherwise
+    '''
         if self._project_settings is not None:
             save_file = os.path.join(self.path, "{}.{}".format(self.name, Project.suffix))
-            with open(self.path, "w") as f:
-                f.write(save_file)
+            try:
+                with open(self.path, "w") as f:
+                    f.write(save_file)
+                    self._is_saved = True
+                    return True
+            except EnvironmentError as e: # parent of IOError, OSError *and* WindowsError where available
+                    print(e)
+                    self._is_saved = False
+                    return False
+        return False
+                
 
     #Try to load project file and setings file 
     def load_project_file(self):

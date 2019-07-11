@@ -61,6 +61,9 @@ class Canvas(QWidget):
         # Menus:
         self.menus = (QMenu(), QMenu())
         # Set widget options.
+        
+        #If mouse tracking is enabled, the widget receives mouse move events even if no buttons are pressed.
+        # calls mouseMoveEvent
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.WheelFocus)
         self.verified = False
@@ -89,6 +92,7 @@ class Canvas(QWidget):
         return self.mode == self.EDIT
 
     def setEditing(self, value=True):
+        ''' changing to create mode will cause cursor to appear'''
         self.mode = self.EDIT if value else self.CREATE
         if not value:  # Create
             self.unHighlight()
@@ -105,6 +109,7 @@ class Canvas(QWidget):
         return self.hVertex is not None
 
     def mouseMoveEvent(self, ev):
+        # print('MOUSE MOVING')
         """Update line with last point and current coordinates."""
         pos = self.transformPos(ev.pos())
 
@@ -152,6 +157,7 @@ class Canvas(QWidget):
 
         # Polygon copy moving.
         if Qt.RightButton & ev.buttons():
+            # print("QT RIGHT POINT")
             if self.selectedShapeCopy and self.prevPoint:
                 self.overrideCursor(CURSOR_MOVE)
                 self.boundedMoveShape(self.selectedShapeCopy, pos)
@@ -163,6 +169,7 @@ class Canvas(QWidget):
 
         # Polygon/Vertex moving.
         if Qt.LeftButton & ev.buttons():
+            # print("QT LEFT POINT")
             if self.selectedVertex():
                 self.boundedMoveVertex(pos)
                 self.shapeMoved.emit()

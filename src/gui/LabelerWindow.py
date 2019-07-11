@@ -96,7 +96,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
         # Whether we need to save or not.
         #TODO: change the var name
-        self.dirty = False
+        self.unsavedChanges = False
          # what is it? 
         self._noSelectionSlot = False
 
@@ -163,7 +163,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.canvas.scrollRequest.connect(self.scrollRequest)
         self.canvas.newShape.connect(self.newShape)
         self.canvas.newShapes.connect(self.newShapes)
-        self.canvas.shapeMoved.connect(self.setDirty)
+        self.canvas.shapeMoved.connect(self.setUnsavedChanges)
         self.canvas.selectionChanged.connect(self.shapeSelectionChanged)
         self.canvas.drawingPolygon.connect(self.toggleDrawingSensitive)        
         self.canvas.zoomRequest.connect(self.zoom_navig.zoomRequest)
@@ -319,13 +319,26 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def noShapes(self):
         return not self.itemsToShapes
 
-    def setDirty(self):
-        self.dirty = True
-        self.save.setEnabled(True)
-
-    def setClean(self):
-        self.dirty = False
-        self.save.setEnabled(False)
+    def setUnsavedChanges(self):
+        '''
+            Being called by signal when canvas shapes are moved
+            Meaning both file and project have to be saved
+        '''
+        if self.project is not None:
+            self.project.is_saved = False
+        self.unsavedChanges = True
+        self.saveAnnot.setEnabled(True)
+        self.saveProj.setEnabled(True)
+    
+   
+    def setFileSaved(self):
+        '''
+            Called after a file is saved or closed
+            Still might need to save a project
+        '''
+        self.unsavedChanges = False
+        self.saveAnnot.setEnabled(False)
+        # self.saveProj.setEnabled(False)
         self.create.setEnabled(True)
         self.detect.setEnabled(True)
 
@@ -444,7 +457,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         if text is not None:
             item.setText(text)
             item.setBackground(generateColorByText(text))
-            self.setDirty()
+            self.setUnsavedChanges()
 
     # Tzutalin 20160906 : Add file list and dock to move faster
     def fileitemDoubleClicked(self, item=None):
@@ -475,7 +488,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         try:
             if difficult != shape.difficult:
                 shape.difficult = difficult
-                self.setDirty()
+                self.setUnsavedChanges()
             else:  # User probably changed item visibility
                 self.canvas.setShapeVisible(shape, item.checkState() == Qt.Checked)
         except:
@@ -538,7 +551,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
                 # Ensure the labels are within the bounds of the image. If not, fix them.
                 x, y, snapped = self.canvas.snapPointToCanvas(x, y)
                 if snapped:
-                    self.setDirty()
+                    self.setUnsavedChanges()
 
                 shape.addPoint(QPointF(x, y))
             shape.difficult = difficult
@@ -618,7 +631,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         if label != shape.label:
             shape.label = item.text()
             shape.line_color = generateColorByText(shape.label)
-            self.setDirty()
+            self.setUnsavedChanges()
         else:  # User probably changed item visibility
             self.canvas.setShapeVisible(shape, item.checkState() == Qt.Checked)
 
@@ -729,7 +742,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.detect.setEnabled(True)
         # else:
         #     self.actions.editMode.setEnabled(True)
-        self.setDirty()
+        self.setUnsavedChanges()
 
     # Callback functions:
     def newShape(self):
@@ -769,7 +782,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             self.detect.setEnabled(True)
             # else:
             #     self.actions.editMode.setEnabled(True)
-            self.setDirty()
+            self.setUnsavedChanges()
 
             if text not in self.project.categories:
                 self.project.categories.append(text)
@@ -847,7 +860,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             self.canvas.loadPixmap(QPixmap.fromImage(image))
             if self.labelFile:
                 self.loadLabels(self.labelFile.shapes)
-            self.setClean()
+            self.setFileSaved()
             self.canvas.setEnabled(True)
             self.zoom_navig.adjustScale(initial=True)
             self.zoom_navig.paintCanvas()
@@ -931,22 +944,22 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             self.loadFile(filename)
 
 
-    def changeSavedirDialog(self, _value=False):
-        if self.project.path is not None:
-            path = ustr(self.project.path)
-        else:
-            path = '.'
+    # def changeSavedirDialog(self, _value=False):
+    #     if self.project.path is not None:
+    #         path = ustr(self.project.path)
+    #     else:
+    #         path = '.'
 
-        dirpath = ustr(QFileDialog.getExistingDirectory(self,
-                                                       '%s - Save annotations to the directory' % __appname__, path,  QFileDialog.ShowDirsOnly
-                                                       | QFileDialog.DontResolveSymlinks))
+    #     dirpath = ustr(QFileDialog.getExistingDirectory(self,
+    #                                                    '%s - Save annotations to the directory' % __appname__, path,  QFileDialog.ShowDirsOnly
+    #                                                    | QFileDialog.DontResolveSymlinks))
 
-        if dirpath is not None and len(dirpath) > 1:
-            self.project.path = dirpath
+    #     if dirpath is not None and len(dirpath) > 1:
+    #         self.project.path = dirpath
 
-        self.statusBar().showMessage('%s . Annotation will be saved to %s' %
-                                     ('Change saved folder', self.project.path))
-        self.statusBar().show()
+    #     self.statusBar().showMessage('%s . Annotation will be saved to %s' %
+    #                                  ('Change saved folder', self.project.path))
+    #     self.statusBar().show()
 
     def createProjectDialog(self, _value=False, dirpath=None):
         if not self.mayContinue():
@@ -995,10 +1008,10 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         # Proceding prev image without dialog if having any label
         if self.autoSaving.isChecked():
             if self.project.path is not None:
-                if self.dirty is True:
+                if self.unsavedChanges is True:
                     self.saveFile()
             else:
-                self.changeSavedirDialog()
+                # self.changeSavedirDialog()
                 return
 
         if not self.mayContinue():
@@ -1020,10 +1033,10 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         # Proceding prev image without dialog if having any label
         if self.autoSaving.isChecked():
             if self.project.path is not None:
-                if self.dirty is True:
+                if self.unsavedChanges is True:
                     self.saveFile()
             else:
-                self.changeSavedirDialog()
+                # self.changeSavedirDialog()
                 return
 
         if not self.mayContinue():
@@ -1133,7 +1146,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     def _saveFile(self, annotationFilePath):
         if annotationFilePath and self.saveLabels(annotationFilePath):
-            self.setClean()
+            self.setFileSaved()
             self.statusBar().showMessage('Saved to  %s' % annotationFilePath)
             self.statusBar().show()
 
@@ -1141,7 +1154,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         if not self.mayContinue():
             return
         self.resetState()
-        self.setClean()
+        self.setFileSaved()
         self.toggleActions(False)
         self.canvas.setEnabled(False)
         self.saveAs.setEnabled(False)
@@ -1153,7 +1166,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         proc.startDetached(os.path.abspath(__file__))
 
     def mayContinue(self):
-        return not (self.dirty and not self.discardChangesDialog())
+        return not (self.unsavedChanges and not self.discardChangesDialog())
 
     def discardChangesDialog(self):
         yes, no = QMessageBox.Yes, QMessageBox.No
@@ -1170,7 +1183,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     def deleteSelectedShape(self):
         self.remLabel(self.canvas.deleteSelected())
-        self.setDirty()
+        self.setUnsavedChanges()
         if self.noShapes():
             for action in self.onShapesPresent:
                 action.setEnabled(False)
@@ -1180,11 +1193,11 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def copyShape(self):
         self.canvas.endMove(copy=True)
         self.addLabel(self.canvas.selectedShape)
-        self.setDirty()
+        self.setUnsavedChanges()
 
     def moveShape(self):
         self.canvas.endMove(copy=False)
-        self.setDirty()
+        self.setUnsavedChanges()
 
 
     def loadPascalXMLByFilename(self, xmlPath):
