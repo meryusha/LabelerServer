@@ -3,13 +3,10 @@ import os
 import sys
 
 
-class ProjectSettings(object):
+class ProjectData(object):
     def __init__(self,  project, rel_path):
-        # Be default, the home will be in the same folder as labelImg
-        # home = os.path.expanduser("~")
         self.project  = project
-        self.data = {}
-        # self.path = os.path.join(home, '.labelImgSettings.pkl')
+        self.data = {} 
         full_path = os.path.join(self.project.path, rel_path)
         if not os.path.exists(full_path):
             raise ValueError(f'not a valid path {full_path}')

@@ -2,8 +2,8 @@ import random
 import os
 from category import Category
 from libs.file_loader import FileLoader
-from libs.project_settings import ProjectSettings
-from libs.constants import PROJECT_FILE_EXT
+from libs.project_data import ProjectData
+from libs.constants import *
 try:
     from PyQt5.QtGui import *
     from PyQt5.QtCore import *
@@ -18,15 +18,17 @@ except ImportError:
         sip.setapi('QVariant', 2)
     from PyQt4.QtGui import *
     from PyQt4.QtCore import *
+
 class Project(object):
     #TODO : load file from the project file
     suffix = PROJECT_FILE_EXT
-    def __init__(self, path, project_file = None):
+    def __init__(self, path, project_name ='project', project_file = None):
         #TODO: let user choose the name
-        self.name = 'project'
+        self.name = project_name
         self.path = path
         self._verified_images = []
         self._non_verified_images = []
+        self.all_image_paths = []
         self._num_images = 0
         self._categories = []
         self._colors = []
@@ -38,8 +40,8 @@ class Project(object):
         self._project_file = None
         if project_file is not None and Project.is_project_file(project_file):
             self._project_file = project_file
-        # self._project_settings = ProjectSettings(self.path)
-        self._project_settings = None
+        self._project_data = None
+
 
     @property
     def verified_images(self):
@@ -117,7 +119,7 @@ class Project(object):
     def save_project_file(self):
         '''saves the project in 'name.annt' format
         returns True if saved, False otherwise'''
-        if self._project_settings is not None:
+        if self._project_data is not None:
             save_file = os.path.join(self.path, "{}.{}".format(self.name, Project.suffix))
             try:
                 with open(self.path, "w") as f:
@@ -131,7 +133,8 @@ class Project(object):
         return False
                 
 
-    #Try to load project file and settings file 
+    #Try to load project file and data file 
+    #try to load (restore) files from the project data file
     def load_project_file(self):
         print('Trying to load the project file')
         if self._project_file is not None and os.path.exists(self._project_file):
@@ -140,10 +143,11 @@ class Project(object):
                     last_saved = f.read()
                     last_saved = last_saved.strip()
                     # last_saved = os.path.join(self.path, last_saved)
-                    settings = ProjectSettings(self, last_saved)
-                    #if valid settings file
-                    if settings.load():
-                        self._project_settings = settings 
+                    data = ProjectData(self, last_saved)
+                    #if valid data file
+                    if data.load():
+                        self._project_data = data
+                        self.restore_project_data() 
                         return True                   
             except IOError:
                 # if file doesn't exist, maybe because it has just been
@@ -152,7 +156,34 @@ class Project(object):
             except ValueError as e:
                 print (e)
         return False
-                
+
+    def restore_project_data(self):
+        '''restore all project data (images with label files), categories from the binary
+            check for consistency with the current data in the folder
+        ''' 
+        if self._project_data is Null:
+            return
+
+        self._verified_images = self._project_data.get(PROJECT_VERIFIED_IMAGES, [])
+        self._non_verified_images = self._project_data.get(PROJECT_NON_VERIFIED_IMAGES, [])
+        self.all_image_paths = self._project_data.get(PROJECT_ALL_IMAGES_PATHS, [])
+        self._categories = self._project_data.get(PROJECT_CATEGORIES, [])
+        self.check_for_consistency()
+
+    def store_project_data(self):
+        '''store all project data (images with label files), categories to the binary'''
+        if self._project_data is Null:
+            self._project_data =  ProjectData(self, str(self.name, '.pkl'))
+
+        self._project_data[PROJECT_VERIFIED_IMAGES]  = self._verified_images 
+        self._project_data[PROJECT_NON_VERIFIED_IMAGES] = self._non_verified_images 
+        self._project_data[PROJECT_ALL_IMAGES_PATHS]s = self.all_image_paths 
+        self._project_data[PROJECT_CATEGORIES] = self._categories     
+    
+    def check_for_consistency(self):
+        '''checks if the state in the binary file is up to date with the directory state'''
+        
+        
     def load_dir_images(self, window):
         if not window.mayContinue() or not self.file_loader:
             return
@@ -177,7 +208,7 @@ class Project(object):
             self._categories.append(new_class)
             return True
 
-    #assigns unique color to a class, to be persited in the settings        
+    #assigns unique color to a class, to be persited in the data file        
     def assign_color(self, new_class):
         color = self._colors.pop()
         new_class.color = color

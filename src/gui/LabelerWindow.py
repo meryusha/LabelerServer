@@ -39,7 +39,7 @@ from libs.canvas import Canvas
 from libs.zoomWidget import ZoomWidget
 from libs.labelDialog import LabelDialog
 from libs.projectDialog import ProjectDialog
-from libs.colorDialog import ColorDialog
+# from libs.colorDialog import ColorDialog
 from libs.labelFile import LabelFile, LabelFileError
 from libs.toolBar import ToolBar
 from libs.pascal_voc_io import PascalVocReader
@@ -156,8 +156,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         # self.stringBundle = StringBundle.getBundle()
         # getStr = lambda strId: self.stringBundle.getString(strId)
         self.canvas = Canvas(parent=self)
-        self.colorDialog = ColorDialog(parent=self)
- 
+        # self.colorDialog = ColorDialog(parent=self)
         self.labelDialog = LabelDialog(parent=self, listItem=[])
         self.projectDialog = ProjectDialog(parent = self)
         self.itemsToShapes = {}
@@ -169,22 +168,11 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             
         # For loading all image under a directory
         # self.mImgList = []
-        
-
+    
         # Whether we need to save or not.
-        #TODO: change the var name
         self.unsavedChanges = False
          # what is it? 
         self._noSelectionSlot = False
-
-       # Load predefined classes to the list
-        # self.loadPredefinedClasses(defaultPrefdefClassFile)
-
-        # Merey Load predefined colors to the list
-        # self.loadPredefinedColors(defaultPrefdefColorFile)
-        # Main widgets and related state.
-       
-      
         self.scroll.setWidget(self.canvas)
         # scroll.setWidgetResizable(True)
         self.scrollBars = {
@@ -545,6 +533,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     # Tzutalin 20160906 : Add file list and dock to move faster
     def fileitemDoubleClicked(self, item=None):
+        #Merey : In simple terms, index() method finds the given element in a list and returns its position.
         currIndex = self.mImgList.index(ustr(item.text()))
         if currIndex < len(self.mImgList):
             filename = self.mImgList[currIndex]

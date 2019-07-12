@@ -23,11 +23,12 @@ class LabelFile(object):
     # suffix = '.lif'
     suffix = XML_EXT
 
-    def __init__(self, filename=None):
+    def __init__(self, image = None):
         self.shapes = ()
-        self.imagePath = None
+        self.image = image
+        # self.imagePath = None
         self.imageData = None
-        self.verified = False
+        # self.verified = False
 
     def savePascalVocFormat(self, filename, shapes, imagePath, imageData,
                             lineColor=None, fillColor=None, databaseSrc=None):
@@ -43,7 +44,7 @@ class LabelFile(object):
                       1 if image.isGrayscale() else 3]
         writer = PascalVocWriter(imgFolderName, imgFileName,
                                  imageShape, localImgPath=imagePath)
-        writer.verified = self.verified
+        writer.verified = self.image.is_verified()
 
         for shape in shapes:
             points = shape['points']
@@ -70,7 +71,7 @@ class LabelFile(object):
                       1 if image.isGrayscale() else 3]
         writer = YOLOWriter(imgFolderName, imgFileName,
                                  imageShape, localImgPath=imagePath)
-        writer.verified = self.verified
+        writer.verified = self.image.is_verified()
 
         for shape in shapes:
             points = shape['points']
@@ -83,37 +84,9 @@ class LabelFile(object):
         writer.save(targetFile=filename, classList=classList)
         return
 
-    def toggleVerify(self):
-        self.verified = not self.verified
+    # def toggleVerify(self):
+    #     self.verified = not self.verified
 
-    ''' ttf is disable
-    def load(self, filename):
-        import json
-        with open(filename, 'rb') as f:
-                data = json.load(f)
-                imagePath = data['imagePath']
-                imageData = b64decode(data['imageData'])
-                lineColor = data['lineColor']
-                fillColor = data['fillColor']
-                shapes = ((s['label'], s['points'], s['line_color'], s['fill_color'])\
-                        for s in data['shapes'])
-                # Only replace data after everything is loaded.
-                self.shapes = shapes
-                self.imagePath = imagePath
-                self.imageData = imageData
-                self.lineColor = lineColor
-                self.fillColor = fillColor
-
-    def save(self, filename, shapes, imagePath, imageData, lineColor=None, fillColor=None):
-        import json
-        with open(filename, 'wb') as f:
-                json.dump(dict(
-                    shapes=shapes,
-                    lineColor=lineColor, fillColor=fillColor,
-                    imagePath=imagePath,
-                    imageData=b64encode(imageData)),
-                    f, ensure_ascii=True, indent=2)
-    '''
 
     @staticmethod
     def isLabelFile(filename):

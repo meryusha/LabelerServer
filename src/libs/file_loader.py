@@ -1,5 +1,6 @@
 import sys, os
 from libs.ustr import ustr
+from libs.image import Image
 try:
     from PyQt5.QtGui import *
     from PyQt5.QtCore import *
@@ -29,7 +30,9 @@ class FileLoader(object):
                 if file.lower().endswith(tuple(extensions)):
                     relativePath = os.path.join(root, file)
                     path = ustr(os.path.abspath(relativePath))
-                    images.append(path)
+                    if path is not in self.project.all_image_paths:
+                        #we have a new image which is not in the project data file 
+                        images.append(path)
         images.sort(key=lambda x: x.lower())
         return images
 

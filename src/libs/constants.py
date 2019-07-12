@@ -19,8 +19,22 @@ PROJECT_FILE_EXT = ".annt"
 SETTING_DRAW_SQUARE = 'draw/square'
 DEFAULT_ENCODING = 'utf-8'
 MAX_RECENT = 7
+
+
+##Project files
+
+PROJECT_VERIFIED_IMAGES = 'verifiedImgs'
+PROJECT_NON_VERIFIED_IMAGES = 'nonVerifiedImgs'
+PROJECT_CATEGORIES = 'categories'
+PROJECT_ALL_IMAGES_PATHS = 'imagePaths'
+
 #20 colors to pick from
+
 COLORS = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', 
     '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080',
     '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000',
     '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
+
+##some parameters
+IMAGE_DEFAULT_SCORE = 0.0
+IMAGE_HUMAN_VERIFIED_SCORE = 1.0

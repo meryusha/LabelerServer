@@ -1,6 +1,7 @@
 import random
 import os
-from category import Category
+from libs.category import Category
+from libs.constants import IMAGE_DEFAULT_SCORE, IMAGE_HUMAN_VERIFIED_SCORE
 try:
     from PyQt5.QtGui import *
     from PyQt5.QtCore import *
@@ -15,9 +16,10 @@ except ImportError:
         sip.setapi('QVariant', 2)
     from PyQt4.QtGui import *
     from PyQt4.QtCore import *
+
 class Image(object):
     
-    def __init__(self, path, category = None, annotFile = None, score = 1.0):
+    def __init__(self, path, category = None, annotFile = None, score = IMAGE_DEFAULT_SCORE):
         self.path = path
         self._is_verified = False
         self.annotFile = annotFile

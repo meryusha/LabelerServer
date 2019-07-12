@@ -1,3 +1,5 @@
 {
-    "python.pythonPath": "/Users/giancos/anaconda/envs/ActiveImageLabeler/bin/python"
+    "python.pythonPath": "/Users/Merey/anaconda2/envs/ActiveImageLabeler/bin/python",
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true
 }
