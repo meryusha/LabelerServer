@@ -4,7 +4,20 @@ from category import Category
 from libs.file_loader import FileLoader
 from libs.project_settings import ProjectSettings
 from libs.constants import PROJECT_FILE_EXT
-
+try:
+    from PyQt5.QtGui import *
+    from PyQt5.QtCore import *
+    from PyQt5.QtWidgets import *
+except ImportError:
+    # needed for py3+qt4
+    # Ref:
+    # http://pyqt.sourceforge.net/Docs/PyQt4/incompatible_apis.html
+    # http://stackoverflow.com/questions/21217399/pyqt4-qtcore-qvariant-object-instead-of-a-string
+    if sys.version_info.major >= 3:
+        import sip
+        sip.setapi('QVariant', 2)
+    from PyQt4.QtGui import *
+    from PyQt4.QtCore import *
 class Project(object):
     #TODO : load file from the project file
     suffix = PROJECT_FILE_EXT
@@ -98,10 +111,12 @@ class Project(object):
         return fileSuffix == Project.suffix
 
     
+    ##Project  loading, saving,
+    # Loading images and files
+     
     def save_project_file(self):
-    '''saves the project in 'name.annt' format
-        returns True if saved, False otherwise
-    '''
+        '''saves the project in 'name.annt' format
+        returns True if saved, False otherwise'''
         if self._project_settings is not None:
             save_file = os.path.join(self.path, "{}.{}".format(self.name, Project.suffix))
             try:
@@ -116,7 +131,7 @@ class Project(object):
         return False
                 
 
-    #Try to load project file and setings file 
+    #Try to load project file and settings file 
     def load_project_file(self):
         print('Trying to load the project file')
         if self._project_file is not None and os.path.exists(self._project_file):
@@ -138,6 +153,17 @@ class Project(object):
                 print (e)
         return False
                 
+    def load_dir_images(self, window):
+        if not window.mayContinue() or not self.file_loader:
+            return
+
+        window.filePath = None
+        window.fileListWidget.clear()
+        window.mImgList = self.file_loader.scanAllImages()
+        window.openNextImg()
+        for imgPath in window.mImgList:
+            item = QListWidgetItem(imgPath)
+            window.fileListWidget.addItem(item)
 
     #appends a new class to the project's list if does not exist yet
     def append_class(self, new_class):

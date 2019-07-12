@@ -88,29 +88,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.zoom_navig = Zoom(self)
         self.setup_connections()       
         self.load_settings()
-       
-        # For loading all image under a directory
-        self.mImgList = []
-        # self.dirname = None
-        # self.lastOpenDir = None
 
-        # Whether we need to save or not.
-        #TODO: change the var name
-        self.unsavedChanges = False
-         # what is it? 
-        self._noSelectionSlot = False
-
-        # Since loading the file may take some time, make sure it runs in the background.
-        # if self.filePath and os.path.isdir(self.filePath):
-        #     self.queueEvent(partial(self.importDirImages, self.filePath or ""))
-        # elif self.filePath:
-        #     self.queueEvent(partial(self.loadFile, self.filePath or ""))
-
-
-        # # Open Dir if deafult file
-        # if self.filePath and os.path.isdir(self.filePath):
-        #     self.createProjectDialog(dirpath=self.filePath)
-
+    #SETIING UP
     def setup_connections(self):
 
         ###MENU 
@@ -168,7 +147,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.canvas.drawingPolygon.connect(self.toggleDrawingSensitive)        
         self.canvas.zoomRequest.connect(self.zoom_navig.zoomRequest)
 
-
     def load_views(self):
         self.screencastViewer = self.getAvailableScreencastViewer()
         #TODO: put our tutorial there
@@ -185,6 +163,20 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.itemsToShapes = {}
         self.shapesToItems = {}
         self.prevLabelText = ''
+        self.lineColor = None
+        self.fillColor = None
+        self.difficult = False
+            
+        # For loading all image under a directory
+        self.mImgList = []
+        # self.dirname = None
+        # self.lastOpenDir = None
+
+        # Whether we need to save or not.
+        #TODO: change the var name
+        self.unsavedChanges = False
+         # what is it? 
+        self._noSelectionSlot = False
 
        # Load predefined classes to the list
         # self.loadPredefinedClasses(defaultPrefdefClassFile)
@@ -230,94 +222,192 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.labelCoordinates = QLabel('')
         self.statusBar().addPermanentWidget(self.labelCoordinates)
 
-
     def load_settings(self):
-        if self.project is not None:
+        # Load setting in the main thread
+        self.settings = Settings()
+        self.settings.load()
         # Application state.
-            self.image = QImage()
-            self.filePath = ustr(self.defaultDir)
-            # self.recent_files = []
-            self.lineColor = None
-            self.fillColor = None
-            self.zoom_level = 100
-            self.fit_window = False
-            # Add Chris
-            self.difficult = False
-            # import pdb;
-            # pyqtRemoveInputHook(); pdb.set_trace()
-            # Load setting in the main thread
-            self.settings = Settings()
-            self.settings.load()
-            # settings = self.settings
+        self.image = QImage()
+        self.filePath = ustr(self.defaultDir)
 
-            self.autoSaving.setChecked(self.settings.get(SETTING_AUTO_SAVE, False))
-            self.singleClassMode.setChecked(self.settings.get(SETTING_SINGLE_CLASS, False))
-            self.displayLabelOption.setChecked(self.settings.get(SETTING_PAINT_LABEL, False))
-
-            ## Fix the compatible issue for qt4 and qt5. Convert the QStringList to python list
-            if self.settings.get(SETTING_RECENT_FILES):
-                if have_qstring():
-                    recentFileQStringList = self.settings.get(SETTING_RECENT_FILES)
-                    self.project.recent_files = [ustr(i) for i in recentFileQStringList]
-                else:
-                    self.project.recent_files = recentFileQStringList = self.settings.get(SETTING_RECENT_FILES)
-
-            size = self.settings.get(SETTING_WIN_SIZE, QSize(600, 500))
-            position = QPoint(0, 0)
-            saved_position = self.settings.get(SETTING_WIN_POSE, position)
-            # Fix the multiple monitors issue
-            for i in range(QApplication.desktop().screenCount()):
-                if QApplication.desktop().availableGeometry(i).contains(saved_position):
-                    position = saved_position
-                    break
-            self.resize(size)
-            self.move(position)
-            saveDir = ustr(self.settings.get(SETTING_PROJECT_DIR, None))
-            # self.lastOpenDir = ustr(self.settings.get(SETTING_LAST_OPEN_DIR, None))
-            if self.project.path is None and saveDir is not None and os.path.exists(saveDir):
-                self.project.path = saveDir
+        #loading last project if possible
+        # projDir = ustr(self.settings.get(SETTING_PROJECT_DIR, None))
+        projFile = ustr(self.settings.get(SETTING_PROJECT_FILE, None))
+        if self.project is None and self.openProject(projFile):
+            if self.project is not None:
                 self.statusBar().showMessage('%s started. Annotation will be saved to %s' %
                                             (__appname__, self.project.path))
                 self.statusBar().show()
+                # import pdb;
+                # pyqtRemoveInputHook(); pdb.set_trace()
 
-            self.restoreState(self.settings.get(SETTING_WIN_STATE, QByteArray()))
-            Shape.line_color = self.lineColor = QColor(self.settings.get(SETTING_LINE_COLOR, DEFAULT_LINE_COLOR))
-            Shape.fill_color = self.fillColor = QColor(self.settings.get(SETTING_FILL_COLOR, DEFAULT_FILL_COLOR))
-            self.canvas.setDrawingColor(self.lineColor)
-            # Add chris
-            Shape.difficult = self.difficult
+                self.autoSaving.setChecked(self.settings.get(SETTING_AUTO_SAVE, False))
+                self.singleClassMode.setChecked(self.settings.get(SETTING_SINGLE_CLASS, False))
+                self.displayLabelOption.setChecked(self.settings.get(SETTING_PAINT_LABEL, False))
 
-    def keyReleaseEvent(self, event):
-        if event.key() == Qt.Key_Control:
-            self.canvas.setDrawingShapeToSquare(False)
+                ## Fix the compatible issue for qt4 and qt5. Convert the QStringList to python list
+                if self.settings.get(SETTING_RECENT_FILES):
+                    if have_qstring():
+                        recentFileQStringList = self.settings.get(SETTING_RECENT_FILES)
+                        self.project.recent_files = [ustr(i) for i in recentFileQStringList]
+                    else:
+                        self.project.recent_files = recentFileQStringList = self.settings.get(SETTING_RECENT_FILES)
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Control:
-            # Draw rectangle if Ctrl is pressed
-            self.canvas.setDrawingShapeToSquare(True)
+                size = self.settings.get(SETTING_WIN_SIZE, QSize(600, 500))
+                position = QPoint(0, 0)
+                saved_position = self.settings.get(SETTING_WIN_POSE, position)
+                # Fix the multiple monitors issue
+                for i in range(QApplication.desktop().screenCount()):
+                    if QApplication.desktop().availableGeometry(i).contains(saved_position):
+                        position = saved_position
+                        break
+                self.resize(size)
+                self.move(position)
 
-    ## Support Functions ##
-    def set_format(self, save_format):
-        if save_format == FORMAT_PASCALVOC:
-            self.save_format.setText(FORMAT_PASCALVOC)
-            self.save_format.setIcon(newIcon("format_voc"))
-            self.usingPascalVocFormat = True
-            self.usingYoloFormat = False
-            LabelFile.suffix = XML_EXT
+                # self.lastOpenDir = ustr(self.settings.get(SETTING_LAST_OPEN_DIR, None))
 
-        elif save_format == FORMAT_YOLO:
-            self.save_format.setText(FORMAT_YOLO)
-            self.save_format.setIcon(newIcon("format_yolo"))
-            self.usingPascalVocFormat = False
-            self.usingYoloFormat = True
-            LabelFile.suffix = TXT_EXT
+                self.restoreState(self.settings.get(SETTING_WIN_STATE, QByteArray()))
+                Shape.line_color = self.lineColor = QColor(self.settings.get(SETTING_LINE_COLOR, DEFAULT_LINE_COLOR))
+                Shape.fill_color = self.fillColor = QColor(self.settings.get(SETTING_FILL_COLOR, DEFAULT_FILL_COLOR))
+                self.canvas.setDrawingColor(self.lineColor)
+                # Add chris
+                Shape.difficult = self.difficult  
+    
+    #Project creation, opening, saving, closing
+    def createProjectDialog(self, _value=False, dirpath=None):
+        if not self.mayContinue():
+            return
 
-    def change_format(self):
-        if self.usingPascalVocFormat: self.set_format(FORMAT_YOLO)
-        elif self.usingYoloFormat: self.set_format(FORMAT_PASCALVOC)
+        defaultOpenDirPath = dirpath if dirpath else '.'
+        targetDirPath = ustr(QFileDialog.getExistingDirectory(self, '%s - Open Directory' % __appname__, defaultOpenDirPath,
+                                                     QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks))
+        self.project = Project(targetDirPath)
+        self.project.load_dir_images(self)
+        self.setUnsavedChanges()
+      
+    def openProjectDialog(self, _value=False):
+        '''Triggered by button pressing
+            Opens a dialog and passing selected folder to openProject() method
+        '''
+        if not self.mayContinue():
+            return
+        path = os.path.dirname(ustr(self.defaultDir)) if self.defaultDir else '.'
+        # formats = ['*.%s' % fmt.data().decode("ascii").lower() for fmt in QImageReader.supportedImageFormats()]
+        filters = "Project files (%s)" % ' '.join(['*%s' % Project.suffix])
+        filename = QFileDialog.getOpenFileName(self, '%s - Choose Project file' % __appname__, path, filters)
+        if filename:
+            if isinstance(filename, (tuple, list)):
+                filename = filename[0]
+            self.openProject(filename)
+            # self.loadFile(filename)
 
-    def noShapes(self):
-        return not self.itemsToShapes
+    def openProject(self, filePath=None):
+        '''Trying to load project from the project .annt file
+            shows error if file is not valid, then cleans the workspace and loads the images and project settings
+        '''
+        print("Selecting project file")
+
+        if filePath is None:
+            return
+        self.resetState()
+        self.canvas.setEnabled(False)
+      
+        # Make sure that filePath is a regular python string, rather than QString
+        filePath = ustr(filePath)
+        unicodeFilePath = ustr(filePath)
+
+        if unicodeFilePath and os.path.exists(unicodeFilePath):
+            if Project.is_project_file(unicodeFilePath):
+                #TODO: change path to the current dir
+                project = Project(os.path.dirname(filePath), project_file = unicodeFilePath)
+                if project.load_project_file():
+                    self.project = project 
+                    self.status("Loaded %s" % os.path.basename(unicodeFilePath))
+                    self.project.load_dir_images(self)
+                    return True
+                else:                  
+                    self.errorMessage(u'Error opening project',
+                                    (u"<p>Could open <i>%s</i>. But could not restore the files")
+                                    % (unicodeFilePath))
+                    self.status("Error reading %s" % unicodeFilePath)
+                    return False
+            else:
+                self.errorMessage(u'Error opening project',
+                                      (u"<p>Make sure <i>%s</i> is a valid project file.")
+                                      % ( unicodeFilePath))         
+        return False
+    
+    def saveProject(self):
+        if  self.project.save_project_file():
+            self.setProjectSaved()
+            self.errorMessage(u'Error saving project', 'Could not save the project file')
+            self.status("Error saving the project")
+                         
+    #File creation, opening, saving, closing
+  
+    def saveFile(self, _value=False):
+        if self.project.path is not None and len(ustr(self.project.path)):
+            if self.filePath:
+                imgFileName = os.path.basename(self.filePath)
+                savedFileName = os.path.splitext(imgFileName)[0]
+                savedPath = os.path.join(ustr(self.project.path), savedFileName)
+                self._saveFile(savedPath)
+        else:
+            imgFileDir = os.path.dirname(self.filePath)
+            imgFileName = os.path.basename(self.filePath)
+            savedFileName = os.path.splitext(imgFileName)[0]
+            savedPath = os.path.join(imgFileDir, savedFileName)
+            self._saveFile(savedPath if self.labelFile
+                           else self.saveFileDialog(removeExt=False))
+
+    def saveFileAs(self, _value=False):
+        assert not self.image.isNull(), "cannot save empty image"
+        self._saveFile(self.saveFileDialog())
+  
+    def saveFileDialog(self, removeExt=True):
+        caption = '%s - Choose File' % __appname__
+        filters = 'File (*%s)' % LabelFile.suffix
+        openDialogPath = self.currentPath()
+        dlg = QFileDialog(self, caption, openDialogPath, filters)
+        dlg.setDefaultSuffix(LabelFile.suffix[1:])
+        dlg.setAcceptMode(QFileDialog.AcceptSave)
+        filenameWithoutExtension = os.path.splitext(self.filePath)[0]
+        dlg.selectFile(filenameWithoutExtension)
+        dlg.setOption(QFileDialog.DontUseNativeDialog, False)
+        if dlg.exec_():
+            fullFilePath = ustr(dlg.selectedFiles()[0])
+            if removeExt:
+                return os.path.splitext(fullFilePath)[0] # Return file path without the extension.
+            else:
+                return fullFilePath
+        return ''
+
+    def _saveFile(self, annotationFilePath):
+        if annotationFilePath and self.saveLabels(annotationFilePath):
+            self.setFileSaved()
+            self.statusBar().showMessage('Saved to  %s' % annotationFilePath)
+            self.statusBar().show()
+
+    def closeFile(self, _value=False):
+        if not self.mayContinue():
+            return
+        self.resetState()
+        self.setFileSaved()
+        self.toggleActions(False)
+        self.canvas.setEnabled(False)
+        self.saveAs.setEnabled(False)
+
+   
+    ##STATE
+    def resetState(self):
+        self.itemsToShapes.clear()
+        self.shapesToItems.clear()
+        self.labelList.clear()
+        self.filePath = None
+        self.imageData = None
+        self.labelFile = None
+        self.canvas.resetState()
+        self.labelCoordinates.clear()
 
     def setUnsavedChanges(self):
         '''
@@ -342,6 +432,10 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.create.setEnabled(True)
         self.detect.setEnabled(True)
 
+    def setProjectSaved(self):
+        '''Called when project was just saved
+        '''
+
     def toggleActions(self, value=True):
         """Enable/Disable widgets which depend on an opened image."""
         for z in self.zoom_navig.zoomActions:
@@ -355,16 +449,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def status(self, message, delay=5000):
         self.statusBar().showMessage(message, delay)
 
-    def resetState(self):
-        self.itemsToShapes.clear()
-        self.shapesToItems.clear()
-        self.labelList.clear()
-        self.filePath = None
-        self.imageData = None
-        self.labelFile = None
-        self.canvas.resetState()
-        self.labelCoordinates.clear()
-
+   
     def currentItem(self):
         items = self.labelList.selectedItems()
         if items:
@@ -686,8 +771,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.canvas.repaint()
         return
 
-
-
     # Callback functions:
     def newShapes(self, n):
         """Pop-up and give focus to the label editor.
@@ -903,6 +986,28 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             return True
         return False
 
+     ## Support Functions ##
+    def set_format(self, save_format):
+        if save_format == FORMAT_PASCALVOC:
+            self.save_format.setText(FORMAT_PASCALVOC)
+            self.save_format.setIcon(newIcon("format_voc"))
+            self.usingPascalVocFormat = True
+            self.usingYoloFormat = False
+            LabelFile.suffix = XML_EXT
+
+        elif save_format == FORMAT_YOLO:
+            self.save_format.setText(FORMAT_YOLO)
+            self.save_format.setIcon(newIcon("format_yolo"))
+            self.usingPascalVocFormat = False
+            self.usingYoloFormat = True
+            LabelFile.suffix = TXT_EXT
+
+    def change_format(self):
+        if self.usingPascalVocFormat: self.set_format(FORMAT_YOLO)
+        elif self.usingYoloFormat: self.set_format(FORMAT_PASCALVOC)
+
+    def noShapes(self):
+        return not self.itemsToShapes
 
 
     def closeEvent(self, event):
@@ -943,48 +1048,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         if self.mayContinue():
             self.loadFile(filename)
 
-
-    # def changeSavedirDialog(self, _value=False):
-    #     if self.project.path is not None:
-    #         path = ustr(self.project.path)
-    #     else:
-    #         path = '.'
-
-    #     dirpath = ustr(QFileDialog.getExistingDirectory(self,
-    #                                                    '%s - Save annotations to the directory' % __appname__, path,  QFileDialog.ShowDirsOnly
-    #                                                    | QFileDialog.DontResolveSymlinks))
-
-    #     if dirpath is not None and len(dirpath) > 1:
-    #         self.project.path = dirpath
-
-    #     self.statusBar().showMessage('%s . Annotation will be saved to %s' %
-    #                                  ('Change saved folder', self.project.path))
-    #     self.statusBar().show()
-
-    def createProjectDialog(self, _value=False, dirpath=None):
-        if not self.mayContinue():
-            return
-
-        defaultOpenDirPath = dirpath if dirpath else '.'
-        targetDirPath = ustr(QFileDialog.getExistingDirectory(self, '%s - Open Directory' % __appname__, defaultOpenDirPath,
-                                                     QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks))
-        self.project = Project(targetDirPath)
-        self.importDirImages(targetDirPath)
-        
-
-    def importDirImages(self, dirpath):
-        if not self.mayContinue() or not dirpath:
-            return
-
-        # self.lastOpenDir = dirpath
-        # self.project.path = dirpath
-        self.filePath = None
-        self.fileListWidget.clear()
-        self.mImgList = self.project.file_loader.scanAllImages()
-        self.openNextImg()
-        for imgPath in self.mImgList:
-            item = QListWidgetItem(imgPath)
-            self.fileListWidget.addItem(item)
+      
 
     def verifyImg(self, _value=False):
         # Proceding next image without dialog if having any label
@@ -1056,109 +1120,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         if filename:
             self.loadFile(filename)
 
-    def openProjectDialog(self, _value=False):
-        if not self.mayContinue():
-            return
-        path = os.path.dirname(ustr(self.defaultDir)) if self.defaultDir else '.'
-        # formats = ['*.%s' % fmt.data().decode("ascii").lower() for fmt in QImageReader.supportedImageFormats()]
-        filters = "Project files (%s)" % ' '.join(['*%s' % Project.suffix])
-        filename = QFileDialog.getOpenFileName(self, '%s - Choose Project file' % __appname__, path, filters)
-        if filename:
-            if isinstance(filename, (tuple, list)):
-                filename = filename[0]
-            self.openProject(filename)
-            # self.loadFile(filename)
-
-    def openProject(self, filePath=None):
-        print("Selecting project file")
-        # import pdb;
-        # pyqtRemoveInputHook(); pdb.set_trace()
-        """Load the specified file, or the last opened file if None."""
-        if filePath is None:
-            return
-        self.resetState()
-        self.canvas.setEnabled(False)
-       
-        # filePath = self.settings.get(SETTING_FILENAME)
-
-        # Make sure that filePath is a regular python string, rather than QString
-        filePath = ustr(filePath)
-        unicodeFilePath = ustr(filePath)
-
-        if unicodeFilePath and os.path.exists(unicodeFilePath):
-            if Project.is_project_file(unicodeFilePath):
-                #TODO: change path to the current dir
-                project = Project(os.path.dirname(filePath), project_file = unicodeFilePath)
-                if project.load_project_file():
-                    self.project =  project 
-                    self.status("Loaded %s" % os.path.basename(unicodeFilePath))
-                    self.importDirImages(project.path)
-                    return True
-                else:                  
-                    self.errorMessage(u'Error opening project',
-                                    (u"<p>Could open <i>%s</i>. But could not restore the files")
-                                    % (unicodeFilePath))
-                    self.status("Error reading %s" % unicodeFilePath)
-                    return False
-            else:
-                self.errorMessage(u'Error opening project',
-                                      (u"<p>Make sure <i>%s</i> is a valid project file.")
-                                      % ( unicodeFilePath))         
-        return False
-
-    def saveFile(self, _value=False):
-        if self.project.path is not None and len(ustr(self.project.path)):
-            if self.filePath:
-                imgFileName = os.path.basename(self.filePath)
-                savedFileName = os.path.splitext(imgFileName)[0]
-                savedPath = os.path.join(ustr(self.project.path), savedFileName)
-                self._saveFile(savedPath)
-        else:
-            imgFileDir = os.path.dirname(self.filePath)
-            imgFileName = os.path.basename(self.filePath)
-            savedFileName = os.path.splitext(imgFileName)[0]
-            savedPath = os.path.join(imgFileDir, savedFileName)
-            self._saveFile(savedPath if self.labelFile
-                           else self.saveFileDialog(removeExt=False))
-
-    def saveFileAs(self, _value=False):
-        assert not self.image.isNull(), "cannot save empty image"
-        self._saveFile(self.saveFileDialog())
-    def saveProject(self):
-        pass
-    def saveFileDialog(self, removeExt=True):
-        caption = '%s - Choose File' % __appname__
-        filters = 'File (*%s)' % LabelFile.suffix
-        openDialogPath = self.currentPath()
-        dlg = QFileDialog(self, caption, openDialogPath, filters)
-        dlg.setDefaultSuffix(LabelFile.suffix[1:])
-        dlg.setAcceptMode(QFileDialog.AcceptSave)
-        filenameWithoutExtension = os.path.splitext(self.filePath)[0]
-        dlg.selectFile(filenameWithoutExtension)
-        dlg.setOption(QFileDialog.DontUseNativeDialog, False)
-        if dlg.exec_():
-            fullFilePath = ustr(dlg.selectedFiles()[0])
-            if removeExt:
-                return os.path.splitext(fullFilePath)[0] # Return file path without the extension.
-            else:
-                return fullFilePath
-        return ''
-
-    def _saveFile(self, annotationFilePath):
-        if annotationFilePath and self.saveLabels(annotationFilePath):
-            self.setFileSaved()
-            self.statusBar().showMessage('Saved to  %s' % annotationFilePath)
-            self.statusBar().show()
-
-    def closeFile(self, _value=False):
-        if not self.mayContinue():
-            return
-        self.resetState()
-        self.setFileSaved()
-        self.toggleActions(False)
-        self.canvas.setEnabled(False)
-        self.saveAs.setEnabled(False)
-
     def resetAll(self):
         self.settings.reset()
         self.close()
@@ -1188,7 +1149,16 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             for action in self.onShapesPresent:
                 action.setEnabled(False)
 
+       #EVENTS HANDLING
    
+    def keyReleaseEvent(self, event):
+        if event.key() == Qt.Key_Control:
+            self.canvas.setDrawingShapeToSquare(False)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Control:
+            # Draw rectangle if Ctrl is pressed
+            self.canvas.setDrawingShapeToSquare(True)
 
     def copyShape(self):
         self.canvas.endMove(copy=True)
