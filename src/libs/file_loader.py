@@ -16,14 +16,15 @@ except ImportError:
     from PyQt4.QtCore import *
 class FileLoader(object):
 
-    def __init__(self, dir):
-        self.dir = dir
+    def __init__(self, project):
+        self.project = project
 
     def scanAllImages(self):
         extensions = ['.%s' % fmt.data().decode("ascii").lower() for fmt in QImageReader.supportedImageFormats()]
+        # verified_images = []
+        # non_verified_images = []
         images = []
-
-        for root, dirs, files in os.walk(self.dir):
+        for root, dirs, files in os.walk(self.project.path):
             for file in files:
                 if file.lower().endswith(tuple(extensions)):
                     relativePath = os.path.join(root, file)
@@ -31,3 +32,14 @@ class FileLoader(object):
                     images.append(path)
         images.sort(key=lambda x: x.lower())
         return images
+
+    def check_xml(self, filePath):
+        pass
+
+    def load_xml(self, filePath):
+        xmlPath = os.path.splitext(filePath)[0] + XML_EXT
+        txtPath = os.path.splitext(filePath)[0] + TXT_EXT
+                if os.path.isfile(xmlPath):
+                    self.loadPascalXMLByFilename(xmlPath)
+                elif os.path.isfile(txtPath):
+                    self.loadYOLOTXTByFilename(txtPath)

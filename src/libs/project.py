@@ -32,7 +32,7 @@ class Project(object):
         self._colors = []
         self._is_VOC_format = True
         self.recent_files = []
-        self.file_loader = FileLoader(self.path)   
+        self.file_loader = FileLoader(self)   
         self._is_saved = False    
         #currently holds just a path to the Pickle file
         self._project_file = None
@@ -159,7 +159,7 @@ class Project(object):
 
         window.filePath = None
         window.fileListWidget.clear()
-        window.mImgList = self.file_loader.scanAllImages()
+        project. = self.file_loader.scanAllImages()
         window.openNextImg()
         for imgPath in window.mImgList:
             item = QListWidgetItem(imgPath)

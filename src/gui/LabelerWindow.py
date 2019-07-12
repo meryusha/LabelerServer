@@ -168,9 +168,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.difficult = False
             
         # For loading all image under a directory
-        self.mImgList = []
-        # self.dirname = None
-        # self.lastOpenDir = None
+        # self.mImgList = []
+        
 
         # Whether we need to save or not.
         #TODO: change the var name
