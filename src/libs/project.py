@@ -28,7 +28,7 @@ class Project(object):
         self.path = path
         self._verified_images = []
         self._non_verified_images = []
-        self.all_image_paths = []
+        self.all_image_names = []
         self._num_images = 0
         self._categories = []
         self._colors = []
@@ -166,7 +166,7 @@ class Project(object):
 
         self._verified_images = self._project_data.get(PROJECT_VERIFIED_IMAGES, [])
         self._non_verified_images = self._project_data.get(PROJECT_NON_VERIFIED_IMAGES, [])
-        self.all_image_paths = self._project_data.get(PROJECT_ALL_IMAGES_PATHS, [])
+        self.all_image_names = self._project_data.get(PROJECT_ALL_IMAGES_NAMES, [])
         self._categories = self._project_data.get(PROJECT_CATEGORIES, [])
         self.check_for_consistency()
 
@@ -177,7 +177,7 @@ class Project(object):
 
         self._project_data[PROJECT_VERIFIED_IMAGES]  = self._verified_images 
         self._project_data[PROJECT_NON_VERIFIED_IMAGES] = self._non_verified_images 
-        self._project_data[PROJECT_ALL_IMAGES_PATHS]s = self.all_image_paths 
+        self._project_data[PROJECT_ALL_IMAGES_PATHS]s = self.all_image_names 
         self._project_data[PROJECT_CATEGORIES] = self._categories     
     
     def check_for_consistency(self):
@@ -190,11 +190,24 @@ class Project(object):
 
         window.filePath = None
         window.fileListWidget.clear()
-        project. = self.file_loader.scanAllImages()
+        self.file_loader.scanAllImages()
         window.openNextImg()
-        for imgPath in window.mImgList:
-            item = QListWidgetItem(imgPath)
+        for name in self.all_image_names:
+            item = QListWidgetItem(name)
             window.fileListWidget.addItem(item)
+    
+    def get_image_from_name(self, name):
+        '''if image is in one of lists, returns the image and False if verified, otherwise, True
+            if image is not in any of lists, return None and None
+        '''
+        for image in self._non_verified_images:
+            if image.name is not None and image.name == name:
+                return image, False
+
+        for image in self._verified_images:
+            if image.name is not None and image.name == name:
+                return image, True 
+        return None, None    
 
     #appends a new class to the project's list if does not exist yet
     def append_class(self, new_class):

@@ -167,7 +167,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.difficult = False
             
         # For loading all image under a directory
-        # self.mImgList = []
+        # self.project.all_image_names = []
     
         # Whether we need to save or not.
         self.unsavedChanges = False
@@ -534,9 +534,9 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     # Tzutalin 20160906 : Add file list and dock to move faster
     def fileitemDoubleClicked(self, item=None):
         #Merey : In simple terms, index() method finds the given element in a list and returns its position.
-        currIndex = self.mImgList.index(ustr(item.text()))
-        if currIndex < len(self.mImgList):
-            filename = self.mImgList[currIndex]
+        currIndex = self.project.all_image_names.index(ustr(item.text()))
+        if currIndex < len(self.prject.name):
+            filename = self.names[currIndex]
             if filename:
                 self.loadFile(filename)
 
@@ -890,7 +890,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         # Tzutalin 20160906 : Add file list and dock to move faster
         # Highlight the file item
         if unicodeFilePath and self.fileListWidget.count() > 0:
-            index = self.mImgList.index(unicodeFilePath)
+            index = self.project.all_image_names.index(unicodeFilePath)
             fileWidgetItem = self.fileListWidget.item(index)
             fileWidgetItem.setSelected(True)
 
@@ -1069,15 +1069,15 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         if not self.mayContinue():
             return
 
-        if len(self.mImgList) <= 0:
+        if len(self.project.all_image_names) <= 0:
             return
 
         if self.filePath is None:
             return
 
-        currIndex = self.mImgList.index(self.filePath)
+        currIndex = self.project.all_image_names.index(self.filePath)
         if currIndex - 1 >= 0:
-            filename = self.mImgList[currIndex - 1]
+            filename = self.project.all_image_names[currIndex - 1]
             if filename:
                 self.loadFile(filename)
 
@@ -1094,16 +1094,16 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         if not self.mayContinue():
             return
 
-        if len(self.mImgList) <= 0:
+        if len(self.project.all ) <= 0:
             return
 
         filename = None
         if self.filePath is None:
-            filename = self.mImgList[0]
+            filename = self.project.all_image_names[0]
         else:
-            currIndex = self.mImgList.index(self.filePath)
-            if currIndex + 1 < len(self.mImgList):
-                filename = self.mImgList[currIndex + 1]
+            currIndex = self.project.all_image_names.index(self.filePath)
+            if currIndex + 1 < len(self.project.all_image_names):
+                filename = self.project.all_image_names[currIndex + 1]
 
         if filename:
             self.loadFile(filename)

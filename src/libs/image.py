@@ -19,7 +19,9 @@ except ImportError:
 
 class Image(object):
     
-    def __init__(self, path, category = None, annotFile = None, score = IMAGE_DEFAULT_SCORE):
+    def __init__(self, path, name = None, category = None, annotFile = None, score = IMAGE_DEFAULT_SCORE):
+        self.name = name
+        #TODO get name from the path?
         self.path = path
         self._is_verified = False
         self.annotFile = annotFile
