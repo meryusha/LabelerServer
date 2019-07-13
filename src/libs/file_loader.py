@@ -24,8 +24,8 @@ class FileLoader(object):
         # import  pdb;
         # pyqtRemoveInputHook(); pdb.set_trace()
         extensions = ['.%s' % fmt.data().decode("ascii").lower() for fmt in QImageReader.supportedImageFormats()]
-        verified_images = []
-        non_verified_images = []
+        verified_images = {}
+        non_verified_images = {}
         names = []
 
         for root, dirs, files in os.walk(self.project.path):
@@ -37,18 +37,22 @@ class FileLoader(object):
                     if path not in self.project.all_image_names:
                         #we have a new image which is not in the project data file 
                         new_image = Image(path, file) 
-                        non_verified_images.append(new_image)
+                        non_verified_images[file] = new_image 
+                        # non_verified_images.append(new_image)
                     else:
                         #do lookup
                         retrieved_image, is_ver = self.project.get_image_from_name(file)
                         if retrieved_image and is_ver:
-                            verified_images.append(retrieved_image)
+                            # verified_images.append(retrieved_image)
+                            verified_images[file] = retrieved_image
                         elif retrieved_image and not is_ver:
-                            non_verified_images.append(retrieved_image)
+                            non_verified_images[file] = retrieved_image
+                            # non_verified_images.append(retrieved_image)
                         else:
                             #there is an error/incostincy:
                             new_image = Image(path, file) 
-                            non_verified_images.append(new_image)
+                            non_verified_images[file] = new_image 
+                            # non_verified_images.append(new_image)
 
         self.project.non_verified_images = non_verified_images
         self.project.verified_images = verified_images

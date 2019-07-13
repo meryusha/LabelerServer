@@ -134,7 +134,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
 
         ###FILELIST    
-        self.fileListWidget.itemDoubleClicked.connect(self.fileitemDoubleClicked)         
+        # self.fileTreeWidget.itemDoubleClicked.connect(self.fileitemDoubleClicked) 
+        self.fileTreeWidget.itemDoubleClicked.connect(self.fileitemDoubleClicked)            
         self.menu_File.aboutToShow.connect(self.updateFileMenu)
          # self.scrollArea = self.scroll
 
@@ -478,11 +479,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.updateCount()
 
 
-    # @property
-    # def imageCV(self):
-    #     return self.canvas.fromQTtoCV(self.image)
-
-
     def toggleDrawingSensitive(self, drawing=True):
         """In the middle of drawing, toggling between modes should be disabled."""
         self.editMode.setEnabled(not drawing)
@@ -533,9 +529,9 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             self.setUnsavedChanges()
 
     # Tzutalin 20160906 : Add file list and dock to move faster
-    def fileitemDoubleClicked(self, item=None):
+    def fileitemDoubleClicked(self, item=None, col = 0):
         #Merey : In simple terms, index() method finds the given element in a list and returns its position.
-        imageName = item.text()
+        imageName = item.text(col)
         if imageName in self.project.all_image_names:
             self.index = self.project.all_image_names.index(imageName)
         # if self.index < len(self.project.all_image_names):
@@ -887,13 +883,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
         # Make sure that filePath is a regular python string, rather than QString
         unicodeFilePath = ustr(image.path)
-        # Tzutalin 20160906 : Add file list and dock to move faster
-        # Highlight the file item
-        if unicodeFilePath and self.fileListWidget.count() > 0:
-            # index = self.project.all_image_names.index(unicodeFilePath)
-            fileWidgetItem = self.fileListWidget.item(index)
-            fileWidgetItem.setSelected(True)
-
+        
         if unicodeFilePath and os.path.exists(unicodeFilePath):       
             #Merey: otherwise the file should be an image file
             # Load image:
@@ -1017,9 +1007,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     def loadRecent(self, filename):
         if self.mayContinue():
-            self.loadFile(filename)
-
-      
+            self.loadFile(filename)    
 
     def verifyImg(self, _value=False):
         # Proceding next image without dialog if having any label

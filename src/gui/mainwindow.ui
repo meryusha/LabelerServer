@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2473</width>
+    <width>2365</width>
     <height>1653</height>
    </rect>
   </property>
@@ -37,7 +37,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>1723</width>
+         <width>1615</width>
          <height>1479</height>
         </rect>
        </property>
@@ -124,7 +124,7 @@
     <set>QDockWidget::NoDockWidgetFeatures</set>
    </property>
    <property name="windowTitle">
-    <string>File List</string>
+    <string>File List                                          Score</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
@@ -146,7 +146,16 @@
      <item row="0" column="0">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QListWidget" name="fileListWidget"/>
+        <widget class="QTreeWidget" name="fileTreeWidget">
+         <property name="headerHidden">
+          <bool>true</bool>
+         </property>
+         <column>
+          <property name="text">
+           <string notr="true">1</string>
+          </property>
+         </column>
+        </widget>
        </item>
       </layout>
      </item>
@@ -281,7 +290,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>2473</width>
+     <width>2365</width>
      <height>34</height>
     </rect>
    </property>
@@ -1099,7 +1108,8 @@ bounding boxes</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="save.png"/>
+    <iconset theme="save.png">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Save annotation</string>

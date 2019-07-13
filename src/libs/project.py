@@ -26,8 +26,8 @@ class Project(object):
         #TODO: let user choose the name
         self.name = project_name
         self.path = path
-        self._verified_images = []
-        self._non_verified_images = []
+        self._verified_images = {}
+        self._non_verified_images = {}
         self.all_image_names = []
         self._num_images = 0
         self._categories = []
@@ -185,29 +185,63 @@ class Project(object):
         
         
     def load_dir_images(self, window):
+        def addParent(parent, column, title, data):
+            item = QTreeWidgetItem(parent, [title])
+            item.setData(column, Qt.UserRole, data)
+            item.setChildIndicatorPolicy(QTreeWidgetItem.ShowIndicator)
+            item.setExpanded (True)
+            return item
+
+        def addChild( parent, column, title, data):
+            item = QTreeWidgetItem(parent, [title])
+            item.setData(column, Qt.UserRole, data)
+            return item
+
         if not window.mayContinue() or not self.file_loader:
             return
 
         window.filePath = None
-        window.fileListWidget.clear()
+        window.fileTreeWidget.clear()
+        window.fileTreeWidget.setColumnCount(FILE_TREE_COLUMNS_NUMBER) #2
+        parent = window.fileTreeWidget.invisibleRootItem()
+        verified_item = addParent(parent, 0, 'verified', 'V')
+        non_verified_item = addParent(parent, 0, 'non verified', "NV")
+
         self.file_loader.scanAllImages()
-        print(self.all_image_names)
-        window.openNextImg()
-        for name in self.all_image_names:
-            item = QListWidgetItem(name)
-            window.fileListWidget.addItem(item)
-    
+        # print(self.all_image_names)
+        # window.openNextImg()
+        
+        for imageName in self._non_verified_images.keys():
+            addChild(non_verified_item, 0, imageName, "")
+            # item = QListWidgetItem(name)
+            # window.fileTreeWidget.addItem(item)
+
+        for imageName in self.verified_images.keys():
+            addChild(verified_item,  0, imageName, "")
+
+        firstImage, _ = self.get_image_from_name(window.fileTreeWidget.topLevelItem(0).text(0))
+        window.loadFile(firstImage)
+       
+
+
     def get_image_from_name(self, name):
         '''if image is in one of lists, returns the image and False if verified, otherwise, True
             if image is not in any of lists, return None and None
         '''
-        for image in self._non_verified_images:
-            if image.name is not None and image.name == name:
-                return image, False
+        # for image in self._non_verified_images:
+        #     if image.name is not None and image.name == name:
+        #         return image, False
 
-        for image in self._verified_images:
-            if image.name is not None and image.name == name:
-                return image, True 
+        # for image in self._verified_images:
+        #     if image.name is not None and image.name == name:
+        #         return image, True 
+
+        if name in  self._non_verified_images:
+            return self._non_verified_images[name], False
+
+        if name in  self._verified_images:
+            return self._verified_images[name], True
+        
         return None, None    
 
     #appends a new class to the project's list if does not exist yet
