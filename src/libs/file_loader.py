@@ -21,6 +21,11 @@ class FileLoader(object):
         self.project = project
 
     def scanAllImages(self):
+        '''scans all images in the project data file and project directories
+            if images from directory are in the file, load them from the file
+            otherwise, create new image object
+            split images in verified, non-veriffied. Just created images are non-verified.
+        '''
         # import  pdb;
         # pyqtRemoveInputHook(); pdb.set_trace()
         extensions = ['.%s' % fmt.data().decode("ascii").lower() for fmt in QImageReader.supportedImageFormats()]
@@ -49,7 +54,7 @@ class FileLoader(object):
                             non_verified_images[file] = retrieved_image
                             # non_verified_images.append(retrieved_image)
                         else:
-                            #there is an error/incostincy:
+                            #there is an error/inconsistency:
                             new_image = Image(path, file) 
                             non_verified_images[file] = new_image 
                             # non_verified_images.append(new_image)

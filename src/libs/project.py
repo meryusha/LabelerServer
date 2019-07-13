@@ -26,8 +26,10 @@ class Project(object):
         #TODO: let user choose the name
         self.name = project_name
         self.path = path
+        #dictionaries image name --> Image object
         self._verified_images = {}
         self._non_verified_images = {}
+
         self.all_image_names = []
         self._num_images = 0
         self._categories = []
@@ -175,10 +177,13 @@ class Project(object):
         self.check_for_consistency()
 
     def store_project_data(self):
-        '''store all project data (images with label files), categories to the binary'''
+        '''store all project data (images with label files), categories to the binary
+            makes sure images are in the right dictionaries
+        '''
         if self._project_data is None:
             self._project_data =  ProjectData(self, str(self.name) + '.pkl')
-
+            
+        self.check_for_consistency()
         self._project_data[PROJECT_VERIFIED_IMAGES]  = self._verified_images 
         self._project_data[PROJECT_NON_VERIFIED_IMAGES] = self._non_verified_images 
         self._project_data[PROJECT_ALL_IMAGES_NAMES] = self.all_image_names 
@@ -186,7 +191,17 @@ class Project(object):
         self._project_data.save()
     
     def check_for_consistency(self):
-        '''checks if the state in the binary file is up to date with the directory state'''
+        '''checks that images in verified and non-verified dict have the matching label'''
+        for imageName in self._non_verified_images.keys():
+            if self._non_verified_images[imageName].is_verified():
+                #there is an error, assume Image label is right
+                self._verified_images[imageName] = self._non_verified_images.pop(imageName)
+    
+
+        for imageName in self.verified_images.keys():
+            if not self._verified_images[imageName].is_verified():
+                #there is an error, assume Image label is right
+                self._non_verified_images[imageName] = self._verified_images.pop(imageName)         
         
         
     def load_dir_images(self, window):
@@ -218,8 +233,6 @@ class Project(object):
         
         for imageName in self._non_verified_images.keys():
             addChild(non_verified_item, 0, imageName, "")
-            # item = QListWidgetItem(name)
-            # window.fileTreeWidget.addItem(item)
 
         for imageName in self.verified_images.keys():
             addChild(verified_item,  0, imageName, "")
@@ -232,19 +245,12 @@ class Project(object):
     def get_image_from_name(self, name):
         '''if image is in one of lists, returns the image and False if verified, otherwise, True
             if image is not in any of lists, return None and None
+            assumes images were checked to be in the right dictionary
         '''
-        # for image in self._non_verified_images:
-        #     if image.name is not None and image.name == name:
-        #         return image, False
-
-        # for image in self._verified_images:
-        #     if image.name is not None and image.name == name:
-        #         return image, True 
-
-        if name in  self._non_verified_images:
+        if name in self._non_verified_images:
             return self._non_verified_images[name], False
 
-        if name in  self._verified_images:
+        if name in self._verified_images:
             return self._verified_images[name], True
         
         return None, None    

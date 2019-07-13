@@ -30,20 +30,20 @@ class LabelFile(object):
         self.imageData = None
         # self.verified = False
 
-    def savePascalVocFormat(self, filename, shapes, imagePath, imageData,
+    def savePascalVocFormat(self, filename, shapes, imageData,
                             lineColor=None, fillColor=None, databaseSrc=None):
-        imgFolderPath = os.path.dirname(imagePath)
+        imgFolderPath = os.path.dirname(self.image.path)
         imgFolderName = os.path.split(imgFolderPath)[-1]
-        imgFileName = os.path.basename(imagePath)
+        imgFileName = os.path.basename(self.image.path)
         #imgFileNameWithoutExt = os.path.splitext(imgFileName)[0]
         # Read from file path because self.imageData might be empty if saving to
         # Pascal format
         image = QImage()
-        image.load(imagePath)
+        image.load(self.image.path)
         imageShape = [image.height(), image.width(),
                       1 if image.isGrayscale() else 3]
         writer = PascalVocWriter(imgFolderName, imgFileName,
-                                 imageShape, localImgPath=imagePath)
+                                 imageShape, localImgPath=self.image.path)
         writer.verified = self.image.is_verified()
 
         for shape in shapes:
@@ -57,20 +57,20 @@ class LabelFile(object):
         writer.save(targetFile=filename)
         return
 
-    def saveYoloFormat(self, filename, shapes, imagePath, imageData, classList,
+    def saveYoloFormat(self, filename, shapes, imageData, classList,
                             lineColor=None, fillColor=None, databaseSrc=None):
-        imgFolderPath = os.path.dirname(imagePath)
+        imgFolderPath = os.path.dirname(self.image.path)
         imgFolderName = os.path.split(imgFolderPath)[-1]
-        imgFileName = os.path.basename(imagePath)
+        imgFileName = os.path.basename(self.image.path)
         #imgFileNameWithoutExt = os.path.splitext(imgFileName)[0]
         # Read from file path because self.imageData might be empty if saving to
         # Pascal format
         image = QImage()
-        image.load(imagePath)
+        image.load(self.image.path)
         imageShape = [image.height(), image.width(),
                       1 if image.isGrayscale() else 3]
         writer = YOLOWriter(imgFolderName, imgFileName,
-                                 imageShape, localImgPath=imagePath)
+                                 imageShape, localImgPath=self.image.path)
         writer.verified = self.image.is_verified()
 
         for shape in shapes:
