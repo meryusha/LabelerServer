@@ -21,6 +21,8 @@ class FileLoader(object):
         self.project = project
 
     def scanAllImages(self):
+        # import  pdb;
+        # pyqtRemoveInputHook(); pdb.set_trace()
         extensions = ['.%s' % fmt.data().decode("ascii").lower() for fmt in QImageReader.supportedImageFormats()]
         verified_images = []
         non_verified_images = []
@@ -32,7 +34,7 @@ class FileLoader(object):
                     relativePath = os.path.join(root, file)
                     path = ustr(os.path.abspath(relativePath))
                     names.append(file)
-                    if path is not in self.project.all_image_names:
+                    if path not in self.project.all_image_names:
                         #we have a new image which is not in the project data file 
                         new_image = Image(path, file) 
                         non_verified_images.append(new_image)
@@ -41,8 +43,7 @@ class FileLoader(object):
                         retrieved_image, is_ver = self.project.get_image_from_name(file)
                         if retrieved_image and is_ver:
                             verified_images.append(retrieved_image)
-                        elif:
-                            retrieved_image and not is_ver:
+                        elif retrieved_image and not is_ver:
                             non_verified_images.append(retrieved_image)
                         else:
                             #there is an error/incostincy:
@@ -51,17 +52,17 @@ class FileLoader(object):
 
         self.project.non_verified_images = non_verified_images
         self.project.verified_images = verified_images
-        self.all_image_names = names
+        self.project.all_image_names = names
         #TODO: sort them??
         # images.sort(key=lambda x: x.lower())
 
     def check_xml(self, filePath):
         pass
 
-    def load_xml(self, filePath):
-        xmlPath = os.path.splitext(filePath)[0] + XML_EXT
-        txtPath = os.path.splitext(filePath)[0] + TXT_EXT
-                if os.path.isfile(xmlPath):
-                    self.loadPascalXMLByFilename(xmlPath)
-                elif os.path.isfile(txtPath):
-                    self.loadYOLOTXTByFilename(txtPath)
+    # def load_xml(self, filePath):
+    #     xmlPath = os.path.splitext(filePath)[0] + XML_EXT
+    #     txtPath = os.path.splitext(filePath)[0] + TXT_EXT
+    #     if os.path.isfile(xmlPath):
+    #         self.loadPascalXMLByFilename(xmlPath)
+    #     elif os.path.isfile(txtPath):
+    #         self.loadYOLOTXTByFilename(txtPath)

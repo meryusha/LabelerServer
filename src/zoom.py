@@ -129,7 +129,7 @@ class Zoom(object):
         self.adjustScale()
 
     def paintCanvas(self):
-        assert not self.parent.image.isNull(), "cannot paint null image"
+        # assert not self.parent.image.isNull(), "cannot paint null image"
         self.parent.canvas.scale = 0.01 * self.zoomWidget.value()
         self.parent.canvas.adjustSize()
         self.parent.canvas.update()

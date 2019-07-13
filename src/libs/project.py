@@ -1,6 +1,6 @@
 import random
 import os
-from category import Category
+from libs.category import Category
 from libs.file_loader import FileLoader
 from libs.project_data import ProjectData
 from libs.constants import *
@@ -177,7 +177,7 @@ class Project(object):
 
         self._project_data[PROJECT_VERIFIED_IMAGES]  = self._verified_images 
         self._project_data[PROJECT_NON_VERIFIED_IMAGES] = self._non_verified_images 
-        self._project_data[PROJECT_ALL_IMAGES_PATHS]s = self.all_image_names 
+        self._project_data[PROJECT_ALL_IMAGES_PATHS] = self.all_image_names 
         self._project_data[PROJECT_CATEGORIES] = self._categories     
     
     def check_for_consistency(self):
@@ -191,6 +191,7 @@ class Project(object):
         window.filePath = None
         window.fileListWidget.clear()
         self.file_loader.scanAllImages()
+        print(self.all_image_names)
         window.openNextImg()
         for name in self.all_image_names:
             item = QListWidgetItem(name)

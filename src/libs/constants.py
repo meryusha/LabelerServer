@@ -26,7 +26,7 @@ MAX_RECENT = 7
 PROJECT_VERIFIED_IMAGES = 'verifiedImgs'
 PROJECT_NON_VERIFIED_IMAGES = 'nonVerifiedImgs'
 PROJECT_CATEGORIES = 'categories'
-PROJECT_ALL_IMAGES_NAMES = 'imagePaths'
+PROJECT_ALL_IMAGES_NAMES = 'imageNames'
 
 #20 colors to pick from
 
