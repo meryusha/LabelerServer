@@ -119,11 +119,15 @@ class Project(object):
     def save_project_file(self):
         '''saves the project in 'name.annt' format
         returns True if saved, False otherwise'''
+        # import pdb;
+        # pyqtRemoveInputHook(); pdb.set_trace()
+        self.store_project_data()
         if self._project_data is not None:
-            save_file = os.path.join(self.path, "{}.{}".format(self.name, Project.suffix))
+            save_file = os.path.join(self.path, "{}{}".format(self.name, Project.suffix))
             try:
-                with open(self.path, "w") as f:
-                    f.write(save_file)
+                with open(save_file, "w") as f:
+                    f.write(self._project_data.rel_path)
+                    print('written a file')
                     self._is_saved = True
                     return True
             except EnvironmentError as e: # parent of IOError, OSError *and* WindowsError where available
@@ -161,7 +165,7 @@ class Project(object):
         '''restore all project data (images with label files), categories from the binary
             check for consistency with the current data in the folder
         ''' 
-        if self._project_data is Null:
+        if self._project_data is None:
             return
 
         self._verified_images = self._project_data.get(PROJECT_VERIFIED_IMAGES, [])
@@ -172,13 +176,14 @@ class Project(object):
 
     def store_project_data(self):
         '''store all project data (images with label files), categories to the binary'''
-        if self._project_data is Null:
-            self._project_data =  ProjectData(self, str(self.name, '.pkl'))
+        if self._project_data is None:
+            self._project_data =  ProjectData(self, str(self.name) + '.pkl')
 
         self._project_data[PROJECT_VERIFIED_IMAGES]  = self._verified_images 
         self._project_data[PROJECT_NON_VERIFIED_IMAGES] = self._non_verified_images 
-        self._project_data[PROJECT_ALL_IMAGES_PATHS] = self.all_image_names 
+        self._project_data[PROJECT_ALL_IMAGES_NAMES] = self.all_image_names 
         self._project_data[PROJECT_CATEGORIES] = self._categories     
+        self._project_data.save()
     
     def check_for_consistency(self):
         '''checks if the state in the binary file is up to date with the directory state'''

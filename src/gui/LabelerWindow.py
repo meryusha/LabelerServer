@@ -329,6 +329,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def saveProject(self):
         if  self.project.save_project_file():
             self.setProjectSaved()
+        else: 
             self.errorMessage(u'Error saving project', 'Could not save the project file')
             self.status("Error saving the project")
                          
@@ -883,7 +884,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
         # Make sure that filePath is a regular python string, rather than QString
         unicodeFilePath = ustr(image.path)
-        
+
         if unicodeFilePath and os.path.exists(unicodeFilePath):       
             #Merey: otherwise the file should be an image file
             # Load image:
