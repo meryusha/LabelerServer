@@ -61,6 +61,9 @@ class Canvas(QWidget):
         # Menus:
         self.menus = (QMenu(), QMenu())
         # Set widget options.
+        
+        #If mouse tracking is enabled, the widget receives mouse move events even if no buttons are pressed.
+        # calls mouseMoveEvent
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.WheelFocus)
         self.verified = False
@@ -89,6 +92,7 @@ class Canvas(QWidget):
         return self.mode == self.EDIT
 
     def setEditing(self, value=True):
+        ''' changing to create mode will cause cursor to appear'''
         self.mode = self.EDIT if value else self.CREATE
         if not value:  # Create
             self.unHighlight()
@@ -105,12 +109,13 @@ class Canvas(QWidget):
         return self.hVertex is not None
 
     def mouseMoveEvent(self, ev):
+        # print('MOUSE MOVING')
         """Update line with last point and current coordinates."""
         pos = self.transformPos(ev.pos())
 
         # Update coordinates in status bar if image is opened
         window = self.parent().window()
-        if window.filePath is not None:
+        if window.project is not None and window.project.path is not None:
             self.parent().window().labelCoordinates.setText(
                 'X: %d; Y: %d' % (pos.x(), pos.y()))
 
@@ -152,6 +157,7 @@ class Canvas(QWidget):
 
         # Polygon copy moving.
         if Qt.RightButton & ev.buttons():
+            # print("QT RIGHT POINT")
             if self.selectedShapeCopy and self.prevPoint:
                 self.overrideCursor(CURSOR_MOVE)
                 self.boundedMoveShape(self.selectedShapeCopy, pos)
@@ -163,6 +169,7 @@ class Canvas(QWidget):
 
         # Polygon/Vertex moving.
         if Qt.LeftButton & ev.buttons():
+            # print("QT LEFT POINT")
             if self.selectedVertex():
                 self.boundedMoveVertex(pos)
                 self.shapeMoved.emit()
@@ -710,56 +717,6 @@ class Canvas(QWidget):
         arr = cv2.cvtColor(arr, cv2.COLOR_RGBA2RGB)
         arr = cv2.cvtColor(arr, cv2.COLOR_BGR2RGB)
         return arr
-
-    # def detectShapes(self, image_QT):
-    #     arr = self.fromQTtoCV(image_QT)
-
-    #     cnt_germ, cnt_nongerm = classifySeeds(arr)
-    #     # print(cnt_germ)
-    #     # print(cnt_nongerm)
-
-    #     for germ in cnt_germ:
-    #         minX = germ[0]
-    #         minY = germ[1]
-    #         maxX = germ[0] + germ[2]
-    #         maxY = germ[1] + germ[3]
-
-    #         self.current = Shape()
-    #         self.current.addPoint(QPointF(minX, minY))
-    #         self.current.addPoint(QPointF(maxX, minY))
-    #         self.current.addPoint(QPointF(maxX, maxY))
-    #         self.current.addPoint(QPointF(minX, maxY))
-    #         self.current.label = "germinated"
-    #         self.current.close()
-
-    #         self.shapes.append(self.current)
-    #         self.current = None
-    #         self.newShape.emit()
-    #         self.update()
-    #         self.repaint()
-
-
-    #     for germ in cnt_nongerm:
-    #         minX = germ[0]
-    #         minY = germ[1]
-    #         maxX = germ[0] + germ[2]
-    #         maxY = germ[1] + germ[3]
-
-    #         self.current = Shape()
-    #         self.current.addPoint(QPointF(minX, minY))
-    #         self.current.addPoint(QPointF(maxX, minY))
-    #         self.current.addPoint(QPointF(maxX, maxY))
-    #         self.current.addPoint(QPointF(minX, maxY))
-    #         self.current.label = "non-germinated"
-    #         self.current.close()
-
-    #         self.shapes.append(self.current)
-    #         self.current = None
-    #         self.newShape.emit()
-    #         self.update()
-    #         self.repaint()
-
-
 
     def setShapeVisible(self, shape, value):
         self.visible[shape] = value

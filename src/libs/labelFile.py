@@ -23,27 +23,28 @@ class LabelFile(object):
     # suffix = '.lif'
     suffix = XML_EXT
 
-    def __init__(self, filename=None):
+    def __init__(self, image = None):
         self.shapes = ()
-        self.imagePath = None
+        self.image = image
+        # self.imagePath = None
         self.imageData = None
-        self.verified = False
+        # self.verified = False
 
-    def savePascalVocFormat(self, filename, shapes, imagePath, imageData,
+    def savePascalVocFormat(self, filename, shapes, imageData,
                             lineColor=None, fillColor=None, databaseSrc=None):
-        imgFolderPath = os.path.dirname(imagePath)
+        imgFolderPath = os.path.dirname(self.image.path)
         imgFolderName = os.path.split(imgFolderPath)[-1]
-        imgFileName = os.path.basename(imagePath)
+        imgFileName = os.path.basename(self.image.path)
         #imgFileNameWithoutExt = os.path.splitext(imgFileName)[0]
         # Read from file path because self.imageData might be empty if saving to
         # Pascal format
         image = QImage()
-        image.load(imagePath)
+        image.load(self.image.path)
         imageShape = [image.height(), image.width(),
                       1 if image.isGrayscale() else 3]
         writer = PascalVocWriter(imgFolderName, imgFileName,
-                                 imageShape, localImgPath=imagePath)
-        writer.verified = self.verified
+                                 imageShape, localImgPath=self.image.path)
+        writer.verified = self.image.is_verified()
 
         for shape in shapes:
             points = shape['points']
@@ -56,21 +57,21 @@ class LabelFile(object):
         writer.save(targetFile=filename)
         return
 
-    def saveYoloFormat(self, filename, shapes, imagePath, imageData, classList,
+    def saveYoloFormat(self, filename, shapes, imageData, classList,
                             lineColor=None, fillColor=None, databaseSrc=None):
-        imgFolderPath = os.path.dirname(imagePath)
+        imgFolderPath = os.path.dirname(self.image.path)
         imgFolderName = os.path.split(imgFolderPath)[-1]
-        imgFileName = os.path.basename(imagePath)
+        imgFileName = os.path.basename(self.image.path)
         #imgFileNameWithoutExt = os.path.splitext(imgFileName)[0]
         # Read from file path because self.imageData might be empty if saving to
         # Pascal format
         image = QImage()
-        image.load(imagePath)
+        image.load(self.image.path)
         imageShape = [image.height(), image.width(),
                       1 if image.isGrayscale() else 3]
         writer = YOLOWriter(imgFolderName, imgFileName,
-                                 imageShape, localImgPath=imagePath)
-        writer.verified = self.verified
+                                 imageShape, localImgPath=self.image.path)
+        writer.verified = self.image.is_verified()
 
         for shape in shapes:
             points = shape['points']
@@ -83,37 +84,9 @@ class LabelFile(object):
         writer.save(targetFile=filename, classList=classList)
         return
 
-    def toggleVerify(self):
-        self.verified = not self.verified
+    # def toggleVerify(self):
+    #     self.verified = not self.verified
 
-    ''' ttf is disable
-    def load(self, filename):
-        import json
-        with open(filename, 'rb') as f:
-                data = json.load(f)
-                imagePath = data['imagePath']
-                imageData = b64decode(data['imageData'])
-                lineColor = data['lineColor']
-                fillColor = data['fillColor']
-                shapes = ((s['label'], s['points'], s['line_color'], s['fill_color'])\
-                        for s in data['shapes'])
-                # Only replace data after everything is loaded.
-                self.shapes = shapes
-                self.imagePath = imagePath
-                self.imageData = imageData
-                self.lineColor = lineColor
-                self.fillColor = fillColor
-
-    def save(self, filename, shapes, imagePath, imageData, lineColor=None, fillColor=None):
-        import json
-        with open(filename, 'wb') as f:
-                json.dump(dict(
-                    shapes=shapes,
-                    lineColor=lineColor, fillColor=fillColor,
-                    imagePath=imagePath,
-                    imageData=b64encode(imageData)),
-                    f, ensure_ascii=True, indent=2)
-    '''
 
     @staticmethod
     def isLabelFile(filename):

@@ -3,8 +3,8 @@
 block_cipher = None
 
 
-a = Analysis(['ActiveImageLabeler.py'],
-             pathex=['/home/ramazam/Documents/Labeler/ActiveImageLabeler/src'],
+a = Analysis(['scr/ActiveImageLabeler.py'],
+             pathex=['/home/ramazam/Documents/Labeler/ActiveImageLabeler'],
              binaries=[],
              datas=[],
              hiddenimports=[],

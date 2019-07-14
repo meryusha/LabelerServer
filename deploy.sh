@@ -6,11 +6,12 @@ echo "Build distribution"
 rm -r dist
 rm -r build
 cd src
-pyinstaller -F ActiveImageLabeler.py --distpath ./../dist --workpath ./../build
-cd ..
 
+# LD_LIBRARY_PATH=path_to_python_libs
+pyinstaller ActiveImageLabeler.py --distpath ./../dist --workpath ./../build 
+# LD_LIBRARY_PATH=/home/ramazam/Downloads/yes/lib pyinstaller  ActiveImageLabeler.py --distpath ./../dist --workpath ./../build --hidden-import=PyQt5
 # pyinstaller -F src/ActiveImageLabeler.py
-
+# LD_LIBRARY_PATH=/home/ramazam/Downloads/yes/lib pyinstaller -F ActiveImageLabeler.py --distpath ./../dist --workpath ./../build --hidden-import=torchvision --hidden-import=torch
 
 echo "Run distribution"
 ./dist/ActiveImageLabeler
