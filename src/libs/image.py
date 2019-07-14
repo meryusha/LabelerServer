@@ -1,8 +1,9 @@
 import random
 import os
 from libs.category import Category
-from libs.shape import Shape
+from libs.labelFile import LabelFile, LabelFileError
 from libs.constants import IMAGE_DEFAULT_SCORE, IMAGE_HUMAN_VERIFIED_SCORE
+from libs.shape import Shape, DEFAULT_LINE_COLOR, DEFAULT_FILL_COLOR
 from libs.pascal_voc_io import PascalVocReader
 from libs.pascal_voc_io import XML_EXT
 from libs.yolo_io import YoloReader
@@ -97,12 +98,7 @@ class Image(object):
 
         window.canvas.loadShapes(s)
 
-    def save_labels_to_path(self, canvas, annotationFilePath, is_VOC):
-        annotationFilePath = ustr(annotationFilePath)
-        if self.label_file is None:
-            self.label_file = LabelFile()
-            self.label_file.is_verified = self._is_verified
-
+    def save_labels_to_path(self, window, is_VOC):
         def format_shape(s):
             return dict(label=s.label,
                         line_color=s.line_color.getRgb(),
@@ -110,39 +106,38 @@ class Image(object):
                         points=[(p.x(), p.y()) for p in s.points],
                        # add chris
                         difficult = s.difficult)
-        if canvas is None:
-            return False
-        shapes = [format_shape(shape) for shape in canvas.shapes]
+
+        shapes = [format_shape(shape) for shape in window.canvas.shapes]
         # Can add differrent annotation formats here
         try:
             if is_VOC :
-                if annotationFilePath[-4:].lower() != ".xml":
-                    annotationFilePath += XML_EXT
-                self.label_file.savePascalVocFormat(annotationFilePath, shapes, 
-                                                   Shape.lineColor.getRgb(), Shape.fillColor.getRgb())
-                return True
-            elif self.usingYoloFormat is True:
-                if annotationFilePath[-4:].lower() != ".txt":
-                    annotationFilePath += TXT_EXT
-                self.label_file.savesYoloFormat(annotationFilePath, shapes, [],   # self.project.categories,
-                                                  Shape.lineColor.getRgb(), Shape.fillColor.getRgb())
-         
-                return True
+                if self.label_file.path[-4:].lower() != ".xml":
+                    self.label_file.path += XML_EXT
+                self.label_file.savePascalVocFormat(shapes, DEFAULT_LINE_COLOR.getRgb(), DEFAULT_FILL_COLOR.getRgb())               
+            else:
+                if self.label_file.path[-4:].lower() != ".txt":
+                    self.label_file.path += TXT_EXT
+                self.label_file.savesYoloFormat(shapes, [],  # self.project.categories,
+                                                  DEFAULT_LINE_COLOR.getRgb(), DEFAULT_FILL_COLOR.getRgb())        
+            return True
         except LabelFileError as e:
-            self.errorMessage(u'Error saving label data', u'<b>%s</b>' % e)
+            window.errorMessage(u'Error saving label data', u'<b>%s</b>' % e)
         return False
 
-    def save_labels(self, canvas, is_VOC = True):
-        if self.label_file:
-            savedFileName = os.path.splitext(self.name)[0]
-            annotationFilePath = os.path.join(ustr(self.project.path), savedFileName)
-            if self.save_labels_to_path(canvas, annotationFilePath, is_VOC):
-                self.setFileSaved()
-                self.statusBar().showMessage('Saved to  %s' % annotationFilePath)
-                self.statusBar().show()
+    def save_labels(self, window, is_VOC = True):
+        if not self.label_file or not self.label_file.path:
+            basename = os.path.splitext(self.path)[0]
+            if is_VOC:
+                annotationFilePath = os.path.join(basename + XML_EXT)
+            else:
+                annotationFilePath = os.path.join(basename + TXT_EXT) 
+            self.label_file = LabelFile(self, annotationFilePath)
+            self.label_file.is_verified = self._is_verified            
 
-     
-
+        if self.save_labels_to_path(window, is_VOC):
+            window.setFileSaved()
+            window.statusBar().showMessage('Saved to  %s' % annotationFilePath)
+            window.statusBar().show()
 
     def verify(self):
         if self.label_file is not None:

@@ -34,7 +34,7 @@ class Project(object):
         self._num_images = 0
         self._categories = []
         self._colors = []
-        self._is_VOC_format = True #otherwise should be YOLO
+        self.is_VOC_format = True #otherwise should be YOLO
         self.recent_files = []
         self.file_loader = FileLoader(self)   
         self._is_saved = False    
@@ -84,16 +84,16 @@ class Project(object):
         self._categories = value
 
 
-    @property
-    def is_VOC_format(self):
-        return self._is_VOC_format
+    # @property
+    # def is_VOC_format(self):
+    #     return self._is_VOC_format
 
-    @is_VOC_format.setter
-    def is_VOC_format(self, value):
-        #TODO: check that required format is satisfied.
-        if not isinstance(value, bool):
-            raise ValueError("Not a boolean")
-        self._is_VOC_format = value
+    # @is_VOC_format.setter
+    # def is_VOC_format(self, value):
+    #     #TODO: check that required format is satisfied.
+    #     if not isinstance(value, bool):
+    #         raise ValueError("Not a boolean")
+    #     self._is_VOC_format = value
 
     @property
     def is_saved(self):

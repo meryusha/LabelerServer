@@ -23,28 +23,25 @@ class LabelFile(object):
     # suffix = '.lif'
     suffix = XML_EXT
 
-    def __init__(self, image = None):
+    def __init__(self, image = None, path = None):
         self.shapes = ()
         self.image = image
-        # self.imagePath = None
-        self.imageData = None
+        self.path = path
         self.is_verified = False
 
-    def savePascalVocFormat(self, filename, shapes,
+    def savePascalVocFormat(self, shapes,
                             lineColor=None, fillColor=None, databaseSrc=None):
         imgFolderPath = os.path.dirname(self.image.path)
         imgFolderName = os.path.split(imgFolderPath)[-1]
         imgFileName = os.path.basename(self.image.path)
         #imgFileNameWithoutExt = os.path.splitext(imgFileName)[0]
-        # Read from file path because self.imageData might be empty if saving to
-        # Pascal format
         image = QImage()
         image.load(self.image.path)
         imageShape = [image.height(), image.width(),
                       1 if image.isGrayscale() else 3]
         writer = PascalVocWriter(imgFolderName, imgFileName,
                                  imageShape, localImgPath=self.image.path)
-        writer.verified = self.image.is_verified()
+        writer.verified = self.image.is_verified
 
         for shape in shapes:
             points = shape['points']
@@ -54,17 +51,15 @@ class LabelFile(object):
             bndbox = LabelFile.convertPoints2BndBox(points)
             writer.addBndBox(bndbox[0], bndbox[1], bndbox[2], bndbox[3], label, difficult)
 
-        writer.save(targetFile=filename)
+        writer.save(targetFile = self.path)
         return
 
-    def saveYoloFormat(self, filename, shapes, classList,
+    def saveYoloFormat(self, shapes, classList,
                             lineColor=None, fillColor=None, databaseSrc=None):
         imgFolderPath = os.path.dirname(self.image.path)
         imgFolderName = os.path.split(imgFolderPath)[-1]
         imgFileName = os.path.basename(self.image.path)
         #imgFileNameWithoutExt = os.path.splitext(imgFileName)[0]
-        # Read from file path because self.imageData might be empty if saving to
-        # Pascal format
         image = QImage()
         image.load(self.image.path)
         imageShape = [image.height(), image.width(),
@@ -81,7 +76,7 @@ class LabelFile(object):
             bndbox = LabelFile.convertPoints2BndBox(points)
             writer.addBndBox(bndbox[0], bndbox[1], bndbox[2], bndbox[3], label, difficult)
 
-        writer.save(targetFile=filename, classList=classList)
+        writer.save(targetFile = self.path, classList=classList)
         return
 
     # def toggleVerify(self):

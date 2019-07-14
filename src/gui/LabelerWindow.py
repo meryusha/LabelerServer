@@ -167,11 +167,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.prevLabelText = ''
         self.lineColor = None
         self.fillColor = None
-        self.difficult = False
-            
-        # For loading all image under a directory
-        # self.project.all_image_names = []
-    
+        self.difficult = False          
         # Whether we need to save or not.
         self.unsavedChanges = False
          # what is it? 
@@ -339,7 +335,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     def saveFile(self):
         if self.currentImage:
-            self.currentImage.save_labels()
+            self.currentImage.save_labels(self, self.project.is_VOC_format)
 
     def closeFile(self, _value=False):
         if not self.mayContinue():
@@ -381,14 +377,14 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         '''
         self.unsavedChanges = False
         self.saveAnnot.setEnabled(False)
-        # self.saveProj.setEnabled(False)
         self.create.setEnabled(True)
         # self.detect.setEnabled(True)
 
     def setProjectSaved(self):
         '''Called when project was just saved
         '''
-
+        self.setFileSaved()
+        self.saveProj.setEnabled(False)
 
 
     def toggleActions(self, value=True):
@@ -497,6 +493,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     # Tzutalin 20160906 : Add file list and dock to move faster
     def fileitemDoubleClicked(self, item=None, col = 0):
         #Merey : In simple terms, index() method finds the given element in a list and returns its position.
+        if not self.mayContinue():
+            return
         imageName = item.text(col)
         if imageName in self.project.all_image_names:
             self.index = self.project.all_image_names.index(imageName)
