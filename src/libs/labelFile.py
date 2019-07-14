@@ -28,9 +28,9 @@ class LabelFile(object):
         self.image = image
         # self.imagePath = None
         self.imageData = None
-        # self.verified = False
+        self.is_verified = False
 
-    def savePascalVocFormat(self, filename, shapes, imageData,
+    def savePascalVocFormat(self, filename, shapes,
                             lineColor=None, fillColor=None, databaseSrc=None):
         imgFolderPath = os.path.dirname(self.image.path)
         imgFolderName = os.path.split(imgFolderPath)[-1]
@@ -57,7 +57,7 @@ class LabelFile(object):
         writer.save(targetFile=filename)
         return
 
-    def saveYoloFormat(self, filename, shapes, imageData, classList,
+    def saveYoloFormat(self, filename, shapes, classList,
                             lineColor=None, fillColor=None, databaseSrc=None):
         imgFolderPath = os.path.dirname(self.image.path)
         imgFolderName = os.path.split(imgFolderPath)[-1]

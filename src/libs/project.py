@@ -34,7 +34,7 @@ class Project(object):
         self._num_images = 0
         self._categories = []
         self._colors = []
-        self._is_VOC_format = True
+        self._is_VOC_format = True #otherwise should be YOLO
         self.recent_files = []
         self.file_loader = FileLoader(self)   
         self._is_saved = False    
@@ -193,13 +193,13 @@ class Project(object):
     def check_for_consistency(self):
         '''checks that images in verified and non-verified dict have the matching label'''
         for imageName in self._non_verified_images.keys():
-            if self._non_verified_images[imageName].is_verified():
+            if self._non_verified_images[imageName].is_verified:
                 #there is an error, assume Image label is right
                 self._verified_images[imageName] = self._non_verified_images.pop(imageName)
     
 
         for imageName in self.verified_images.keys():
-            if not self._verified_images[imageName].is_verified():
+            if not self._verified_images[imageName].is_verified:
                 #there is an error, assume Image label is right
                 self._non_verified_images[imageName] = self._verified_images.pop(imageName)         
         
@@ -238,7 +238,7 @@ class Project(object):
             addChild(verified_item,  0, imageName, "")
 
         firstImage, _ = self.get_image_from_name(window.fileTreeWidget.topLevelItem(0).text(0))
-        window.loadFile(firstImage)
+        window.loadImage(firstImage)
        
 
 

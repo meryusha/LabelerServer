@@ -89,7 +89,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.load_views()
         self.zoom_navig = Zoom(self)
         self.setup_connections()       
-        self.load_settings()
+        self.loadSettings()
 
     #SETIING UP
     def setup_connections(self):
@@ -102,16 +102,16 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.resetAllAction.triggered.connect(self.resetAll)
 
         ###MAIN TOOLBAR
-        self.openProj.triggered.connect(self.openProjectDialog)
+        self.openProj.triggered.connect(self.openProjectClicked)
         self.quit.triggered.connect(self.close)
-        self.createProject.triggered.connect(self.createProjectDialog)
-        self.saveAnnot.triggered.connect(self.saveFile)
+        self.createProject.triggered.connect(self.createProjectClicked)
+        self.saveAnnot.triggered.connect(self.saveFileClicked)
         self.saveProj.triggered.connect(self.saveProject)
-        self.save_format.triggered.connect(self.change_format)
+        # self.save_format.triggered.connect(self.changeFormatClicked)
         # self.saveAs.triggered.connect(self.saveFileAs)
         self.closeAction.triggered.connect(self.closeFile)
-        self.openNextImgAction.triggered.connect(self.openNextImg)
-        self.openPrevImgAction.triggered.connect(self.openPrevImg)      
+        # self.openNextImgAction.triggered.connect(self.openNextImg)
+        # self.openPrevImgAction.triggered.connect(self.openPrevImg)      
         self.verify.triggered.connect(self.verifyImg)
 
 
@@ -212,15 +212,12 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.labelCoordinates = QLabel('')
         self.statusBar().addPermanentWidget(self.labelCoordinates)
 
-    def load_settings(self):
+    def loadSettings(self):
         # Load setting in the main thread
         self.settings = Settings()
         self.settings.load()
         # Application state.
-        # self.image = QImage()
-        # self.filePath = ustr(self.defaultDir)
-        #loading last project if possible
-        # projDir = ustr(self.settings.get(SETTING_PROJECT_DIR, None))
+
         projFile = ustr(self.settings.get(SETTING_PROJECT_FILE, None))
         if self.project is None and self.openProject(projFile):
             if self.project is not None:
@@ -263,7 +260,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
                 Shape.difficult = self.difficult  
     
     #Project creation, opening, saving, closing
-    def createProjectDialog(self, _value=False, dirpath=None):
+    def createProjectClicked(self, _value=False, dirpath=None):
         if not self.mayContinue():
             return
 
@@ -274,7 +271,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.project.load_dir_images(self)
         self.setUnsavedChanges()
       
-    def openProjectDialog(self, _value=False):
+    def openProjectClicked(self, _value=False):
         '''Triggered by button pressing
             Opens a dialog and passing selected folder to openProject() method
         '''
@@ -288,7 +285,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             if isinstance(filename, (tuple, list)):
                 filename = filename[0]
             self.openProject(filename)
-            # self.loadFile(filename)
+            # self.loadImage(filename)
 
     def openProject(self, filePath=None):
         '''Trying to load project from the project .annt file
@@ -335,50 +332,14 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
                          
     #File creation, opening, saving, closing
   
-    def saveFile(self, _value=False):
+    def saveFileClicked(self, _value=False):
         if self.project.path is not None and len(ustr(self.project.path)):
-            if self.currentImage and self.currentImage.label_file:
-                # imgFileName = os.path.basename(self.filePath)
-                savedFileName = os.path.splitext(self.currentImage.name)[0]
-                savedPath = os.path.join(ustr(self.project.path), savedFileName)
-                self._saveFile(savedPath)
+            self.saveFile()
         #TODO : throw and error if not saved
 
-        # else:
-        #     imgFileDir = os.path.dirname(self.filePath)
-        #     imgFileName = os.path.basename(self.filePath)
-        #     savedFileName = os.path.splitext(imgFileName)[0]
-        #     savedPath = os.path.join(imgFileDir, savedFileName)
-        #     self._saveFile(savedPath if self.labelFile
-        #                    else self.saveFileDialog(removeExt=False))
-
-    # def saveFileAs(self, _value=False):
-    #     assert not self.image.isNull(), "cannot save empty image"
-    #     self._saveFile(self.saveFileDialog())
-  
-    # def saveFileDialog(self, removeExt=True):
-    #     caption = '%s - Choose File' % __appname__
-    #     filters = 'File (*%s)' % LabelFile.suffix
-    #     openDialogPath = self.currentPath()
-    #     dlg = QFileDialog(self, caption, openDialogPath, filters)
-    #     dlg.setDefaultSuffix(LabelFile.suffix[1:])
-    #     dlg.setAcceptMode(QFileDialog.AcceptSave)
-    #     filenameWithoutExtension = os.path.splitext(self.filePath)[0]
-    #     dlg.selectFile(filenameWithoutExtension)
-    #     dlg.setOption(QFileDialog.DontUseNativeDialog, False)
-    #     if dlg.exec_():
-    #         fullFilePath = ustr(dlg.selectedFiles()[0])
-    #         if removeExt:
-    #             return os.path.splitext(fullFilePath)[0] # Return file path without the extension.
-    #         else:
-    #             return fullFilePath
-    #     return ''
-
-    def _saveFile(self, annotationFilePath):
-        if annotationFilePath and self.saveLabels(annotationFilePath):
-            self.setFileSaved()
-            self.statusBar().showMessage('Saved to  %s' % annotationFilePath)
-            self.statusBar().show()
+    def saveFile(self):
+        if self.currentImage:
+            self.currentImage.save_labels()
 
     def closeFile(self, _value=False):
         if not self.mayContinue():
@@ -396,7 +357,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.shapesToItems.clear()
         self.labelList.clear()
         self.currentImage = None
-        self.imageData = None
+        # self.imageData = None
         self.labelFile = None
         self.canvas.resetState()
         self.labelCoordinates.clear()
@@ -422,11 +383,13 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.saveAnnot.setEnabled(False)
         # self.saveProj.setEnabled(False)
         self.create.setEnabled(True)
-        self.detect.setEnabled(True)
+        # self.detect.setEnabled(True)
 
     def setProjectSaved(self):
         '''Called when project was just saved
         '''
+
+
 
     def toggleActions(self, value=True):
         """Enable/Disable widgets which depend on an opened image."""
@@ -539,7 +502,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             self.index = self.project.all_image_names.index(imageName)
         # if self.index < len(self.project.all_image_names):
             image, isVerified = self.project.get_image_from_name(imageName)
-            self.loadFile(image, index = self.index)
+            self.loadImage(image, index = self.index)
 
     # Add chris
     def btnstate(self, item= None):
@@ -616,71 +579,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         del self.itemsToShapes[item]
         self.updateCount()
 
-    def loadLabels(self, shapes):
-        s = []
-        for label, points, line_color, fill_color, difficult in shapes:
-            shape = Shape(label=label)
-            for x, y in points:
 
-                # Ensure the labels are within the bounds of the image. If not, fix them.
-                x, y, snapped = self.canvas.snapPointToCanvas(x, y)
-                if snapped:
-                    self.setUnsavedChanges()
-
-                shape.addPoint(QPointF(x, y))
-            shape.difficult = difficult
-            shape.close()
-            s.append(shape)
-
-            if line_color:
-                shape.line_color = QColor(*line_color)
-            else:
-                shape.line_color = generateColorByText(label)
-
-            if fill_color:
-                shape.fill_color = QColor(*fill_color)
-            else:
-                shape.fill_color = generateColorByText(label)
-
-            self.addLabel(shape)
-
-        self.canvas.loadShapes(s)
-
-    def saveLabels(self, annotationFilePath):
-        annotationFilePath = ustr(annotationFilePath)
-        if self.labelFile is None:
-            self.labelFile = LabelFile()
-            self.labelFile.verified = self.canvas.verified
-
-        def format_shape(s):
-            return dict(label=s.label,
-                        line_color=s.line_color.getRgb(),
-                        fill_color=s.fill_color.getRgb(),
-                        points=[(p.x(), p.y()) for p in s.points],
-                       # add chris
-                        difficult = s.difficult)
-
-        shapes = [format_shape(shape) for shape in self.canvas.shapes]
-        # Can add differrent annotation formats here
-        try:
-            if self.usingPascalVocFormat is True:
-                if annotationFilePath[-4:].lower() != ".xml":
-                    annotationFilePath += XML_EXT
-                self.labelFile.savePascalVocFormat(annotationFilePath, shapes, self.imageData,
-                                                   self.lineColor.getRgb(), self.fillColor.getRgb())
-            elif self.usingYoloFormat is True:
-                if annotationFilePath[-4:].lower() != ".txt":
-                    annotationFilePath += TXT_EXT
-                self.labelFile.saveYoloFormat(annotationFilePath, shapes, self.imageData, self.project.categories,
-                                                   self.lineColor.getRgb(), self.fillColor.getRgb())
-            else:
-                self.labelFile.save(annotationFilePath, shapes, self.imageData,
-                                    self.lineColor.getRgb(), self.fillColor.getRgb())
-            # print('Image:{0} -> Annotation:{1}'.format(self.filePath, annotationFilePath))
-            return True
-        except LabelFileError as e:
-            self.errorMessage(u'Error saving label data', u'<b>%s</b>' % e)
-            return False
 
     def copySelectedShape(self):
         try:
@@ -875,38 +774,34 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             # if (shape.label == "seed"):
             item.setCheckState(Qt.Checked if value else Qt.Unchecked)
 
-    def loadFile(self, image=None, index = 0):
-        # import pdb;
-        # pyqtRemoveInputHook(); pdb.set_trace()
+    def loadImage(self, image=None, index = 0):
+        '''loading image data from the path and annotations (if available) from the image object,
+            or loading a new one
+        '''
+
         """Load the specified file, or the last opened file if None."""
         self.resetState()
         self.canvas.setEnabled(False)
         if image is None:
             return False
-
+        # import pdb;
+        # pyqtRemoveInputHook(); pdb.set_trace()
+        self.currentImage = image
         # Make sure that filePath is a regular python string, rather than QString
-        unicodeFilePath = ustr(image.path)
-
+        unicodeFilePath = ustr(self.currentImage.path)
         if unicodeFilePath and os.path.exists(unicodeFilePath):       
-            #Merey: otherwise the file should be an image file
             # Load image:
             # read data first and store for saving into label file.
-            self.imageData = read(unicodeFilePath, None)
-            self.labelFile = None
-            self.canvas.verified = False
-
-            image = QImage.fromData(self.imageData)
-            if image.isNull():
+            imageData = read(unicodeFilePath, None)
+            imageFromData = QImage.fromData(imageData)
+            if imageFromData.isNull():
                 self.errorMessage(u'Error opening file',
                                   u"<p>Make sure <i>%s</i> is a valid image file." % unicodeFilePath)
                 self.status("Error reading %s" % unicodeFilePath)
                 return False
             self.status("Loaded %s" % os.path.basename(unicodeFilePath))
-            # self.image = image
-            # self.filePath = unicodeFilePath
-            self.canvas.loadPixmap(QPixmap.fromImage(image))
-            if self.labelFile:
-                self.loadLabels(self.labelFile.shapes)
+            self.canvas.loadPixmap(QPixmap.fromImage(imageFromData))
+
             self.setFileSaved()
             self.canvas.setEnabled(True)
             self.zoom_navig.adjustScale(initial=True)
@@ -914,31 +809,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             self.addRecentFile(unicodeFilePath)
             self.toggleActions(True)
 
-            # Label xml file and show bound box according to its filename
-            # if self.usingPascalVocFormat is True:
-            if self.project.path is not None:
-                print("DEFAULT SAVE DIR OS NOT NULL")
-                basename = os.path.basename(
-                    os.path.splitext(unicodeFilePath)[0])
-                xmlPath = os.path.join(self.project.path, basename + XML_EXT)
-                txtPath = os.path.join(self.project.path, basename + TXT_EXT)
-
-                """Annotation file priority:
-                PascalXML > YOLO
-                """
-                if os.path.isfile(xmlPath):
-                    self.loadPascalXMLByFilename(xmlPath)
-                elif os.path.isfile(txtPath):
-                    self.loadYOLOTXTByFilename(txtPath)
-            else:
-                #Merey: Load Xml if available
-                xmlPath = os.path.splitext(unicodeFilePath)[0] + XML_EXT
-                txtPath = os.path.splitext(unicodeFilePath)[0] + TXT_EXT
-                if os.path.isfile(xmlPath):
-                    self.loadPascalXMLByFilename(xmlPath)
-                elif os.path.isfile(txtPath):
-                    self.loadYOLOTXTByFilename(txtPath)
-
+            #Merey: Load Xml if available
+            self.currentImage.load_labels(self, imageData)
             self.setWindowTitle(__appname__ + ' ' + unicodeFilePath)
 
             # Default : select last item if there is at least one item
@@ -950,25 +822,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             return True
         return False
 
-     ## Support Functions ##
-    def set_format(self, save_format):
-        if save_format == FORMAT_PASCALVOC:
-            self.save_format.setText(FORMAT_PASCALVOC)
-            self.save_format.setIcon(newIcon("format_voc"))
-            self.usingPascalVocFormat = True
-            self.usingYoloFormat = False
-            LabelFile.suffix = XML_EXT
-
-        elif save_format == FORMAT_YOLO:
-            self.save_format.setText(FORMAT_YOLO)
-            self.save_format.setIcon(newIcon("format_yolo"))
-            self.usingPascalVocFormat = False
-            self.usingYoloFormat = True
-            LabelFile.suffix = TXT_EXT
-
-    def change_format(self):
-        if self.usingPascalVocFormat: self.set_format(FORMAT_YOLO)
-        elif self.usingYoloFormat: self.set_format(FORMAT_PASCALVOC)
+    # def changeFormatClicked(self):
+    #     self.project.is_VOC_format = not self.project.is_VOC_format
 
     def noShapes(self):
         return not self.itemsToShapes
@@ -980,10 +835,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         # settings = self.settings
         # If it loads images from dir, don't load it at the begining
         if self.project is not None:
-            if self.project.path is None:
-            #     self.settings[SETTING_FILENAME] = self.filePath if self.filePath else ''
-            # else:
-            #     self.settings[SETTING_FILENAME] = ''
 
             self.settings[SETTING_WIN_SIZE] = self.size()
             self.settings[SETTING_WIN_POSE] = self.pos()
@@ -997,11 +848,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             else:
                 self.settings[SETTING_PROJECT_DIR] = ''
 
-            # if self.lastOpenDir and os.path.exists(self.lastOpenDir):
-            #     self.settings[SETTING_LAST_OPEN_DIR] = self.lastOpenDir
-            # else:
-            #     self.settings[SETTING_LAST_OPEN_DIR] = ''
-
             self.settings[SETTING_AUTO_SAVE] = self.autoSaving.isChecked()
             self.settings[SETTING_SINGLE_CLASS] = self.singleClassMode.isChecked()
             self.settings[SETTING_PAINT_LABEL] = self.displayLabelOption.isChecked()
@@ -1010,25 +856,26 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     def loadRecent(self, filename):
         if self.mayContinue():
-            self.loadFile(filename)    
+            self.loadImage(filename)    
 
     def verifyImg(self, _value=False):
         # Proceding next image without dialog if having any label
-        if self.filePath is not None:
-            try:
-                self.labelFile.toggleVerify()
-            except AttributeError:
-                # If the labelling file does not exist yet, create if and
-                # re-save it with the verified attribute.
-                self.saveFile()
-                if self.labelFile != None:
-                    self.labelFile.toggleVerify()
-                else:
-                    return
+        if self.currentImage is not None:
+            self.currentImage.verify()
+            # try:
+            #     self.labelFile.toggleVerify()
+            # except AttributeError:
+            #     # If the labelling file does not exist yet, create if and
+            #     # re-save it with the verified attribute.
+            #     self.saveFile()
+            #     if self.labelFile != None:
+            #         self.labelFile.toggleVerify()
+            #     else:
+            #         return
 
             self.canvas.verified = self.labelFile.verified
             self.paintCanvas()
-            self.saveFile()
+            self.saveFileClicked()
 
     # def openPrevImg(self, _value=False):
     #     # Proceding prev image without dialog if having any label
@@ -1052,7 +899,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     #     if self.image_index - 1 < len(self.project.all_image_names) and self.image_index - 1 >= 0:
     #         self.image_index = self.image_index - 1
     #         image, isVerified = self.project.get_get_image_from_name(all_image_names[self.image_index])
-    #         self.loadFile(image)
+    #         self.loadImage(image)
 
 
     # def openNextImg(self, _value=False):
@@ -1074,7 +921,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     #     if self.image_index + 1 < len(self.project.all_image_names) and self.image_index + 1 >= 0:
     #         self.image_index = self.image_index + 1
     #         image, isVerified = self.project.get_image_from_name(self.project.all_image_names[self.image_index])
-    #         self.loadFile(image)
+    #         self.loadImage(image)
 
     def resetAll(self):
         self.settings.reset()
@@ -1093,10 +940,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def errorMessage(self, title, message):
         return QMessageBox.critical(self, title,
                                     '<p><b>%s</b></p>%s' % (title, message))
-
-    # def currentPath(self):
-    #     return os.path.dirname(self.filePath) if self.filePath else '.'
-
 
     def deleteSelectedShape(self):
         self.remLabel(self.canvas.deleteSelected())
@@ -1124,33 +967,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def moveShape(self):
         self.canvas.endMove(copy=False)
         self.setUnsavedChanges()
-
-
-    def loadPascalXMLByFilename(self, xmlPath):
-        if self.currentImage is None:
-            return
-        if os.path.isfile(xmlPath) is False:
-            return
-
-        self.set_format(FORMAT_PASCALVOC)
-
-        tVocParseReader = PascalVocReader(xmlPath)
-        shapes = tVocParseReader.getShapes()
-        self.loadLabels(shapes)
-        self.canvas.verified = tVocParseReader.verified
-
-    def loadYOLOTXTByFilename(self, txtPath):
-        if self.currentImage is None:
-            return
-        if os.path.isfile(txtPath) is False:
-            return
-
-        self.set_format(FORMAT_YOLO)
-        tYoloParseReader = YoloReader(txtPath, QImage.fromData(self.imageData))
-        shapes = tYoloParseReader.getShapes()
-        print (shapes)
-        self.loadLabels(shapes)
-        self.canvas.verified = tYoloParseReader.verified
 
     def togglePaintLabelsOption(self):
         for shape in self.canvas.shapes:
