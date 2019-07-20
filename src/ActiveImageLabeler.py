@@ -89,11 +89,12 @@ if __name__ == '__main__':
     # Connect API to GUI
     # GUI detection button connected to API Object Detection
     # (parameter is OpenCV Image)
-    win.detect.triggered.connect(lambda: api.detectObjects(win.filePath))
-    # win.detect.triggered.connect(lambda: api.detectObjects(win.image))
+    win.detect.triggered.connect(lambda: api.detectObjects(win.currentImage.path))
+
     # API Object Found connected to Window add Shape to current Image
-    api.ObjectFound.connect(win.addShape)
-    api.ObjectsFound.connect(win.addShapes)
+    api.objectFound.connect(win.addShape)
+    api.objectsFound.connect(win.addShapes)
+    api.errorWithInference.connect(win.errorMessage)
 
     # Show window and run QtApplication
     win.showMaximized()

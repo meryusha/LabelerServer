@@ -115,9 +115,9 @@ class PascalVocWriter:
         out_file = None
         if targetFile is None:
             out_file = codecs.open(
-                self.filename + XML_EXT, 'w', encoding=ENCODE_METHOD)
+                self.filename + XML_EXT, 'w+', encoding=ENCODE_METHOD)
         else:
-            out_file = codecs.open(targetFile, 'w', encoding=ENCODE_METHOD)
+            out_file = codecs.open(targetFile, 'w+', encoding=ENCODE_METHOD)
 
         prettifyResult = self.prettify(root)
         out_file.write(prettifyResult.decode('utf8'))

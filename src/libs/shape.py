@@ -183,6 +183,7 @@ class Shape(object):
         self._highlightIndex = None
 
     def copy(self):
+        print("I COPY ")
         shape = Shape("%s" % self.label)
         shape.points = [p for p in self.points]
         shape.fill = self.fill

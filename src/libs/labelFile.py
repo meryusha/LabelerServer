@@ -24,7 +24,7 @@ class LabelFile(object):
     suffix = XML_EXT
 
     def __init__(self, image = None, path = None):
-        self.shapes = ()
+        # self.shapes = ()
         self.image = image
         self.path = path
         self.is_verified = False
@@ -42,7 +42,7 @@ class LabelFile(object):
         writer = PascalVocWriter(imgFolderName, imgFileName,
                                  imageShape, localImgPath=self.image.path)
         writer.verified = self.image.is_verified
-
+        print('len of shapes is', len(shapes))
         for shape in shapes:
             points = shape['points']
             label = shape['label']

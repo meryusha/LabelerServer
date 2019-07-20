@@ -217,7 +217,7 @@ class Project(object):
             item.setData(column, Qt.UserRole, data)
             return item
 
-        if not window.mayContinue() or not self.file_loader:
+        if not self.file_loader:
             return
 
         window.filePath = None

@@ -219,7 +219,7 @@ class Canvas(QWidget):
 
     def mousePressEvent(self, ev):
         pos = self.transformPos(ev.pos())
-
+        print(len(self.shapes))
         if ev.button() == Qt.LeftButton:
             if self.drawing():
                 self.handleDrawing(pos)
@@ -257,6 +257,7 @@ class Canvas(QWidget):
         #del shape.fill_color
         #del shape.line_color
         if copy:
+            print("END MOVE")
             self.shapes.append(shape)
             self.selectedShape.selected = False
             self.selectedShape = shape
@@ -415,10 +416,13 @@ class Canvas(QWidget):
 
     def deleteSelected(self):
         if self.selectedShape:
+            print('TRYING TO DELETE')
             shape = self.selectedShape
+            print(len(self.shapes))
             self.shapes.remove(self.selectedShape)
             self.selectedShape = None
             self.update()
+            print(len(self.shapes))
             return shape
 
     def copySelectedShape(self):

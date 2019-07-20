@@ -28,6 +28,7 @@ PROJECT_NON_VERIFIED_IMAGES = 'nonVerifiedImgs'
 PROJECT_CATEGORIES = 'categories'
 PROJECT_ALL_IMAGES_NAMES = 'imageNames'
 FILE_TREE_COLUMNS_NUMBER = 2
+CONFIG_PATH = "seeds_faster/configs/seed/e2e_faster_rcnn_R_50_C4_1x_seed_strat2.yaml"
 
 #20 colors to pick from
 

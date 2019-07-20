@@ -24,16 +24,14 @@ except ImportError:
     from PyQt4.QtGui import *
     from PyQt4.QtCore import *
 
-class Image(object):
-    
+class Image(object):   
     def __init__(self,  path, name = None, label_file = None, score = IMAGE_DEFAULT_SCORE):
         self.name = name
         #TODO get name from the path?, raise error if project is None
         self.path = path
         self._is_verified = False
+        # self._is_saved = True
         self.label_file = label_file
-        # self.annotations = []
-        # self.category = category
         self.score = score
 
     
@@ -41,10 +39,16 @@ class Image(object):
     def is_verified(self):
         return self._is_verified
     
-    def load_labels(self, window, image_data):
+    # @property
+    # def is_saved(self):
+    #     return self._is_saved
+
+    
+    def load_labels(self, window, image_data, is_VOC):
         if self.label_file:
             print('TRYING TO LOAD LABELS from object')
-            self.load_shapes(window, self.label_file.shapes)
+            # self.load_shapes(window, self.label_file.shapes)
+            self.load_labels_from_file(window, self.label_file.path, is_VOC)
         else:                        
             print('TRYING TO LOAD LABELS from file')     
             if self.path is not None:
@@ -71,7 +75,7 @@ class Image(object):
 
     def load_shapes(self, window,  shapes):
         s = []
-        # print(shapes)
+        print('load_shapes', len(shapes))
         for label, points, line_color, fill_color, difficult in shapes:
             shape = Shape(label=label)
             for x, y in points:
@@ -80,9 +84,9 @@ class Image(object):
                 if snapped:
                     window.setUnsavedChanges()
                 shape.addPoint(QPointF(x, y))
-                shape.difficult = difficult
-                shape.close()
-                s.append(shape)
+            shape.difficult = difficult
+            shape.close()
+            s.append(shape)
 
             if line_color:
                 shape.line_color = QColor(*line_color)
@@ -95,7 +99,7 @@ class Image(object):
                 shape.fill_color = generateColorByText(label)
 
             window.addLabel(shape)
-
+        print('load_shapes, s', len(s))
         window.canvas.loadShapes(s)
 
     def save_labels_to_path(self, window, is_VOC):
@@ -136,7 +140,8 @@ class Image(object):
 
         if self.save_labels_to_path(window, is_VOC):
             window.setFileSaved()
-            window.statusBar().showMessage('Saved to  %s' % annotationFilePath)
+            # self._is_saved = True
+            window.statusBar().showMessage('Saved to  %s' % self.label_file.path)
             window.statusBar().show()
 
     def verify(self):

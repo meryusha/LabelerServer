@@ -4,20 +4,22 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QWidget
 import sys
+from os.path import dirname, join, exists
+import pathlib
 import torch
 # sys.path.append("..")
 # from .. import maskrcnn_benchmark
 from maskrcnn_benchmark.structures.bounding_box import BoxList
-
-
 from maskrcnn_benchmark.config import cfg
 import torch
 from maskrcnn_benchmark.data.datasets.evaluation.seed.seed_predict import SeedPredict
 import time
+from libs.constants import CONFIG_PATH
 class FasterRCNN(QWidget):
  
-    ObjectFound = pyqtSignal(list, str)  # (list, str) as [x,y,w,h]] and label
-    ObjectsFound = pyqtSignal(tuple)  # tuple of (list, list) with BB and corresponding labels
+    objectFound = pyqtSignal(list, str)  # (list, str) as [x,y,w,h]] and label
+    objectsFound = pyqtSignal(tuple)  # tuple of (list, list) with BB and corresponding labels
+    errorWithInference = pyqtSignal(str, str) #error message
 
     def __init__(self):
         super(FasterRCNN, self).__init__()
@@ -25,13 +27,19 @@ class FasterRCNN(QWidget):
 
     def detectObjects(self, image_path):
         # start_time = time.time()
-        print("FasterRCNN detectObjects")
+        if image_path is None:
+            self.errorWithInference.emit(u'Could not detect boxes', 'Image path is None' )
+            return
+        print(dirname(dirname(__file__)))
+        full_path = join(dirname(dirname(dirname(__file__))), CONFIG_PATH)
+        print(f'trying to load model from {full_path}')
+        if not exists(full_path):
+            self.errorWithInference.emit(u'Could not detect boxes', 'Could not load config file for a model')
+            return        
 
-        # self.ObjectFound.emit([100, 100, 30, 200], "myLabelClass")
-        # shapes = [[[i, i, 50 + i, 50 + i], "obj" + str(i)] for i in range(200)]
-        # TODO: change config file 
-        cfg_file ="/home/ramazam/Documents/maskrcnn-benchmark/configs/seed/e2e_faster_rcnn_R_50_C4_1x_seed_strat2.yaml"
-        cfg.merge_from_file(cfg_file)
+        print("FasterRCNN detectObjects")
+        # print(os.getcwd())
+        cfg.merge_from_file(full_path)
         cfg.freeze()
 
         seed_predict = SeedPredict(cfg,)
@@ -46,7 +54,5 @@ class FasterRCNN(QWidget):
         # shapes = list(predictions._split_into_xyxy())
        
         # print("Time: {:.2f} s / img".format(time.time() - start_time))
-        self.ObjectsFound.emit((boxes, labels_words))
-        # self.ObjectsFound.emit([[[100, 100, 30, 200], "myLabelClass"],
-        #                         [[200, 200, 60, 400], "myLabelClass2"]])
+        self.objectsFound.emit((boxes, labels_words))
         return
