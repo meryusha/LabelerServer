@@ -1,6 +1,7 @@
 import sys, os
 from libs.ustr import ustr
 from libs.image import Image
+from libs.constants import XML_EXT, TXT_EXT
 try:
     from PyQt5.QtGui import *
     from PyQt5.QtCore import *
@@ -32,32 +33,40 @@ class FileLoader(object):
         verified_images = {}
         non_verified_images = {}
         names = []
-
+        print(self.project.all_image_names)
         for root, dirs, files in os.walk(self.project.path):
             for file in files:
                 if file.lower().endswith(tuple(extensions)):
-                    relativePath = os.path.join(root, file)
-                    path = ustr(os.path.abspath(relativePath))
-                    names.append(file)
-                    if path not in self.project.all_image_names:
+                    path = os.path.join(root, file)
+                    # print(path)
+                    full_path = ustr(os.path.abspath(path))
+                    relative_path = os.path.relpath(full_path, self.project.path) 
+                    names.append(relative_path)
+                    # print("Restored all image names length is", len(self.project.all_image_names))
+                    print(path)
+                    if relative_path not in self.project.all_image_names:
+                        print("NEW IMAGE")
                         #we have a new image which is not in the project data file 
-                        new_image = Image(path, file) 
-                        non_verified_images[file] = new_image 
+                        new_image = Image(full_path, relative_path) 
+                        non_verified_images[relative_path] = new_image 
                         # non_verified_images.append(new_image)
                     else:
                         #do lookup
-                        retrieved_image, is_ver = self.project.get_image_from_name(file)
-                        if retrieved_image and is_ver:
-                            # verified_images.append(retrieved_image)
-                            verified_images[file] = retrieved_image
+                        retrieved_image, is_ver = self.project.get_image_from_name(relative_path)
+                        retrieved_image.path = os.path.join(self.project.path, relative_path)
+                        if retrieved_image.label_file and not os.path.exists(retrieved_image.label_file.path):
+                            prefix = XML_EXT if self.project.is_VOC_format else TXT_EXT
+                            if os.path.exists(os.path.join(retrieved_image.path  ))
+                            
+                        if retrieved_image and is_ver :
+                            verified_images[relative_path] = retrieved_image
                         elif retrieved_image and not is_ver:
-                            non_verified_images[file] = retrieved_image
+                            non_verified_images[relative_path] = retrieved_image
                             # non_verified_images.append(retrieved_image)
                         else:
                             #there is an error/inconsistency:
-                            new_image = Image(path, file) 
-                            non_verified_images[file] = new_image 
-                            # non_verified_images.append(new_image)
+                            new_image = Image(full_path, relative_path) 
+                            non_verified_images[relative_path] = new_image 
 
         self.project.non_verified_images = non_verified_images
         self.project.verified_images = verified_images
@@ -67,11 +76,3 @@ class FileLoader(object):
 
     def check_xml(self, filePath):
         pass
-
-    # def load_xml(self, filePath):
-    #     xmlPath = os.path.splitext(filePath)[0] + XML_EXT
-    #     txtPath = os.path.splitext(filePath)[0] + TXT_EXT
-    #     if os.path.isfile(xmlPath):
-    #         self.loadPascalXMLByFilename(xmlPath)
-    #     elif os.path.isfile(txtPath):
-    #         self.loadYOLOTXTByFilename(txtPath)

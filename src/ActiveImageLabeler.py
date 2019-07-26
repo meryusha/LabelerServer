@@ -78,7 +78,7 @@ if __name__ == '__main__':
     # create QtApplication
     app = QApplication(sys.argv)
     app.setApplicationName("ActiveImageLabeler")
-    app.setWindowIcon(newIcon("app"))
+    app.setWindowIcon(newIcon("shape_t"))
 
     # Create GUI
     win = ActiveImageLabelerWindow(args.defaultFilename,

@@ -25,5 +25,10 @@ class Category(object):
         if not isinstance(value, str):
             raise ValueError("Not a String")
         self._color = value.lower()
-    
+
+    def __eq__(self, other):
+        if not isinstance(other, Category):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+        return self.name == other.name
     

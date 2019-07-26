@@ -97,12 +97,14 @@ class Project(object):
 
     @property
     def is_saved(self):
+        print('returning project save state', self._is_saved)
         return self._is_saved
     
     @is_saved.setter
     def is_saved(self, value):
         if not isinstance(value, bool):
             raise ValueError("Not a boolean")
+        print('chaning project save state on', value)
         self._is_saved = value
 
 
@@ -113,8 +115,7 @@ class Project(object):
             return False
         fileSuffix = os.path.splitext(filename)[1].lower()
         return fileSuffix == Project.suffix
-
-    
+   
     ##Project  loading, saving,
     # Loading images and files
      
@@ -169,7 +170,7 @@ class Project(object):
         ''' 
         if self._project_data is None:
             return
-
+        print("restoring project data")
         self._verified_images = self._project_data.get(PROJECT_VERIFIED_IMAGES, [])
         self._non_verified_images = self._project_data.get(PROJECT_NON_VERIFIED_IMAGES, [])
         self.all_image_names = self._project_data.get(PROJECT_ALL_IMAGES_NAMES, [])
@@ -192,13 +193,13 @@ class Project(object):
     
     def check_for_consistency(self):
         '''checks that images in verified and non-verified dict have the matching label'''
-        for imageName in self._non_verified_images.keys():
+        for imageName in list(self._non_verified_images):
             if self._non_verified_images[imageName].is_verified:
                 #there is an error, assume Image label is right
                 self._verified_images[imageName] = self._non_verified_images.pop(imageName)
     
 
-        for imageName in self.verified_images.keys():
+        for imageName in list(self.verified_images):
             if not self._verified_images[imageName].is_verified:
                 #there is an error, assume Image label is right
                 self._non_verified_images[imageName] = self._verified_images.pop(imageName)         
@@ -224,6 +225,7 @@ class Project(object):
         window.fileTreeWidget.clear()
         window.fileTreeWidget.setColumnCount(FILE_TREE_COLUMNS_NUMBER) #2
         parent = window.fileTreeWidget.invisibleRootItem()
+        window.fileTreeWidget.setColumnWidth(0, FILE_TREE_WIDTH_COL1)
         verified_item = addParent(parent, 0, 'verified', 'V')
         non_verified_item = addParent(parent, 0, 'non verified', "NV")
 
@@ -237,8 +239,8 @@ class Project(object):
         for imageName in self.verified_images.keys():
             addChild(verified_item,  0, imageName, "")
 
-        firstImage, _ = self.get_image_from_name(window.fileTreeWidget.topLevelItem(0).text(0))
-        window.loadImage(firstImage)
+        # firstImage, _ = self.get_image_from_name(window.fileTreeWidget.topLevelItem(0).text(0))
+        # window.loadImage(firstImage)
        
 
 

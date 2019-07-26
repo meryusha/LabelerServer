@@ -162,7 +162,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QToolBar" name="toolBar_Open">
+  <widget class="QToolBar" name="toolbar_open">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -180,14 +180,12 @@
    </attribute>
    <addaction name="openProj"/>
    <addaction name="createProject"/>
-   <addaction name="openPrevImgAction"/>
-   <addaction name="openNextImgAction"/>
-   <addaction name="verify"/>
    <addaction name="saveProj"/>
+   <addaction name="verify"/>
    <addaction name="saveAnnot"/>
    <addaction name="save_format"/>
   </widget>
-  <widget class="QToolBar" name="toolBar_Zoom">
+  <widget class="QToolBar" name="toolbar_zoom">
    <property name="windowTitle">
     <string>Zoom</string>
    </property>
@@ -206,7 +204,7 @@
    <addaction name="fitWindow"/>
    <addaction name="fitWidth"/>
   </widget>
-  <widget class="QToolBar" name="toolBar_Edit">
+  <widget class="QToolBar" name="toolbar_edit">
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
@@ -225,7 +223,7 @@
    <addaction name="copy"/>
    <addaction name="deleteAction"/>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_View">
+  <widget class="QDockWidget" name="dockwidget_view">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -239,50 +237,7 @@
     <number>2</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="1">
-      <widget class="QToolButton" name="toolButton_ZoomOut">
-       <property name="text">
-        <string>Zoom Out</string>
-       </property>
-       <property name="icon">
-        <iconset theme=":/zoom-out">
-         <normaloff>../../../../../.designer/resources/icons/zoom-out.png</normaloff>../../../../../.designer/resources/icons/zoom-out.png</iconset>
-       </property>
-       <property name="toolButtonStyle">
-        <enum>Qt::ToolButtonTextUnderIcon</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="pushButton_ZoomOut">
-       <property name="text">
-        <string>Zoom Out</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QToolButton" name="toolButton_ZoomIn">
-       <property name="text">
-        <string>Zoom In</string>
-       </property>
-       <property name="icon">
-        <iconset theme=":/zoom-in">
-         <normaloff>../../../../../.designer/resources/icons/zoom-in.png</normaloff>../../../../../.designer/resources/icons/zoom-in.png</iconset>
-       </property>
-       <property name="toolButtonStyle">
-        <enum>Qt::ToolButtonTextUnderIcon</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QPushButton" name="pushButton_ZoomIn">
-       <property name="text">
-        <string>Zoom In</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <layout class="QGridLayout" name="gridLayout"/>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -294,11 +249,11 @@
      <height>34</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_File">
+   <widget class="QMenu" name="menu_file">
     <property name="title">
      <string>File</string>
     </property>
-    <widget class="QMenu" name="menu_RecentFiles">
+    <widget class="QMenu" name="menu_recentFiles">
      <property name="title">
       <string>RecentFiles</string>
      </property>
@@ -306,7 +261,7 @@
     </widget>
     <addaction name="openProj"/>
     <addaction name="createProject"/>
-    <addaction name="menu_RecentFiles"/>
+    <addaction name="menu_recentFiles"/>
     <addaction name="saveProj"/>
     <addaction name="saveAs"/>
     <addaction name="save_format"/>
@@ -348,7 +303,7 @@
     <addaction name="help"/>
     <addaction name="showInfo"/>
    </widget>
-   <addaction name="menu_File"/>
+   <addaction name="menu_file"/>
    <addaction name="menu_Edit"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Help"/>
@@ -356,7 +311,7 @@
   <action name="quit">
    <property name="icon">
     <iconset theme=":/quit">
-     <normaloff>../../../../../.designer/resources/icons/quit.png</normaloff>../../../../../.designer/resources/icons/quit.png</iconset>
+     <normaloff>../../../../../../../../.designer/resources/icons/quit.png</normaloff>../../../../../../../../.designer/resources/icons/quit.png</iconset>
    </property>
    <property name="text">
     <string>Quit</string>
@@ -383,7 +338,7 @@
    </property>
    <property name="icon">
     <iconset theme=":/open">
-     <normaloff>../../../../../.designer/resources/icons/open.png</normaloff>../../../../../.designer/resources/icons/open.png</iconset>
+     <normaloff>../resources/new_icons/open.png</normaloff>../resources/new_icons/open.png</iconset>
    </property>
    <property name="text">
     <string>Open project</string>
@@ -403,8 +358,7 @@
   </action>
   <action name="createProject">
    <property name="icon">
-    <iconset theme=":/open">
-     <normaloff>../../../../../.designer/resources/icons/open.png</normaloff>../../../../../.designer/resources/icons/open.png</iconset>
+    <iconset theme=":/add"/>
    </property>
    <property name="text">
     <string>Create Project</string>
@@ -425,7 +379,7 @@
   <action name="openAnnotation">
    <property name="icon">
     <iconset theme=":/open">
-     <normaloff>../../../../../.designer/resources/icons/open.png</normaloff>../../../../../.designer/resources/icons/open.png</iconset>
+     <normaloff>../../../../../../../../.designer/resources/icons/open.png</normaloff>../../../../../../../../.designer/resources/icons/open.png</iconset>
    </property>
    <property name="text">
     <string>Open Annotation</string>
@@ -449,7 +403,7 @@
    </property>
    <property name="icon">
     <iconset theme=":/next">
-     <normaloff>../../../../../.designer/resources/icons/next.png</normaloff>../../../../../.designer/resources/icons/next.png</iconset>
+     <normaloff>../../../../../../../../.designer/resources/icons/next.png</normaloff>../../../../../../../../.designer/resources/icons/next.png</iconset>
    </property>
    <property name="text">
     <string>Next Image</string>
@@ -473,7 +427,7 @@
    </property>
    <property name="icon">
     <iconset theme=":/prev">
-     <normaloff>../../../../../.designer/resources/icons/prev.png</normaloff>../../../../../.designer/resources/icons/prev.png</iconset>
+     <normaloff>../../../../../../../../.designer/resources/icons/prev.png</normaloff>../../../../../../../../.designer/resources/icons/prev.png</iconset>
    </property>
    <property name="text">
     <string>Previous Image</string>
@@ -496,8 +450,8 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme=":/verify">
-     <normaloff>../../../../../.designer/resources/icons/verify.png</normaloff>../../../../../.designer/resources/icons/verify.png</iconset>
+    <iconset theme=":/label_plus">
+     <normaloff>../../../../../../../../.designer/resources/icons/verify.png</normaloff>../../../../../../../../.designer/resources/icons/verify.png</iconset>
    </property>
    <property name="text">
     <string>Verify Image</string>
@@ -518,16 +472,16 @@
    </property>
    <property name="icon">
     <iconset theme=":/save">
-     <normaloff>../../../../../.designer/resources/icons/save.png</normaloff>../../../../../.designer/resources/icons/save.png</iconset>
+     <normaloff>../resources/icons/save-as.png</normaloff>../resources/icons/save-as.png</iconset>
    </property>
    <property name="text">
     <string>Save project</string>
    </property>
    <property name="statusTip">
-    <string>Save the labels to a file</string>
+    <string>Save project</string>
    </property>
    <property name="whatsThis">
-    <string>Save the labels to a file</string>
+    <string>Save project</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -535,8 +489,8 @@
   </action>
   <action name="save_format">
    <property name="icon">
-    <iconset theme=":/format_voc">
-     <normaloff>../../../../../.designer/resources/icons/format_voc.png</normaloff>../../../../../.designer/resources/icons/format_voc.png</iconset>
+    <iconset theme=":/label_form">
+     <normaloff>../../../../../../../../.designer/resources/icons/format_voc.png</normaloff>../../../../../../../../.designer/resources/icons/format_voc.png</iconset>
    </property>
    <property name="text">
     <string>Change save format</string>
@@ -557,7 +511,7 @@
    </property>
    <property name="icon">
     <iconset theme=":/save-as">
-     <normaloff>../../../../../.designer/resources/icons/save-as.png</normaloff>../../../../../.designer/resources/icons/save-as.png</iconset>
+     <normaloff>../../../../../../../../.designer/resources/icons/save-as.png</normaloff>../../../../../../../../.designer/resources/icons/save-as.png</iconset>
    </property>
    <property name="text">
     <string>Save As</string>
@@ -578,7 +532,7 @@
   <action name="closeAction">
    <property name="icon">
     <iconset theme=":/close">
-     <normaloff>../../../../../.designer/backup/resources/icons/close.png</normaloff>../../../../../.designer/backup/resources/icons/close.png</iconset>
+     <normaloff>../../../../../../../../.designer/backup/resources/icons/close.png</normaloff>../../../../../../../../.designer/backup/resources/icons/close.png</iconset>
    </property>
    <property name="text">
     <string>Close</string>
@@ -599,7 +553,7 @@
   <action name="resetAllAction">
    <property name="icon">
     <iconset theme=":/resetall">
-     <normaloff>../../../../../.designer/backup/resources/icons/resetall.png</normaloff>../../../../../.designer/backup/resources/icons/resetall.png</iconset>
+     <normaloff>../../../../../../../../.designer/backup/resources/icons/resetall.png</normaloff>../../../../../../../../.designer/backup/resources/icons/resetall.png</iconset>
    </property>
    <property name="text">
     <string>Reset All</string>
@@ -614,7 +568,7 @@
   <action name="color1">
    <property name="icon">
     <iconset theme=":/color">
-     <normaloff>../../../../../.designer/backup/resources/icons/color.png</normaloff>../../../../../.designer/backup/resources/icons/color.png</iconset>
+     <normaloff>../../../../../../../../.designer/backup/resources/icons/color.png</normaloff>../../../../../../../../.designer/backup/resources/icons/color.png</iconset>
    </property>
    <property name="text">
     <string>Box Line Color</string>
@@ -635,7 +589,7 @@
    </property>
    <property name="icon">
     <iconset theme=":/new">
-     <normaloff>../../../../../.designer/resources/icons/new.png</normaloff>../../../../../.designer/resources/icons/new.png</iconset>
+     <normaloff>../../../../../../../../.designer/resources/icons/new.png</normaloff>../../../../../../../../.designer/resources/icons/new.png</iconset>
    </property>
    <property name="text">
     <string>Create\nRectBox</string>
@@ -660,7 +614,7 @@ RectBox</string>
   <action name="editMode">
    <property name="icon">
     <iconset>
-     <normaloff>../../../../../.designer/backup/resources/icons/edit.png</normaloff>../../../../../.designer/backup/resources/icons/edit.png</iconset>
+     <normaloff>../../../../../../../../.designer/backup/resources/icons/edit.png</normaloff>../../../../../../../../.designer/backup/resources/icons/edit.png</iconset>
    </property>
    <property name="text">
     <string>Edit Label</string>
@@ -683,8 +637,8 @@ RectBox</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme=":/new">
-     <normaloff>../../../../../.designer/resources/icons/objects.png</normaloff>../../../../../.designer/resources/icons/objects.png</iconset>
+    <iconset theme=":/new_shape">
+     <normaloff>../../../../../../../../.designer/resources/icons/objects.png</normaloff>../../../../../../../../.designer/resources/icons/objects.png</iconset>
    </property>
    <property name="text">
     <string>Create RectBox</string>
@@ -707,8 +661,7 @@ RectBox</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme=":/delete">
-     <normaloff>../../../../../.designer/resources/icons/cancel.png</normaloff>../../../../../.designer/resources/icons/cancel.png</iconset>
+    <iconset theme=":/remove_shape"/>
    </property>
    <property name="text">
     <string>Delete RectBox</string>
@@ -731,8 +684,8 @@ RectBox</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme=":/copy">
-     <normaloff>../../../../../.designer/resources/icons/copy.png</normaloff>../../../../../.designer/resources/icons/copy.png</iconset>
+    <iconset theme=":/edit_shape">
+     <normaloff>../resources/icons/new.png</normaloff>../resources/icons/new.png</iconset>
    </property>
    <property name="text">
     <string>Copy RectBox</string>
@@ -755,8 +708,8 @@ RectBox</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme=":/new">
-     <normaloff>../../../../../.designer/resources/icons/objects.png</normaloff>../../../../../.designer/resources/icons/objects.png</iconset>
+    <iconset theme=":/shape_t">
+     <normaloff>../../../../../../../../.designer/resources/icons/objects.png</normaloff>../../../../../../../../.designer/resources/icons/objects.png</iconset>
    </property>
    <property name="text">
     <string>Detect RectBox</string>
@@ -780,7 +733,7 @@ RectBox</string>
    </property>
    <property name="icon">
     <iconset theme=":/expert">
-     <normaloff>../../../../../.designer/backup/resources/icons/expert2.png</normaloff>../../../../../.designer/backup/resources/icons/expert2.png</iconset>
+     <normaloff>../../../../../../../../.designer/backup/resources/icons/expert2.png</normaloff>../../../../../../../../.designer/backup/resources/icons/expert2.png</iconset>
    </property>
    <property name="text">
     <string>Advanced Mode</string>
@@ -804,7 +757,7 @@ RectBox</string>
   <action name="hideAll">
    <property name="icon">
     <iconset theme=":/hide">
-     <normaloff>../../../../../.designer/backup</normaloff>../../../../../.designer/backup</iconset>
+     <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
     <string>Hide all bounding boxes</string>
@@ -829,7 +782,7 @@ bounding boxes</string>
   <action name="showAll">
    <property name="icon">
     <iconset theme=":/hide">
-     <normaloff>../../../../../.designer/backup</normaloff>../../../../../.designer/backup</iconset>
+     <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
     <string>Show all bounding boxes</string>
@@ -854,7 +807,7 @@ bounding boxes</string>
   <action name="help">
    <property name="icon">
     <iconset theme=":/help">
-     <normaloff>../../../../../.designer/backup</normaloff>../../../../../.designer/backup</iconset>
+     <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
     <string>Tutorial</string>
@@ -872,7 +825,7 @@ bounding boxes</string>
   <action name="showInfo">
    <property name="icon">
     <iconset theme=":/help">
-     <normaloff>../../../../../.designer/backup</normaloff>../../../../../.designer/backup</iconset>
+     <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
     <string>Information</string>
@@ -889,8 +842,8 @@ bounding boxes</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme=":/zoom-in">
-     <normaloff>../../../../../.designer/resources/icons/zoom-in.png</normaloff>../../../../../.designer/resources/icons/zoom-in.png</iconset>
+    <iconset theme=":/zoom_in">
+     <normaloff>../../../../../../../../.designer/resources/icons/zoom-in.png</normaloff>../../../../../../../../.designer/resources/icons/zoom-in.png</iconset>
    </property>
    <property name="text">
     <string>Zoom In</string>
@@ -913,8 +866,8 @@ bounding boxes</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme=":/zoom-out">
-     <normaloff>../../../../../.designer/resources/icons/zoom-out.png</normaloff>../../../../../.designer/resources/icons/zoom-out.png</iconset>
+    <iconset theme=":/zoom_out">
+     <normaloff>../../../../../../../../.designer/resources/icons/zoom-out.png</normaloff>../../../../../../../../.designer/resources/icons/zoom-out.png</iconset>
    </property>
    <property name="text">
     <string>Zoom Out</string>
@@ -937,8 +890,8 @@ bounding boxes</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme=":/zoom">
-     <normaloff>../../../../../.designer/resources/icons/zoom.png</normaloff>../../../../../.designer/resources/icons/zoom.png</iconset>
+    <iconset theme=":/original">
+     <normaloff>../../../../../../../../.designer/resources/icons/zoom.png</normaloff>../../../../../../../../.designer/resources/icons/zoom.png</iconset>
    </property>
    <property name="text">
     <string>Original size</string>
@@ -967,8 +920,8 @@ bounding boxes</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme=":/fit-window">
-     <normaloff>../../../../../.designer/resources/icons/fit-window.png</normaloff>../../../../../.designer/resources/icons/fit-window.png</iconset>
+    <iconset theme=":/fit">
+     <normaloff>../../../../../../../../.designer/resources/icons/fit-window.png</normaloff>../../../../../../../../.designer/resources/icons/fit-window.png</iconset>
    </property>
    <property name="text">
     <string>Fit Window</string>
@@ -991,8 +944,8 @@ bounding boxes</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme=":/fit-width">
-     <normaloff>../../../../../.designer/resources/icons/fit-width.png</normaloff>../../../../../.designer/resources/icons/fit-width.png</iconset>
+    <iconset theme=":/fit_width">
+     <normaloff>../../../../../../../../.designer/resources/icons/fit-width.png</normaloff>../../../../../../../../.designer/resources/icons/fit-width.png</iconset>
    </property>
    <property name="text">
     <string>Fit Width</string>
@@ -1016,7 +969,7 @@ bounding boxes</string>
    </property>
    <property name="icon">
     <iconset theme=":/edit">
-     <normaloff>../../../../../.designer/resources/icons/edit.png</normaloff>../../../../../.designer/resources/icons/edit.png</iconset>
+     <normaloff>../../../../../../../../.designer/resources/icons/edit.png</normaloff>../../../../../../../../.designer/resources/icons/edit.png</iconset>
    </property>
    <property name="text">
     <string>Edit RectBox</string>
@@ -1108,8 +1061,8 @@ bounding boxes</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="save.png">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme=":/upload">
+     <normaloff>../resources/icons/save-as.svg</normaloff>../resources/icons/save-as.svg</iconset>
    </property>
    <property name="text">
     <string>Save annotation</string>
@@ -1117,73 +1070,14 @@ bounding boxes</string>
    <property name="toolTip">
     <string>Save annotation file</string>
    </property>
+   <property name="statusTip">
+    <string>Save the labels to a file</string>
+   </property>
+   <property name="whatsThis">
+    <string>Save the labels to a file</string>
+   </property>
   </action>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>toolButton_ZoomOut</sender>
-   <signal>clicked()</signal>
-   <receiver>zoomOut</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>723</x>
-     <y>516</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>toolButton_ZoomIn</sender>
-   <signal>clicked()</signal>
-   <receiver>zoomIn</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>638</x>
-     <y>518</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_ZoomOut</sender>
-   <signal>clicked()</signal>
-   <receiver>zoomOut</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>788</x>
-     <y>539</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_ZoomIn</sender>
-   <signal>clicked()</signal>
-   <receiver>zoomIn</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>660</x>
-     <y>539</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

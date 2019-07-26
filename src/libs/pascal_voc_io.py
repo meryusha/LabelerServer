@@ -7,9 +7,9 @@ from lxml import etree
 import codecs
 from libs.constants import DEFAULT_ENCODING
 from libs.ustr import ustr
+from lib.constants import XML_EXT
 
 
-XML_EXT = '.xml'
 ENCODE_METHOD = DEFAULT_ENCODING
 
 class PascalVocWriter:

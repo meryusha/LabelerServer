@@ -257,7 +257,6 @@ class Canvas(QWidget):
         #del shape.fill_color
         #del shape.line_color
         if copy:
-            print("END MOVE")
             self.shapes.append(shape)
             self.selectedShape.selected = False
             self.selectedShape = shape

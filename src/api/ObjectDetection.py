@@ -50,9 +50,9 @@ class FasterRCNN(QWidget):
         for label in labels:
             labels_words.append(seed_predict.map_class_id_to_class_name(label))
         boxes = predictions.bbox.numpy()
-
+        scores = predictions.get_field("scores").numpy()
         # shapes = list(predictions._split_into_xyxy())
        
         # print("Time: {:.2f} s / img".format(time.time() - start_time))
-        self.objectsFound.emit((boxes, labels_words))
+        self.objectsFound.emit((boxes, labels_words, scores))
         return

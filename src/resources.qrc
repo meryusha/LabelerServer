@@ -1,36 +1,26 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-
-<file alias="help">resources/icons/help.png</file>
-<file alias="app">resources/icons/app.png</file>
-<file alias="expert">resources/icons/expert2.png</file>
-<file alias="done">resources/icons/done.png</file>
-<file alias="file">resources/icons/file.png</file>
-<file alias="labels">resources/icons/labels.png</file>
-<file alias="new">resources/icons/objects.png</file>
-<file alias="close">resources/icons/close.png</file>
-<file alias="fit-width">resources/icons/fit-width.png</file>
-<file alias="fit-window">resources/icons/fit-window.png</file>
-<file alias="undo">resources/icons/undo.png</file>
-<file alias="hide">resources/icons/eye.png</file>
-<file alias="quit">resources/icons/quit.png</file>
-<file alias="copy">resources/icons/copy.png</file>
-<file alias="edit">resources/icons/edit.png</file>
-<file alias="open">resources/icons/open.png</file>
-<file alias="save">resources/icons/save.png</file>
-<file alias="format_voc">resources/icons/format_voc.png</file>
-<file alias="format_yolo">resources/icons/format_yolo.png</file>
-<file alias="save-as">resources/icons/save-as.png</file>
-<file alias="color">resources/icons/color.png</file>
-<file alias="color_line">resources/icons/color_line.png</file>
-<file alias="zoom">resources/icons/zoom.png</file>
-<file alias="zoom-in">resources/icons/zoom-in.png</file>
-<file alias="zoom-out">resources/icons/zoom-out.png</file>
-<file alias="delete">resources/icons/cancel.png</file>
-<file alias="next">resources/icons/next.png</file>
-<file alias="prev">resources/icons/prev.png</file>
-<file alias="resetall">resources/icons/resetall.png</file>
-<file alias="verify">resources/icons/verify.png</file>
-<file alias="strings-zh-TW">resources/strings/strings-zh-TW.properties</file>
-</qresource>
+<RCC>
+  <qresource>
+    <file>resources/strings/strings-zh-TW.properties</file>
+    <file alias="fit_width">resources/new_icons/fit_width.png</file>
+    <file alias="upload">resources/new_icons/upload.png</file>
+    <file alias="add_new">resources/new_icons/add_new.png</file>
+    <file alias="add">resources/new_icons/add.png</file>
+    <file alias="back">resources/new_icons/back.png</file>
+    <file alias="edit_shape">resources/new_icons/edit_shape.png</file>
+    <file alias="edit">resources/new_icons/edit.png</file>
+    <file alias="fit">resources/new_icons/fit.png</file>
+    <file alias="label">resources/new_icons/label.png</file>
+    <file alias="label_form">resources/new_icons/label_form.png</file>
+    <file alias="label_plus">resources/new_icons/label_plus.png</file>
+    <file alias="new_file">resources/new_icons/new_file.png</file>
+    <file alias="new_shape">resources/new_icons/new_shape.png</file>
+    <file alias="open">resources/new_icons/open.png</file>
+    <file alias="original">resources/new_icons/original.png</file>
+    <file alias="remove_shape">resources/new_icons/remove_shape.png</file>
+    <file alias="save">resources/new_icons/save.png</file>
+    <file alias="verify">resources/new_icons/verify.png</file>
+    <file alias="shape_t">resources/new_icons/shape_t.png</file>
+    <file alias="zoom_in">resources/new_icons/zoom_in.png</file>
+    <file alias="zoom_out">resources/new_icons/zoom_out.png</file>
+  </qresource>
 </RCC>

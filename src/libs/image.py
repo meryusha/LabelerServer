@@ -2,12 +2,11 @@ import random
 import os
 from libs.category import Category
 from libs.labelFile import LabelFile, LabelFileError
-from libs.constants import IMAGE_DEFAULT_SCORE, IMAGE_HUMAN_VERIFIED_SCORE
+from libs.constants import IMAGE_DEFAULT_SCORE, IMAGE_HUMAN_VERIFIED_SCORE,XML_EXT, TXT_EXT
 from libs.shape import Shape, DEFAULT_LINE_COLOR, DEFAULT_FILL_COLOR
 from libs.pascal_voc_io import PascalVocReader
-from libs.pascal_voc_io import XML_EXT
 from libs.yolo_io import YoloReader
-from libs.yolo_io import TXT_EXT
+
 from libs.lib import struct, newAction, newIcon, addActions, fmtShortcut, generateColorByText
 try:
     from PyQt5.QtGui import *
@@ -27,7 +26,7 @@ except ImportError:
 class Image(object):   
     def __init__(self,  path, name = None, label_file = None, score = IMAGE_DEFAULT_SCORE):
         self.name = name
-        #TODO get name from the path?, raise error if project is None
+        #name is a relative path with respect to project dir
         self.path = path
         self._is_verified = False
         # self._is_saved = True
@@ -131,6 +130,7 @@ class Image(object):
     def save_labels(self, window, is_VOC = True):
         if not self.label_file or not self.label_file.path:
             basename = os.path.splitext(self.path)[0]
+            # print(basename)
             if is_VOC:
                 annotationFilePath = os.path.join(basename + XML_EXT)
             else:

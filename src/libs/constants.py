@@ -19,8 +19,9 @@ PROJECT_FILE_EXT = ".annt"
 SETTING_DRAW_SQUARE = 'draw/square'
 DEFAULT_ENCODING = 'utf-8'
 MAX_RECENT = 7
-
-
+XML_EXT = '.xml'
+FILE_TREE_WIDTH_COL1 = 400
+TXT_EXT = '.txt'
 ##Project files
 
 PROJECT_VERIFIED_IMAGES = 'verifiedImgs'

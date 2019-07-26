@@ -9,7 +9,7 @@ except ImportError:
 from base64 import b64encode, b64decode
 from libs.pascal_voc_io import PascalVocWriter
 from libs.yolo_io import YOLOWriter
-from libs.pascal_voc_io import XML_EXT
+from libs.constants import XML_EXT
 import os.path
 import sys
 
@@ -19,8 +19,7 @@ class LabelFileError(Exception):
 
 
 class LabelFile(object):
-    # It might be changed as window creates. By default, using XML ext
-    # suffix = '.lif'
+
     suffix = XML_EXT
 
     def __init__(self, image = None, path = None):

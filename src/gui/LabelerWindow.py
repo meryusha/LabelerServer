@@ -43,7 +43,7 @@ from libs.projectDialog import ProjectDialog
 from libs.labelFile import LabelFile, LabelFileError
 from libs.toolBar import ToolBar
 from libs.pascal_voc_io import PascalVocReader
-from libs.pascal_voc_io import XML_EXT
+from libs.constants import XML_EXT
 from libs.yolo_io import YoloReader
 from libs.yolo_io import TXT_EXT
 from libs.ustr import ustr
@@ -53,6 +53,8 @@ from libs.project import Project
 from libs.zoom import Zoom
 import collections
 import numpy as np
+from gui.ui_mainwindow import Ui_MainWindow
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 __appname__ = 'labelImg'
 
@@ -64,11 +66,6 @@ def have_qstring():
 
 def util_qt_strlistclass():
     return QStringList if have_qstring() else list
-
-
-from gui.ui_mainwindow import Ui_MainWindow
-from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class LabelerWindow(QMainWindow, Ui_MainWindow):
 
@@ -108,13 +105,10 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.createProject.triggered.connect(self.createProjectClicked)
         self.saveAnnot.triggered.connect(self.saveFileClicked)
         self.saveProj.triggered.connect(self.saveProject)
-        # self.save_format.triggered.connect(self.changeFormatClicked)
-        # self.saveAs.triggered.connect(self.saveFileAs)
         self.closeAction.triggered.connect(self.closeFile)
         # self.openNextImgAction.triggered.connect(self.openNextImg)
         # self.openPrevImgAction.triggered.connect(self.openPrevImg)      
         self.verify.triggered.connect(self.verifyImg)
-
 
         ###RECTBOX
         #create Rect box pressed
@@ -138,7 +132,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         ###FILELIST    
         # self.fileTreeWidget.itemDoubleClicked.connect(self.fileitemDoubleClicked) 
         self.fileTreeWidget.itemDoubleClicked.connect(self.fileitemDoubleClicked)            
-        self.menu_File.aboutToShow.connect(self.updateFileMenu)
+        self.menu_file.aboutToShow.connect(self.updateFileMenu)
          # self.scrollArea = self.scroll
 
 
@@ -266,7 +260,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         if targetDirPath:
             self.project = Project(targetDirPath)
             self.project.load_dir_images(self)
-        # self.setFileChanged()
+            self.saveProj.setEnabled(True)
       
     def openProjectClicked(self, _value=False):
         '''Triggered by button pressing
@@ -307,6 +301,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
                     self.project = project 
                     self.status("Loaded %s" % os.path.basename(unicodeFilePath))
                     self.project.load_dir_images(self)
+                    self.project.is_saved = True
                     return True
                 else:                  
                     self.errorMessage(u'Error opening project',
@@ -321,7 +316,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         return False
     
     def saveProject(self):
-        if  self.project.save_project_file():
+        self.saveFile()
+        if self.self.project.save_project_file():
             self.setProjectSaved()
         else: 
             self.errorMessage(u'Error saving project', 'Could not save the project file')
@@ -332,6 +328,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def saveFileClicked(self, _value=False):
         if self.project.path is not None and len(ustr(self.project.path)):
             self.saveFile()
+            self.saveProj.setEnabled(True)
         #TODO : throw and error if not saved
 
     def saveFile(self):
@@ -346,8 +343,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.toggleActions(False)
         self.canvas.setEnabled(False)
         self.saveAs.setEnabled(False)
-
-   
+ 
     ##STATE
     def resetState(self):
         self.itemsToShapes.clear()
@@ -355,7 +351,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.labelList.clear()
         self.currentImage = None
         # self.imageData = None
-        self.labelFile = None
+        # self.labelFile = None
         self.canvas.resetState()
         self.labelCoordinates.clear()
 
@@ -364,6 +360,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             Being called by signal when canvas shapes are moved
             Meaning both file and project have to be saved
         '''
+        print('file is being changed')
         if self.project is not None:
             self.project.is_saved = False
         self.unsavedFile = True
@@ -378,7 +375,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         '''
         self.unsavedFile = False
         self.saveAnnot.setEnabled(False)
-        self.create.setEnabled(True)
+        if self.currentImage:
+            self.create.setEnabled(True)
         # self.detect.setEnabled(True)
 
     def setProjectSaved(self):
@@ -493,7 +491,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     # Tzutalin 20160906 : Add file list and dock to move faster
     def fileitemDoubleClicked(self, item=None, col = 0):
-        #Merey : In simple terms, index() method finds the given element in a list and returns its position.
+        #Merey : In simple terms, index() method finds the given element in a list and returns its position.     
         if not self.mayContinueWithFile():
             return
         imageName = item.text(col)
@@ -580,8 +578,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         del self.itemsToShapes[item]
         self.updateCount()
 
-
-
     def copySelectedShape(self):
         try:
             self.addLabel(self.canvas.copySelectedShape())
@@ -611,9 +607,9 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     #params: tuple of (boxes, labels) 
     def addShapes(self, box_label_tup):
-        boxes, labels = box_label_tup
+        boxes, labels, scores = box_label_tup
         # add all shapes
-        for box, label in zip(boxes, labels):
+        for box, label, score in zip(boxes, labels, scores):
             # self.addShape(box, label)
             # TODO add all shape at once
             # print(label)
@@ -636,11 +632,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def addShape(self, box, label):
         # import pdb;
         # pyqtRemoveInputHook(); pdb.set_trace()
-        # print("GUI addShape", box)
-        # minX = box[0]
-        # minY = box[1]
-        # maxX = box[0] + box[2]
-        # maxY = box[1] + box[3]
         minX = box[0]
         minY = box[1]
         maxX = box[2]
@@ -663,7 +654,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     # Callback functions:
     def newShapes(self, n):
         """Pop-up and give focus to the label editor.
-
         position MUST be in global coordinates.
         """
         for i in range(n):
@@ -721,7 +711,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         # import pdb
         # InputHook(); pdb.set_trace()
         """Pop-up and give focus to the label editor.
-
         position MUST be in global coordinates.
         """
         # print(self.canvas.shapes[-1].label)
@@ -779,7 +768,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         '''loading image data from the path and annotations (if available) from the image object,
             or loading a new one
         '''
-
+        # import pdb;
+        # pyqtRemoveInputHook(); pdb.set_trace() 
         """Load the specified file, or the last opened file if None."""
         self.resetState()
         self.canvas.setEnabled(False)
@@ -805,6 +795,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
             self.setFileSaved()
             self.canvas.setEnabled(True)
+            self.canvas.verified = self.currentImage.is_verified
             self.zoomNavig.adjustScale(initial=True)
             self.zoomNavig.paintCanvas()
             self.addRecentFile(unicodeFilePath)
@@ -813,7 +804,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             #Merey: Load Xml if available
             self.currentImage.load_labels(self, imageData, self.project.is_VOC_format)
             self.setWindowTitle(__appname__ + ' ' + unicodeFilePath)
-
+            self.verify.setEnabled(not self.currentImage.is_verified)
             # Default : select last item if there is at least one item
             if self.labelList.count():
                 self.labelList.setCurrentItem(self.labelList.item(self.labelList.count()-1))
@@ -822,12 +813,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             self.canvas.setFocus(True)
             return True
         return False
-
-    # def changeFormatClicked(self):
-    #     self.project.is_VOC_format = not self.project.is_VOC_format
-
-    def noShapes(self):
-        return not self.itemsToShapes
 
 
     def closeEvent(self, event):
@@ -860,69 +845,14 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             self.loadImage(filename)    
 
     def verifyImg(self, _value=False):
-        # Proceding next image without dialog if having any label
+        '''will save and mark image as verified'''
         if self.currentImage is not None:
-            self.currentImage.verify()
-            # try:
-            #     self.labelFile.toggleVerify()
-            # except AttributeError:
-            #     # If the labelling file does not exist yet, create if and
-            #     # re-save it with the verified attribute.
-            #     self.saveFile()
-            #     if self.labelFile != None:
-            #         self.labelFile.toggleVerify()
-            #     else:
-            #         return
-
-            self.canvas.verified = self.labelFile.verified
-            self.paintCanvas()
             self.saveFileClicked()
+            self.currentImage.verify()
+            self.verify.setEnabled(not self.currentImage.is_verified)
+            self.canvas.verified = self.currentImage.is_verified
+            self.zoomNavig.paintCanvas()
 
-    # def openPrevImg(self, _value=False):
-    #     # Proceding prev image without dialog if having any label
-    #     if self.autoSaving.isChecked():
-    #         if self.project.path is not None:
-    #             if self.unsavedChanges is True:
-    #                 self.saveFile()
-    #         else:
-    #             # self.changeSavedirDialog()
-    #             return
-
-    #     if not self.mayContinue():
-    #         return
-
-    #     if len(self.project.all_image_names) <= 0:
-    #         return
-
-    #     if self.filePath is None:
-    #         return
-
-    #     if self.imageIndex - 1 < len(self.project.all_image_names) and self.imageIndex - 1 >= 0:
-    #         self.imageIndex = self.imageIndex - 1
-    #         image, isVerified = self.project.get_get_image_from_name(all_image_names[self.imageIndex])
-    #         self.loadImage(image)
-
-
-    # def openNextImg(self, _value=False):
-    #     # Proceding prev image without dialog if having any label
-    #     if self.autoSaving.isChecked():
-    #         if self.project.path is not None:
-    #             if self.unsavedChanges is True:
-    #                 self.saveFile()
-    #         else:
-    #             # self.changeSavedirDialog()
-    #             return
-
-    #     if not self.mayContinue():
-    #         return
-
-    #     if len(self.project.all_image_names) <= 0:
-    #         return
-
-    #     if self.imageIndex + 1 < len(self.project.all_image_names) and self.imageIndex + 1 >= 0:
-    #         self.imageIndex = self.imageIndex + 1
-    #         image, isVerified = self.project.get_image_from_name(self.project.all_image_names[self.imageIndex])
-    #         self.loadImage(image)
 
     def resetAll(self):
         self.settings.reset()
@@ -931,15 +861,15 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         proc.startDetached(os.path.abspath(__file__))
 
     def mayContinueWithFile(self):
-        return not (self.unsavedFile and not self.discardChangesDialog())
+        return not (self.unsavedFile and not self.discardChangesDialog('if file'))
 
     def mayContinueWithProject(self):
-        # print(not self.project)
-        return not self.project or self.project.is_saved or self.discardChangesDialog()
+        # print(self.project.is_saved)
+        return not self.project or self.project.is_saved or self.discardChangesDialog("in project")
 
-    def discardChangesDialog(self):
+    def discardChangesDialog(self, mes):
         yes, no = QMessageBox.Yes, QMessageBox.No
-        msg = u'You have unsaved changes, proceed anyway?'
+        msg = u'You have unsaved changes %s, proceed anyway?' % mes 
         return yes == QMessageBox.warning(self, u'Attention', msg, yes | no)
 
     def errorMessage(self, title, message):
@@ -951,7 +881,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         # pyqtRemoveInputHook(); pdb.set_trace()        
         self.remLabel(self.canvas.deleteSelected())
         self.setFileChanged()
-        if self.noShapes():
+        if not self.itemsToShapes:
             for action in self.onShapesPresent:
                 action.setEnabled(False)
 
@@ -979,8 +909,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         for shape in self.canvas.shapes:
             shape.paintLabel = self.displayLabelOption.isChecked()
 
-def inverted(color):
-    return QColor(*[255 - v for v in color.getRgb()])
+# def inverted(color):
+#     return QColor(*[255 - v for v in color.getRgb()])
 
 
 def read(filename, default=None):
