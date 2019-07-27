@@ -7,7 +7,7 @@ from lxml import etree
 import codecs
 from libs.constants import DEFAULT_ENCODING
 from libs.ustr import ustr
-from lib.constants import XML_EXT
+from libs.constants import XML_EXT
 
 
 ENCODE_METHOD = DEFAULT_ENCODING

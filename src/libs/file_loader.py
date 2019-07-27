@@ -49,22 +49,34 @@ class FileLoader(object):
                         #we have a new image which is not in the project data file 
                         new_image = Image(full_path, relative_path) 
                         non_verified_images[relative_path] = new_image 
-                        # non_verified_images.append(new_image)
                     else:
                         #do lookup
                         retrieved_image, is_ver = self.project.get_image_from_name(relative_path)
                         retrieved_image.path = os.path.join(self.project.path, relative_path)
+
+                        #if project was moved, we might need to change the absolute path
                         if retrieved_image.label_file and not os.path.exists(retrieved_image.label_file.path):
                             prefix = XML_EXT if self.project.is_VOC_format else TXT_EXT
-                            if os.path.exists(os.path.join(retrieved_image.path  ))
+                            basename = os.path.splitext(retrieved_image.path)[0]
+                            print(basename)
                             
-                        if retrieved_image and is_ver :
+                            #if cannot find annotation, try to change path
+                            if os.path.exists(os.path.join(basename + prefix)):
+                                retrieved_image.label_file.path = os.path.join(basename + prefix)
+                           
+                            else:
+                                #otherwise, set no label file
+                                retrieved_image.label_file = None
+
+                        if retrieved_image and is_ver and retrieved_image.label_file:
                             verified_images[relative_path] = retrieved_image
                         elif retrieved_image and not is_ver:
                             non_verified_images[relative_path] = retrieved_image
                             # non_verified_images.append(retrieved_image)
                         else:
+
                             #there is an error/inconsistency:
+                            #image was moved and label file was lost
                             new_image = Image(full_path, relative_path) 
                             non_verified_images[relative_path] = new_image 
 

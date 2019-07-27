@@ -1,6 +1,7 @@
 import random
 import os
 from libs.category import Category
+from libs.lib import generate_new_color
 from libs.file_loader import FileLoader
 from libs.project_data import ProjectData
 from libs.constants import *
@@ -258,21 +259,23 @@ class Project(object):
         return None, None    
 
     #appends a new class to the project's list if does not exist yet
-    def append_class(self, new_class):
+    def append_category(self, new_category):
         if self._categories is not None:
-            if not isinstance(new_class, Category):
+            if not isinstance(new_category, Category):
                 raise ValueError("Not a Class")
-            if new_class in self._categories:
+            if new_category in self._categories:
                 #TODO notify user that class already exists
                 return False
-            self.assign_color(new_class)
-            self._categories.append(new_class)
+            self.assign_color(new_category)
+            self._categories.append(new_category)
             return True
 
     #assigns unique color to a class, to be persited in the data file        
-    def assign_color(self, new_class):
-        color = self._colors.pop()
-        new_class.color = color
+    def assign_color(self, new_category):
+        color = generate_new_color(self._colors)
+        self._colors.append(color)
+        new_category.color = color
+        return new_category.color
         
 
 

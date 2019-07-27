@@ -1,4 +1,2 @@
-from project import Project
-from category import Category
-pr = Project('./path')
-cl = Category('radical')
+from libs.lib import generate_new_color
+print(generate_new_color(None))

@@ -11,6 +11,7 @@ except ImportError:
 
 from libs.lib import distance
 import sys
+from libs.category import Category
 
 DEFAULT_LINE_COLOR = QColor(0, 255, 0, 128)
 DEFAULT_FILL_COLOR = QColor(255, 0, 0, 128)
@@ -38,8 +39,8 @@ class Shape(object):
     point_size = 8
     scale = 1.0
 
-    def __init__(self, label=None, line_color=None, difficult=False, paintLabel=False):
-        self.label = label
+    def __init__(self, category=None, line_color=None, difficult=False, paintLabel=False):
+        self.category = category
         self.points = []
         self.fill = False
         self.selected = False
@@ -123,11 +124,11 @@ class Shape(object):
                     font.setPointSize(8)
                     font.setBold(True)
                     painter.setFont(font)
-                    if(self.label == None):
-                        self.label = ""
+                    if(self.category == None):
+                        self.category = Category("")
                     if(min_y < MIN_Y_LABEL):
                         min_y += MIN_Y_LABEL
-                    painter.drawText(min_x, min_y, self.label)
+                    painter.drawText(min_x, min_y, self.category.name)
 
             if self.fill:
                 color = self.select_fill_color if self.selected else self.fill_color
@@ -184,7 +185,7 @@ class Shape(object):
 
     def copy(self):
         print("I COPY ")
-        shape = Shape("%s" % self.label)
+        shape = Shape(self.category)
         shape.points = [p for p in self.points]
         shape.fill = self.fill
         shape.selected = self.selected

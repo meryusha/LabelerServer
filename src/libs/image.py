@@ -72,11 +72,29 @@ class Image(object):
             self.load_shapes(window, shapes)
         # self.canvas.verified = parseReader.verified
 
+
     def load_shapes(self, window,  shapes):
         s = []
         print('load_shapes', len(shapes))
+        # import pdb; pyqtRemoveInputHook();
+        # pdb.set_trace()
         for label, points, line_color, fill_color, difficult in shapes:
-            shape = Shape(label=label)
+            # print('line', line_color)
+            shape = Shape()
+            category = Category(label)
+            #check if category is new and assign new color
+            if window.project.append_category(category):
+                shape.category = category
+                color = window.project.assign_color(shape.category)
+                shape.line_color = color
+                shape.fill_color = color
+            else:
+                try:
+                    shape.category = next(cat for cat in window.project.categories if cat == category)
+                    shape.line_color = shape.category.color
+                    shape.fill_color = shape.category.color
+                except:
+                    pass
             for x, y in points:
                 # Ensure the labels are within the bounds of the image. If not, fix them.
                 x, y, snapped = window.canvas.snapPointToCanvas(x, y)
@@ -89,13 +107,9 @@ class Image(object):
 
             if line_color:
                 shape.line_color = QColor(*line_color)
-            else:
-                shape.line_color = generateColorByText(label)
 
             if fill_color:
                 shape.fill_color = QColor(*fill_color)
-            else:
-                shape.fill_color = generateColorByText(label)
 
             window.addLabel(shape)
         print('load_shapes, s', len(s))
@@ -103,7 +117,7 @@ class Image(object):
 
     def save_labels_to_path(self, window, is_VOC):
         def format_shape(s):
-            return dict(label=s.label,
+            return dict(label=s.category.name,
                         line_color=s.line_color.getRgb(),
                         fill_color=s.fill_color.getRgb(),
                         points=[(p.x(), p.y()) for p in s.points],

@@ -1,3 +1,18 @@
+try:
+    from PyQt5.QtGui import *
+    from PyQt5.QtCore import *
+    from PyQt5.QtWidgets import *
+except ImportError:
+    # needed for py3+qt4
+    # Ref:
+    # http://pyqt.sourceforge.net/Docs/PyQt4/incompatible_apis.html
+    # http://stackoverflow.com/questions/21217399/pyqt4-qtcore-qvariant-object-instead-of-a-string
+    if sys.version_info.major >= 3:
+        import sip
+        sip.setapi('QVariant', 2)
+    from PyQt4.QtGui import *
+    from PyQt4.QtCore import *
+
 class Category(object):
     #when new class is created - has no color
     def __init__(self, name):
@@ -22,9 +37,10 @@ class Category(object):
     
     @color.setter
     def color(self, value):
-        if not isinstance(value, str):
-            raise ValueError("Not a String")
-        self._color = value.lower()
+        if not isinstance(value, list):
+            raise ValueError("Not a RGB list")
+        r, g, b = value
+        self._color = QColor(r * 256, g * 256, b * 256, 100)
 
     def __eq__(self, other):
         if not isinstance(other, Category):

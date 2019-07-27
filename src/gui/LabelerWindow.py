@@ -317,7 +317,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     
     def saveProject(self):
         self.saveFile()
-        if self.self.project.save_project_file():
+        if self.project.save_project_file():
             self.setProjectSaved()
         else: 
             self.errorMessage(u'Error saving project', 'Could not save the project file')
@@ -549,10 +549,10 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     def addLabel(self, shape):
         shape.paintLabel = self.displayLabelOption.isChecked()
-        item = HashableQListWidgetItem(shape.label)
+        item = HashableQListWidgetItem(shape.category.name)
         item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
         item.setCheckState(Qt.Checked)
-        item.setBackground(generateColorByText(shape.label))
+        item.setBackground(shape.category.color)
         self.itemsToShapes[item] = shape
         self.shapesToItems[shape] = item
         self.labelList.addItem(item)
@@ -562,7 +562,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     def updateCount(self):
         cnt = collections.Counter(
-            np.array([shape.label for shape in self.canvas.shapes]))
+            np.array([shape.category.name for shape in self.canvas.shapes]))
         # self.countLabel.setText([ c for c in cnt.most_common()])
         countString = [f"{cl} : {count} \n" for (cl, count) in cnt.most_common()]
         # self.countLabel.setText("".join(str(c) for c in cnt.most_common()))
@@ -598,9 +598,9 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def labelItemChanged(self, item):
         shape = self.itemsToShapes[item]
         label = item.text()
-        if label != shape.label:
-            shape.label = item.text()
-            shape.line_color = generateColorByText(shape.label)
+        if label != shape.category.name:
+            shape.category.name = item.text()
+            shape.line_color = shape.category.color
             self.setFileChanged()
         else:  # User probably changed item visibility
             self.canvas.setShapeVisible(shape, item.checkState() == Qt.Checked)
@@ -658,9 +658,8 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         """
         for i in range(n):
             shape = self.canvas.shapes[-1 - i]
-            # print(i, shape.label)
-            if shape.label is not None:
-                text = shape.label
+            if shape.category.name is not None:
+                text = shape.category.name
             elif not self.useDefaultLabelCheckbox.isChecked() or not self.defaultLabelTextLine.text():
                 if len(self.project.categories) > 0:
                     self.labelDialog = LabelDialog(
@@ -679,16 +678,28 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             self.diffcButton.setChecked(False)
             if text is not None:
                 self.prevLabelText = text
-                generate_color = generateColorByText(text)
+                # generate_color = generateColorByText(text)
                 # shape = self.canvas.setLastLabel(text, generate_color, generate_color)
-
                 assert text
-                shape.label = text
-                if generate_color:
-                    shape.line_color = generate_color
+                category = Category(text)
+                #check if category is new and assign new color
+                if self.project.append_category(category):
+                    shape.category = category
+                    shape.line_color = shape.fill_color =  self.project.assign_color(shape.category)
+                else:
+                    try:
+                        shape.category = next(cat for cat in self.project.categories if cat is category)
+                    except:
+                        pass
+                        #incosistent state
+                        # shape.category = category
+                        # shape.category.color = self.project.assign_color(shape.category)
 
-                if generate_color:
-                    shape.fill_color = generate_color
+                # if generate_color:
+                #     shape.line_color = generate_color
+
+                # if generate_color:
+                #     shape.fill_color = generate_color
 
                 self.addLabel(shape)
 
@@ -759,9 +770,6 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
 
     def togglePolygons(self, value):
         for item, shape in self.itemsToShapes.items():
-            # print("label", shape.label)
-            # print("item", item)
-            # if (shape.label == "seed"):
             item.setCheckState(Qt.Checked if value else Qt.Unchecked)
 
     def loadImage(self, image=None, index = 0):
@@ -847,10 +855,13 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
     def verifyImg(self, _value=False):
         '''will save and mark image as verified'''
         if self.currentImage is not None:
-            self.saveFileClicked()
             self.currentImage.verify()
+            self.saveFileClicked()
             self.verify.setEnabled(not self.currentImage.is_verified)
             self.canvas.verified = self.currentImage.is_verified
+            self.project.non_verified_images.pop(self.currentImage.name)
+            self.project.verified_images[self.currentImage.name] = self.currentImage 
+            self.project.load_dir_images(self)
             self.zoomNavig.paintCanvas()
 
 
