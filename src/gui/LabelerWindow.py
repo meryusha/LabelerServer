@@ -30,6 +30,7 @@ except ImportError:
 
 import resources
 # Add internal libs
+from libs.category import Category
 from libs.constants import *
 from libs.lib import struct, newAction, newIcon, addActions, fmtShortcut, generateColorByText
 from libs.settings import Settings
@@ -615,11 +616,28 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
             # print(label)
             minX, minY, maxX, maxY  = box
             self.canvas.current = Shape()
+            category = Category(label)
+            #check if category is new and assign new color
+            # import pdb;
+            # pyqtRemoveInputHook(); pdb.set_trace()
+            if self.project.append_category(category):
+                self.canvas.current.category = category
+                color = self.project.assign_color(self.canvas.current.category)
+                self.canvas.current.line_color = color
+                self.canvas.current.fill_color = color
+            else:
+                try:
+                    self.canvas.current.category = next(cat for cat in self.project.categories if cat == category)
+                    self.canvas.current.line_color = self.canvas.current.category.color
+                    self.canvas.current.fill_color = self.canvas.current.category.color
+                except:
+                    pass
+            print(self.canvas.current.category)                    
             self.canvas.current.addPoint(QPointF(minX, minY))
             self.canvas.current.addPoint(QPointF(maxX, minY))
             self.canvas.current.addPoint(QPointF(maxX, maxY))
             self.canvas.current.addPoint(QPointF(minX, maxY))
-            self.canvas.current.label = str(label)
+            # self.canvas.current.label = str(label)
             self.canvas.current.close()
             self.canvas.shapes.append(self.canvas.current)
 
@@ -637,11 +655,25 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         maxX = box[2]
         maxY = box[3]
         self.canvas.current = Shape()
+        category = Category(label)
+            #check if category is new and assign new color
+        if self.project.append_category(category):
+            self.canvas.current.category = category
+            color = self.project.assign_color(self.canvas.current.category)
+            self.canvas.current.line_color = color
+            self.canvas.current.fill_color = color
+        else:
+            try:
+                self.canvas.current.category = next(cat for cat in self.project.categories if cat == category)
+                self.canvas.current.line_color = self.canvas.current.category.color
+                self.canvas.current.fill_color = self.canvas.current.category.color
+            except:
+                pass        
         self.canvas.current.addPoint(QPointF(minX, minY))
         self.canvas.current.addPoint(QPointF(maxX, minY))
         self.canvas.current.addPoint(QPointF(maxX, maxY))
         self.canvas.current.addPoint(QPointF(minX, maxY))
-        self.canvas.current.label = label
+        # self.canvas.current.category = label
         self.canvas.current.close()
 
         self.canvas.shapes.append(self.canvas.current)
