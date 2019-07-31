@@ -107,8 +107,7 @@ class LabelerWindow(QMainWindow, Ui_MainWindow):
         self.saveAnnot.triggered.connect(self.saveFileClicked)
         self.saveProj.triggered.connect(self.saveProject)
         self.closeAction.triggered.connect(self.closeFile)
-        # self.openNextImgAction.triggered.connect(self.openNextImg)
-        # self.openPrevImgAction.triggered.connect(self.openPrevImg)      
+    
         self.verify.triggered.connect(self.verifyImg)
 
         ###RECTBOX

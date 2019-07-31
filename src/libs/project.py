@@ -232,7 +232,6 @@ class Project(object):
 
         self.file_loader.scanAllImages()
         # print(self.all_image_names)
-        # window.openNextImg()
         
         for imageName in self._non_verified_images.keys():
             addChild(non_verified_item, 0, imageName, "")
