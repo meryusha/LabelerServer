@@ -26,6 +26,7 @@ class ThreadedServer(object):
 
     def listen(self):
         self.sock.listen(5)
+        print(socket.gethostbyname(socket.getfqdn()))
         while True:
             client, address = self.sock.accept()
             client.settimeout(60)
@@ -60,8 +61,8 @@ class ThreadedServer(object):
                                 # print('len of req', len(response))
                                 response = client.recv(self.buffer_size)
                                 image_bytes += response
-                                i += 1
-                                print("Part #", str(i))
+                                # i += 1
+                                # print("Part #", str(i))
                             predictions = self.model.run_on_opencv_image(image_bytes)
                             print(predictions) 
                             labels =  predictions.get_field("labels").numpy()
@@ -77,6 +78,7 @@ class ThreadedServer(object):
                             scores = predictions.get_field("scores").numpy()
                             print(scores)
                             # response = b'BOXES:' + pickle.dumps((boxes, labels_words, scores))
+                            #TODO make sure fits in one buffer
                             response = pickle.dumps((boxes, labels_words, scores))
                             print(len(response))
                             client.sendall(response)
