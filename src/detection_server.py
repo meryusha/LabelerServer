@@ -12,7 +12,7 @@ import time
 import pickle
 # from ../libs.constants import CONFIG_PATH
 import pathlib
-CONFIG_PATH = "seeds_faster/configs/seed/e2e_faster_rcnn_R_50_C4_1x_seed_strat2.yaml"
+CONFIG_PATH = ".seeds_faster/configs/seed/e2e_faster_rcnn_R_50_C4_1x_seed_strat2.yaml"
 
 class ThreadedServer(object):
     def __init__(self, host, port):
@@ -91,9 +91,10 @@ class ThreadedServer(object):
 
 def setup(args):
     # print(dirname(dirname(__file__)))
-    full_path = join(dirname(dirname(dirname(__file__))), CONFIG_PATH)
+    full_path = join('.', CONFIG_PATH)
     print(f'trying to load model from {full_path}')
     if not exists(full_path):
+        print("Dir does not exists")
         # self.errorWithInference.emit(u'Could not detect boxes', 'Could not load config file for a model')
         return   
     cfg.merge_from_file(full_path)
